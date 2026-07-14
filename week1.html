@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Week 1 at a Glance</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:920px;margin:0 auto;padding:36px 28px 48px;}
+
+  .eyebrow{font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:6px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2rem;color:var(--cyan);margin:0 0 6px;}
+  .dek{font-size:0.95rem;color:var(--muted);margin:0 0 28px;}
+
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.1rem;
+    color:#ffffff;margin:0 0 14px;}
+
+  .notice{background:rgba(224,38,43,0.1);border:1px solid var(--red);
+    border-radius:10px;padding:14px 20px;margin-bottom:28px;
+    display:flex;align-items:center;gap:12px;}
+  .notice b{color:var(--red);}
+  .notice p{margin:0;font-size:0.88rem;line-height:1.5;color:var(--ink);}
+
+  .card{background:var(--card);border-radius:10px;padding:22px 26px;margin-bottom:24px;}
+  .card ul{margin:0;padding-left:20px;}
+  .card li{font-size:0.9rem;line-height:1.7;}
+  .card a{color:var(--amber);font-weight:600;text-decoration:none;}
+  .card a:hover{text-decoration:underline;}
+
+  /* --- roadmap --- */
+  .roadmap{display:flex;align-items:center;margin:0 0 30px;}
+  .roadmap .stop{flex:1;text-align:center;position:relative;}
+  .roadmap .stop .bubble{width:34px;height:34px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
+    font-size:0.85rem;font-weight:700;color:var(--navy);}
+  .roadmap .stop.now .bubble{background:var(--amber);}
+  .roadmap .stop.next .bubble{background:var(--card);color:var(--muted);
+    border:1px solid var(--muted);}
+  .roadmap .stop .label{font-size:0.75rem;color:var(--muted);}
+  .roadmap .stop.now .label{color:#ffffff;}
+  .roadmap .line{flex:0 0 60px;height:1px;background:var(--muted);
+    opacity:0.5;margin-top:-24px;}
+
+  /* --- checklist --- */
+  .checklist-head{display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:14px;}
+  .progress-track{background:rgba(255,255,255,0.08);border-radius:999px;
+    height:8px;overflow:hidden;margin-bottom:18px;}
+  .progress-fill{background:var(--cyan);height:100%;width:0%;
+    transition:width 0.25s ease;}
+  .progress-label{font-size:0.78rem;color:var(--muted);}
+  .item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;
+    border-top:1px solid rgba(255,255,255,0.06);}
+  .item:first-of-type{border-top:none;}
+  .item input{margin-top:3px;width:16px;height:16px;accent-color:var(--cyan);
+    cursor:pointer;flex-shrink:0;}
+  .item label{font-size:0.9rem;line-height:1.5;cursor:pointer;}
+  .item.done label{color:var(--muted);text-decoration:line-through;}
+  .reset{background:none;border:none;color:var(--muted);font-size:0.75rem;
+    text-decoration:underline;cursor:pointer;margin-top:6px;padding:0;}
+
+  footer{margin-top:36px;font-size:0.75rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Week 1</div>
+  <h1>Welcome — Course Introduction</h1>
+  <p class="dek">Lectorials only this week. No workshop, no tutorial — just watch, listen, and show up ready for Week 2.</p>
+
+  <div class="notice">
+    <p><b>No workshop or tutorial in Week 1.</b> Both begin in Week 2 (starting 28 July). This week is lectorial content only.</p>
+  </div>
+
+  <div class="roadmap">
+    <div class="stop now">
+      <div class="bubble">1</div>
+      <div class="label">Lectorials only<br>22 July</div>
+    </div>
+    <div class="line"></div>
+    <div class="stop next">
+      <div class="bubble">2</div>
+      <div class="label">Workshops + tutorials begin<br>28 July</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Lectorials — starting 22 July, your timetabled session</h2>
+    <ul>
+      <li>Watch before attending: <a href="#" target="_blank">Introduction to the Course</a></li>
+      <li>Watch before attending: <a href="#" target="_blank">Force and Moment Systems</a></li>
+      <li>New this year — <a href="#" target="_blank">podcast series</a>: short warm-up episodes for the ideas covered in lectorial, made for listening on your way to class</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="checklist-head">
+      <h2 style="margin:0;">Your Week 1 prep</h2>
+      <span class="progress-label" id="progress-label">0 / 4 done</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div class="item">
+      <input type="checkbox" id="c1"><label for="c1">Watched "Introduction to the Course"</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c2"><label for="c2">Watched "Force and Moment Systems"</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c3"><label for="c3">Listened to the Week 1 podcast episode</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c4"><label for="c4">Attended my timetabled lectorial session</label>
+    </div>
+    <button class="reset" id="reset-btn">Reset checklist</button>
+  </div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Statics and Mechanics of Materials</span>
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   TO REUSE FOR ANOTHER WEEK:
+   - Update the eyebrow/title/dek text
+   - Update or remove the "no workshop/tutorial" notice + roadmap
+     once workshops are running
+   - Swap the card content and checklist items for that week
+   - Change STORAGE_KEY below so each week keeps its own progress
+------------------------------------------------------------------- */
+const STORAGE_KEY = "miet2528-week1-checklist";
+const boxes = [...document.querySelectorAll(".item input")];
+const fill = document.getElementById("progress-fill");
+const label = document.getElementById("progress-label");
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    boxes.forEach((b) => { if (saved[b.id]) b.checked = true; });
+  } catch (e) { /* ignore corrupt storage */ }
+}
+function saveState() {
+  const state = {};
+  boxes.forEach((b) => { state[b.id] = b.checked; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function updateProgress() {
+  const done = boxes.filter((b) => b.checked).length;
+  fill.style.width = (done / boxes.length) * 100 + "%";
+  label.textContent = done + " / " + boxes.length + " done";
+  boxes.forEach((b) => {
+    b.closest(".item").classList.toggle("done", b.checked);
+  });
+}
+boxes.forEach((b) => {
+  b.addEventListener("change", () => { saveState(); updateProgress(); });
+});
+document.getElementById("reset-btn").addEventListener("click", () => {
+  boxes.forEach((b) => (b.checked = false));
+  saveState();
+  updateProgress();
+});
+
+loadState();
+updateProgress();
+</script>
+</body>
+</html>
