@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Teaching Team</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:1000px;margin:0 auto;padding:36px 28px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2.15rem;color:var(--cyan);margin:0 0 8px;}
+  .dek{font-size:1.1rem;color:var(--muted);margin:0 0 28px;line-height:1.5;}
+
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px;}
+  .filters button{
+    font-family:Calibri,sans-serif;font-size:0.95rem;font-weight:600;
+    padding:9px 18px;border-radius:999px;border:1px solid var(--muted);
+    color:var(--ink);cursor:pointer;transition:all 0.15s ease;background:transparent;}
+  .filters button.active{background:var(--cyan);border-color:var(--cyan);color:var(--navy);}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media (max-width:800px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media (max-width:560px){.grid{grid-template-columns:1fr;}}
+
+  .person{background:var(--card);border-radius:12px;padding:22px;
+    text-align:center;transition:opacity 0.2s ease;}
+  .person.hidden{display:none;}
+  .avatar{width:76px;height:76px;border-radius:50%;margin:0 auto 14px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:Georgia,serif;font-size:1.6rem;font-weight:bold;color:var(--navy);}
+  .name{font-family:Georgia,serif;font-size:1.15rem;color:#ffffff;margin-bottom:4px;}
+  .role{display:inline-block;font-size:0.82rem;font-weight:600;
+    padding:3px 12px;border-radius:999px;margin-bottom:12px;}
+  .placeholder{font-size:0.88rem;color:var(--muted);font-style:italic;line-height:1.5;}
+
+  .role-coordinator{color:var(--amber);}
+  .avatar-coordinator{background:var(--amber);}
+  .role-ta{color:var(--red);}
+  .avatar-ta{background:var(--red);}
+  .role-tutor{color:var(--teal);}
+  .avatar-tutor{background:var(--teal);}
+  .role-lab{color:var(--cyan);}
+  .avatar-lab{background:var(--cyan);}
+  .badge{background:rgba(255,255,255,0.08);}
+
+  footer{margin-top:40px;font-size:0.88rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Meet the team</div>
+  <h1>Your Teaching Team</h1>
+  <p class="dek">Get to know the people running your lectorials, tutorials, and workshops this semester.</p>
+
+  <div class="filters">
+    <button class="active" data-filter="all">All</button>
+    <button data-filter="coordinator">Course Coordinator</button>
+    <button data-filter="ta">Teaching Assistants</button>
+    <button data-filter="tutor">Tutors</button>
+    <button data-filter="lab">Lab Assistants</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Statics and Mechanics of Materials</span>
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   TO ADD BIO / PHOTO / AVAILABILITY FOR SOMEONE:
+   Find their entry below and fill in bio, availability, and contact.
+   Leave photo as null until you have one — it'll keep showing their
+   initial in a coloured circle until then. Once you have a photo
+   URL (upload it to the same GitHub repo and use its raw link),
+   set photo: "yourfile.jpg" and it'll swap in automatically.
+------------------------------------------------------------------- */
+const PEOPLE = [
+  { name: "Hormoz", role: "coordinator", roleLabel: "Course Coordinator",
+    photo: null, bio: null, availability: null, contact: null },
+
+  { name: "Riley", role: "ta", roleLabel: "Teaching Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Jax", role: "ta", roleLabel: "Teaching Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Tatjana", role: "ta", roleLabel: "Teaching Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Zakiyyah", role: "ta", roleLabel: "Teaching Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+
+  { name: "Ikram", role: "tutor", roleLabel: "Tutor",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Zakiyyah", role: "tutor", roleLabel: "Tutor",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Tharani", role: "tutor", roleLabel: "Tutor",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Rehan", role: "tutor", roleLabel: "Tutor",
+    photo: null, bio: null, availability: null, contact: null },
+
+  { name: "Hongru", role: "lab", roleLabel: "Lab Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Frank", role: "lab", roleLabel: "Lab Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Tatjana", role: "lab", roleLabel: "Lab Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Riley", role: "lab", roleLabel: "Lab Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+  { name: "Jax", role: "lab", roleLabel: "Lab Assistant",
+    photo: null, bio: null, availability: null, contact: null },
+];
+
+const grid = document.getElementById("grid");
+
+function card(person) {
+  const el = document.createElement("div");
+  el.className = "person";
+  el.dataset.role = person.role;
+
+  const initial = person.name.charAt(0);
+  const avatarInner = person.photo
+    ? '<img src="' + person.photo + '" alt="' + person.name + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">'
+    : initial;
+
+  const details = [];
+  if (person.bio) details.push('<p class="placeholder" style="color:var(--ink);font-style:normal;">' + person.bio + '</p>');
+  if (person.availability) details.push('<p class="placeholder" style="color:var(--ink);font-style:normal;">Available: ' + person.availability + '</p>');
+  if (person.contact) details.push('<p class="placeholder" style="color:var(--ink);font-style:normal;">' + person.contact + '</p>');
+  const detailHtml = details.length
+    ? details.join("")
+    : '<p class="placeholder">Bio and contact details coming soon</p>';
+
+  el.innerHTML =
+    '<div class="avatar avatar-' + person.role + '">' + avatarInner + '</div>' +
+    '<div class="name">' + person.name + '</div>' +
+    '<div class="role role-' + person.role + ' badge">' + person.roleLabel + '</div>' +
+    detailHtml;
+
+  return el;
+}
+
+PEOPLE.forEach((p) => grid.appendChild(card(p)));
+
+const buttons = [...document.querySelectorAll(".filters button")];
+buttons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    buttons.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    const filter = btn.dataset.filter;
+    [...grid.children].forEach((card, i) => {
+      const role = PEOPLE[i].role;
+      card.classList.toggle("hidden", filter !== "all" && role !== filter);
+    });
+  });
+});
+</script>
+</body>
+</html>
