@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Support Reactions Practice</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --green:#2FBF71;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2rem;color:var(--cyan);margin:0 0 8px;}
+  .dek{font-size:1.05rem;color:var(--muted);margin:0 0 26px;line-height:1.5;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.3rem;color:#ffffff;margin:0 0 6px;}
+  .section-sub{font-size:0.92rem;color:var(--muted);margin:0 0 18px;}
+
+  .quiz-card{background:var(--card);border-radius:12px;padding:22px 26px;margin-bottom:16px;}
+  .quiz-q{font-size:1rem;font-weight:600;margin-bottom:12px;}
+  .quiz-options{display:flex;flex-wrap:wrap;gap:8px;}
+  .quiz-options button{
+    font-family:Calibri,sans-serif;font-size:0.9rem;font-weight:600;
+    padding:9px 16px;border-radius:8px;border:1px solid var(--muted);
+    color:var(--ink);cursor:pointer;background:transparent;}
+  .quiz-options button.correct{background:rgba(47,191,113,0.2);border-color:var(--green);color:var(--green);}
+  .quiz-options button.wrong{background:rgba(224,38,43,0.2);border-color:var(--red);color:var(--red);}
+  .quiz-options button:disabled{cursor:default;}
+  .quiz-feedback{margin-top:10px;font-size:0.88rem;color:var(--muted);min-height:1.2em;}
+
+  .divider{border:none;border-top:1px solid rgba(255,255,255,0.08);margin:36px 0;}
+
+  .stage{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+  .canvas-card{background:var(--card);border-radius:12px;padding:16px;flex:1 1 460px;min-width:320px;}
+  .canvas-card svg{width:100%;height:auto;display:block;}
+  .panel-card{background:var(--card);border-radius:12px;padding:20px;flex:1 1 320px;min-width:280px;}
+
+  .given-row{font-size:0.9rem;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .given-row:last-child{border-bottom:none;}
+  .given-row b{color:#ffffff;}
+
+  .answer-row{display:flex;align-items:center;gap:10px;margin:12px 0;}
+  .answer-row label{flex:0 0 220px;font-size:0.9rem;}
+  .answer-row input{flex:1;padding:8px 10px;border-radius:6px;border:1px solid var(--muted);
+    background:var(--navy);color:var(--ink);font-size:0.95rem;}
+  .answer-row .unit{font-size:0.85rem;color:var(--muted);}
+  .answer-row .fb{font-size:1.1rem;width:22px;text-align:center;}
+  .fb.pass{color:var(--green);}
+  .fb.fail{color:var(--red);}
+
+  .btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+  .btn{font-family:Calibri,sans-serif;font-size:0.9rem;font-weight:700;
+    padding:10px 18px;border-radius:8px;border:none;cursor:pointer;}
+  .btn-primary{background:var(--amber);color:var(--navy);}
+  .btn-secondary{background:transparent;border:1px solid var(--muted);color:var(--ink);}
+
+  .hint-box{background:rgba(255,255,255,0.04);border-left:3px solid var(--teal);
+    border-radius:8px;padding:12px 16px;margin-top:14px;font-size:0.88rem;line-height:1.6;display:none;}
+  .hint-box.visible{display:block;}
+  .solution-box{background:rgba(255,255,255,0.04);border-left:3px solid var(--amber);
+    border-radius:8px;padding:12px 16px;margin-top:14px;font-size:0.88rem;line-height:1.7;display:none;}
+  .solution-box.visible{display:block;}
+
+  .score-banner{text-align:center;font-weight:700;font-size:1rem;padding:10px;border-radius:8px;margin-top:14px;}
+  .score-banner.all-correct{background:rgba(47,191,113,0.15);color:var(--green);}
+  .score-banner.some-wrong{background:rgba(224,38,43,0.12);color:var(--red);}
+
+  footer{margin-top:36px;font-size:0.85rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Practice tool</div>
+  <h1>Support Reactions Practice</h1>
+  <p class="dek">A quick warm-up on support types, then a randomized beam problem to solve by hand and check.</p>
+
+  <h2>Warm-up: know your supports</h2>
+  <p class="section-sub">Answer these before you start calculating below.</p>
+  <div id="quiz-container"></div>
+
+  <hr class="divider">
+
+  <h2>Solve for the reactions</h2>
+  <p class="section-sub">Work it out on paper, then type your answers in below.</p>
+
+  <div class="stage">
+    <div class="canvas-card">
+      <svg id="stage-svg" viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="panel-card">
+      <div id="given-list"></div>
+
+      <div class="answer-row">
+        <label>Pin reaction, horizontal (Ax)</label>
+        <input type="number" step="0.1" id="ax-input"><span class="unit">kN</span>
+        <span class="fb" id="ax-fb"></span>
+      </div>
+      <div class="answer-row">
+        <label>Pin reaction, vertical (Ay)</label>
+        <input type="number" step="0.1" id="ay-input"><span class="unit">kN</span>
+        <span class="fb" id="ay-fb"></span>
+      </div>
+      <div class="answer-row">
+        <label>Roller reaction (By)</label>
+        <input type="number" step="0.1" id="by-input"><span class="unit">kN</span>
+        <span class="fb" id="by-fb"></span>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="check-btn">Check Answers</button>
+        <button class="btn btn-secondary" id="hint-btn">Show Hint</button>
+        <button class="btn btn-secondary" id="new-btn">🔀 New Problem</button>
+      </div>
+
+      <div class="hint-box" id="hint-box">
+        Take moments about the pin first — that removes both pin reactions from the
+        equation, leaving only the roller reaction (By) to solve for. Then use
+        &Sigma;Fy = 0 to find Ay, and &Sigma;Fx = 0 to find Ax.
+      </div>
+      <div class="solution-box" id="solution-box"></div>
+      <div id="score-banner"></div>
+    </div>
+  </div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+
+<script>
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ==================================================================
+   WARM-UP QUIZ
+------------------------------------------------------------------- */
+const QUIZ_QUESTIONS = [
+  { q: "How many unknown reaction components does a roller support provide?",
+    options: ["0", "1", "2", "3"], correct: "1",
+    feedback: "A roller can only push perpendicular to the surface it rests on — one unknown.",
+    hint: "Think about what a roller can and can't resist — it only pushes, it doesn't grip." },
+  { q: "How many unknown reaction components does a pin support provide?",
+    options: ["1", "2", "3"], correct: "2",
+    feedback: "A pin resists movement in any direction in the plane — horizontal and vertical, so two unknowns.",
+    hint: "A pin can resist movement in more than one direction at once — how many directions matter in a flat (2D) problem?" },
+  { q: "How many unknown reaction components does a fixed (built-in) support provide?",
+    options: ["1", "2", "3"], correct: "3",
+    feedback: "A fixed support resists horizontal force, vertical force, AND rotation — three unknowns.",
+    hint: "A fixed support does everything a pin does, plus one more thing. What can't happen at a fixed support that CAN happen at a pin?" },
+  { q: "Which direction does a roller's reaction act in?",
+    options: ["Any direction", "Parallel to the surface it rests on", "Perpendicular to the surface it rests on"],
+    correct: "Perpendicular to the surface it rests on",
+    feedback: "A roller can't resist forces along the surface — only perpendicular to it.",
+    hint: "A roller can roll freely along the surface it sits on — so which direction can it definitely NOT push against?" },
+  { q: "Can a pin support resist rotation (provide a reaction moment)?",
+    options: ["Yes", "No"], correct: "No",
+    feedback: "A pin allows free rotation — it resists forces in both directions, but not moment.",
+    hint: "Picture a door hinge — a pin behaves the same way. Can whatever it's attached to still turn about it?" }
+];
+
+function renderQuiz() {
+  const container = document.getElementById("quiz-container");
+  container.innerHTML = "";
+  const questions = shuffle(QUIZ_QUESTIONS);
+  questions.forEach((item, idx) => {
+    const card = document.createElement("div");
+    card.className = "quiz-card";
+    const options = shuffle(item.options);
+    let html = '<div class="quiz-q">' + (idx + 1) + ". " + item.q + '</div><div class="quiz-options">';
+    options.forEach((opt) => {
+      html += '<button data-opt="' + opt.replace(/"/g, "&quot;") + '">' + opt + '</button>';
+    });
+    html += '</div><div class="quiz-feedback"></div>';
+    card.innerHTML = html;
+    container.appendChild(card);
+
+    card.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const isCorrect = btn.dataset.opt === item.correct;
+        if (isCorrect) {
+          card.querySelectorAll("button").forEach((b) => {
+            b.disabled = true;
+            if (b === btn) b.classList.add("correct");
+          });
+          card.querySelector(".quiz-feedback").textContent = "Correct — " + item.feedback;
+        } else {
+          btn.classList.add("wrong");
+          card.querySelector(".quiz-feedback").textContent = "Not quite — " + item.hint;
+        }
+      });
+    });
+  });
+}
+renderQuiz();
+
+/* ==================================================================
+   NUMERIC SOLVE-AND-CHECK DRILL
+------------------------------------------------------------------- */
+function arrowHeadPoints(tip, ux, uy, size) {
+  const back = { x: tip.x - ux * size, y: tip.y - uy * size };
+  const px = -uy, py = ux;
+  const p1 = { x: back.x + px * size * 0.55, y: back.y + py * size * 0.55 };
+  const p2 = { x: back.x - px * size * 0.55, y: back.y - py * size * 0.55 };
+  return tip.x + "," + tip.y + " " + p1.x + "," + p1.y + " " + p2.x + "," + p2.y;
+}
+function hatch(x1, x2, y) {
+  let s = "";
+  for (let x = x1; x < x2; x += 14) {
+    s += '<line x1="' + x + '" y1="' + y + '" x2="' + (x - 10) + '" y2="' + (y + 12) + '" stroke="#7086a0" stroke-width="1.5"/>';
+  }
+  return s;
+}
+
+const PIN_X = 130, ROLLER_X = 570, BEAM_Y = 150, SPAN_UNITS = 8;
+const PX_PER_UNIT = (ROLLER_X - PIN_X) / SPAN_UNITS;
+
+let problem = null;
+
+function newProblem() {
+  const positions = [1, 2, 3, 4, 5, 6, 7];
+  const pos1 = pick(positions);
+  const loads = [{ arm: pos1, mag: randInt(10, 35) }];
+  if (Math.random() < 0.6) {
+    const pos2 = pick(positions.filter((p) => p !== pos1));
+    loads.push({ arm: pos2, mag: randInt(8, 25) });
+  }
+  const totalLoad = loads.reduce((s, l) => s + l.mag, 0);
+  const totalMomentAboutPin = loads.reduce((s, l) => s + l.arm * l.mag, 0);
+  const By = totalMomentAboutPin / SPAN_UNITS;
+  const Ay = totalLoad - By;
+  const Ax = 0;
+  problem = { loads: loads, correct: { Ax: Ax, Ay: Ay, By: By } };
+
+  document.getElementById("hint-box").classList.remove("visible");
+  document.getElementById("solution-box").classList.remove("visible");
+  document.getElementById("solution-box").innerHTML = "";
+  document.getElementById("score-banner").innerHTML = "";
+  ["ax", "ay", "by"].forEach((k) => {
+    document.getElementById(k + "-input").value = "";
+    document.getElementById(k + "-fb").textContent = "";
+  });
+  renderProblem();
+}
+
+function renderProblem() {
+  let s = '<rect x="130" y="150" width="440" height="20" fill="#151d33" stroke="#C8D8F0" stroke-width="2"/>' +
+    '<polygon points="130,170 115,200 145,200" fill="none" stroke="#C8D8F0" stroke-width="2"/>' +
+    '<circle cx="570" cy="190" r="10" fill="none" stroke="#C8D8F0" stroke-width="2"/>' +
+    '<line x1="570" y1="200" x2="570" y2="210" stroke="#C8D8F0" stroke-width="2"/>' +
+    '<line x1="90" y1="210" x2="600" y2="210" stroke="#7086a0" stroke-width="2"/>' +
+    hatch(90, 600, 210) +
+    '<text x="130" y="225" font-size="12" fill="#7086a0" text-anchor="middle">Pin (A)</text>' +
+    '<text x="570" y="225" font-size="12" fill="#7086a0" text-anchor="middle">Roller (B)</text>';
+
+  let givenHtml = "<h2 style=\"font-size:1rem;\">Given</h2>";
+  problem.loads.forEach((l, i) => {
+    const x = PIN_X + l.arm * PX_PER_UNIT;
+    const basePoint = { x: x, y: 150 };
+    const tip = { x: x, y: 150 - 50 };
+    s += '<line x1="' + basePoint.x + '" y1="' + basePoint.y + '" x2="' + tip.x + '" y2="' + tip.y +
+         '" stroke="#E0262B" stroke-width="3"/>';
+    s += '<polygon points="' + arrowHeadPoints(basePoint, 0, 1, 11) + '" fill="#E0262B"/>';
+    s += '<text x="' + x + '" y="' + (tip.y - 8) + '" font-size="12" fill="#E0262B" text-anchor="middle">' + l.mag + ' kN</text>';
+    givenHtml += '<div class="given-row">Load ' + (i + 1) + ': <b>' + l.mag + ' kN</b> at <b>' + l.arm + ' m</b> from the pin</div>';
+  });
+  givenHtml += '<div class="given-row">Beam span: <b>' + SPAN_UNITS + ' m</b> (pin to roller)</div>';
+
+  document.getElementById("stage-svg").innerHTML = s;
+  document.getElementById("given-list").innerHTML = givenHtml;
+}
+
+function checkAnswers() {
+  const entered = {
+    Ax: parseFloat(document.getElementById("ax-input").value),
+    Ay: parseFloat(document.getElementById("ay-input").value),
+    By: parseFloat(document.getElementById("by-input").value)
+  };
+  const tol = 0.3;
+  let allCorrect = true;
+  ["Ax", "Ay", "By"].forEach((k) => {
+    const key = k.toLowerCase().slice(0, 2);
+    const fbEl = document.getElementById(key + "-fb");
+    const ok = !isNaN(entered[k]) && Math.abs(entered[k] - problem.correct[k]) <= tol;
+    fbEl.textContent = ok ? "\u2713" : "\u2717";
+    fbEl.className = "fb " + (ok ? "pass" : "fail");
+    if (!ok) allCorrect = false;
+  });
+
+  const banner = document.getElementById("score-banner");
+  if (allCorrect) {
+    banner.innerHTML = '<div class="score-banner all-correct">\u2713 All correct!</div>';
+  } else {
+    banner.innerHTML = '<div class="score-banner some-wrong">Not quite there yet \u2014 try Show Hint, or check the worked solution below.</div>';
+    showSolution();
+  }
+}
+
+function showSolution() {
+  const box = document.getElementById("solution-box");
+  const c = problem.correct;
+  const momentTerms = problem.loads.map((l) => l.mag + "\u00d7" + l.arm).join(" + ");
+  let html = "<b>Worked solution</b><br>";
+  html += "\u03a3M about pin: " + SPAN_UNITS + "\u00d7By \u2212 (" + momentTerms + ") = 0 &rarr; By = " + c.By.toFixed(1) + " kN<br>";
+  html += "\u03a3Fy = 0: Ay + By \u2212 " + problem.loads.reduce((s, l) => s + l.mag, 0) + " = 0 &rarr; Ay = " + c.Ay.toFixed(1) + " kN<br>";
+  html += "\u03a3Fx = 0: no horizontal loads &rarr; Ax = " + c.Ax.toFixed(1) + " kN";
+  box.innerHTML = html;
+  box.classList.add("visible");
+}
+
+document.getElementById("check-btn").addEventListener("click", checkAnswers);
+document.getElementById("new-btn").addEventListener("click", newProblem);
+document.getElementById("hint-btn").addEventListener("click", () => {
+  document.getElementById("hint-box").classList.toggle("visible");
+});
+
+newProblem();
+</script>
+</body>
+</html>
