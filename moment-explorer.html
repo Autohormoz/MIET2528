@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Moment of a Force</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --green:#2FBF71;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2rem;color:var(--cyan);margin:0 0 8px;}
+  .dek{font-size:1.05rem;color:var(--muted);margin:0 0 26px;line-height:1.5;}
+
+  .stage{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+  .canvas-card{background:var(--card);border-radius:12px;padding:16px;flex:1 1 460px;min-width:320px;}
+  .canvas-card svg{width:100%;height:auto;display:block;}
+  .panel-card{background:var(--card);border-radius:12px;padding:20px;flex:1 1 320px;min-width:280px;}
+  .panel-card h2{font-family:Georgia,serif;font-weight:normal;font-size:1.1rem;
+    color:#ffffff;margin:0 0 12px;}
+
+  .challenge-box{background:rgba(240,165,0,0.1);border:1px solid var(--amber);
+    border-radius:10px;padding:14px 16px;margin-bottom:18px;}
+  .challenge-box .target{font-size:1.3rem;font-weight:700;color:var(--amber);}
+  .challenge-box .sub{font-size:0.82rem;color:var(--muted);margin-top:2px;}
+  .shuffle-btn{
+    font-family:Calibri,sans-serif;font-size:0.85rem;font-weight:600;
+    padding:7px 14px;border-radius:999px;border:1px solid var(--amber);
+    color:var(--amber);cursor:pointer;background:transparent;margin-top:10px;}
+  .shuffle-btn:hover{background:var(--amber);color:var(--navy);}
+
+  .ctrl{margin-bottom:20px;}
+  .ctrl .ctrl-head{display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:6px;}
+  .ctrl .ctrl-head b{color:#ffffff;}
+  .ctrl .ctrl-head span{color:var(--muted);}
+  .ctrl input[type=range]{width:100%;accent-color:var(--cyan);}
+
+  .readout{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px 18px;margin-top:8px;}
+  .readout .eq{font-size:0.85rem;color:var(--muted);margin-bottom:8px;}
+  .readout .val{font-size:1.6rem;font-weight:700;}
+  .readout .val.ccw{color:var(--teal);}
+  .readout .val.cw{color:var(--red);}
+  .match-banner{margin-top:12px;padding:8px;border-radius:8px;text-align:center;font-weight:700;font-size:0.95rem;}
+  .match-banner.yes{background:rgba(47,191,113,0.15);color:var(--green);}
+
+  footer{margin-top:36px;font-size:0.85rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Week 1 practice tool</div>
+  <h1>Moment of a Force</h1>
+  <p class="dek">Turning a bolt with a wrench. Change how far out you grip, how hard you push, and at what angle — see what actually changes the twist.</p>
+
+  <div class="stage">
+    <div class="canvas-card">
+      <svg id="stage-svg" viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="panel-card">
+      <div class="challenge-box">
+        <div class="sub">Try to produce a moment of:</div>
+        <div class="target" id="target-display"></div>
+        <button class="shuffle-btn" id="shuffle-btn">🔀 New Challenge</button>
+      </div>
+
+      <div class="ctrl">
+        <div class="ctrl-head"><b>Distance from bolt (r)</b><span id="r-val"></span></div>
+        <input type="range" id="r-slider" min="1" max="8" step="0.5" value="6">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-head"><b>Push force (F)</b><span id="f-val"></span></div>
+        <input type="range" id="f-slider" min="0" max="50" step="1" value="25">
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-head"><b>Push angle</b><span id="a-val"></span></div>
+        <input type="range" id="a-slider" min="0" max="360" step="5" value="90">
+      </div>
+
+      <div class="readout">
+        <div class="eq">M = F &times; d &times; sin&theta; &nbsp;(d = perpendicular distance, dashed line)</div>
+        <div class="val" id="moment-val">0</div>
+        <div id="match-banner"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+
+<script>
+function toRad(deg) { return deg * Math.PI / 180; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function arrowHeadPoints(tip, ux, uy, size) {
+  const back = { x: tip.x - ux * size, y: tip.y - uy * size };
+  const px = -uy, py = ux;
+  const p1 = { x: back.x + px * size * 0.55, y: back.y + py * size * 0.55 };
+  const p2 = { x: back.x - px * size * 0.55, y: back.y - py * size * 0.55 };
+  return tip.x + "," + tip.y + " " + p1.x + "," + p1.y + " " + p2.x + "," + p2.y;
+}
+
+const PIVOT = { x: 150, y: 230 };
+const PX_PER_UNIT = 45; // wrench handle: 8 units * 45 = 360px long
+const MAX_R_UNITS = 8;
+
+let targetMoment = 0;
+let targetSign = 1;
+
+function newChallenge() {
+  targetSign = Math.random() < 0.5 ? 1 : -1;
+  targetMoment = randInt(40, 300) * targetSign;
+  document.getElementById("target-display").textContent =
+    Math.abs(targetMoment) + " N\u00b7m (" + (targetSign > 0 ? "counter-clockwise" : "clockwise") + ")";
+}
+newChallenge();
+
+function render() {
+  const r = parseFloat(document.getElementById("r-slider").value);
+  const F = parseFloat(document.getElementById("f-slider").value);
+  const angle = parseFloat(document.getElementById("a-slider").value);
+
+  document.getElementById("r-val").textContent = r + " units";
+  document.getElementById("f-val").textContent = F + " N";
+  document.getElementById("a-val").textContent = angle + "\u00b0";
+
+  // application point sits along the wrench handle (bar runs along +x from pivot)
+  const appPoint = { x: PIVOT.x + r * PX_PER_UNIT, y: PIVOT.y };
+
+  // moment: r_vector = (r*PX_PER_UNIT_in_units, 0) i.e. purely along x in "unit" space;
+  // force components in math convention
+  const rad = toRad(angle);
+  const Fx = Math.cos(rad) * F;
+  const Fy = Math.sin(rad) * F; // math-space, y-up
+  const moment = r * Fy; // ry = 0 since application point sits on the bar's own line
+
+  document.getElementById("moment-val").innerHTML =
+    Math.abs(moment).toFixed(0) + ' N&middot;m <span style="font-size:0.9rem;color:' +
+    (moment >= 0 ? "var(--teal)" : "var(--red)") + '">(' + (moment >= 0 ? "CCW" : "CW") + ')</span>';
+
+  const matched = Math.abs(moment - targetMoment) <= 8;
+  document.getElementById("match-banner").innerHTML = matched
+    ? '<div class="match-banner yes">\u2713 Matched the target!</div>' : "";
+
+  // force arrow direction in SVG space
+  const ux = Math.cos(rad), uy = -Math.sin(rad);
+  const length = 40 + F * 1.6;
+  const tip = { x: appPoint.x + ux * length, y: appPoint.y + uy * length };
+
+  // perpendicular foot from pivot onto the infinite line through appPoint along (ux,uy)
+  const vx = PIVOT.x - appPoint.x, vy = PIVOT.y - appPoint.y;
+  const t = vx * ux + vy * uy;
+  const foot = { x: appPoint.x + t * ux, y: appPoint.y + t * uy };
+
+  let s = "";
+  // ground / fixed block behind the bolt
+  s += '<rect x="90" y="200" width="60" height="60" fill="#151d33" stroke="#C8D8F0" stroke-width="2"/>';
+  // wrench handle (bar)
+  s += '<line x1="' + PIVOT.x + '" y1="' + PIVOT.y + '" x2="' + (PIVOT.x + MAX_R_UNITS * PX_PER_UNIT) +
+       '" y2="' + PIVOT.y + '" stroke="#7086a0" stroke-width="10" stroke-linecap="round" opacity="0.35"/>';
+  s += '<line x1="' + PIVOT.x + '" y1="' + PIVOT.y + '" x2="' + appPoint.x + '" y2="' + appPoint.y +
+       '" stroke="#C8D8F0" stroke-width="10" stroke-linecap="round"/>';
+  // bolt
+  s += '<circle cx="' + PIVOT.x + '" cy="' + PIVOT.y + '" r="18" fill="#1C7293" stroke="#C8D8F0" stroke-width="2"/>';
+  s += '<circle cx="' + PIVOT.x + '" cy="' + PIVOT.y + '" r="5" fill="#0A0F1E"/>';
+
+  // perpendicular distance dashed line + label
+  s += '<line x1="' + PIVOT.x + '" y1="' + PIVOT.y + '" x2="' + foot.x + '" y2="' + foot.y +
+       '" stroke="#F0A500" stroke-width="2" stroke-dasharray="5,4"/>';
+  const midD = { x: (PIVOT.x + foot.x) / 2, y: (PIVOT.y + foot.y) / 2 };
+  s += '<circle cx="' + foot.x + '" cy="' + foot.y + '" r="3.5" fill="#F0A500"/>';
+  s += '<text x="' + (midD.x + 8) + '" y="' + (midD.y - 6) + '" font-size="12" fill="#F0A500">d</text>';
+
+  // application point + force arrow
+  s += '<circle cx="' + appPoint.x + '" cy="' + appPoint.y + '" r="5" fill="#E0262B"/>';
+  s += '<line x1="' + appPoint.x + '" y1="' + appPoint.y + '" x2="' + tip.x + '" y2="' + tip.y +
+       '" stroke="#E0262B" stroke-width="3.5"/>';
+  s += '<polygon points="' + arrowHeadPoints(tip, ux, uy, 12) + '" fill="#E0262B"/>';
+
+  document.getElementById("stage-svg").innerHTML = s;
+}
+
+["r-slider", "f-slider", "a-slider"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", render);
+});
+document.getElementById("shuffle-btn").addEventListener("click", () => { newChallenge(); render(); });
+
+render();
+</script>
+</body>
+</html>
