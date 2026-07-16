@@ -70,35 +70,35 @@
 <script>
 /* ------------------------------------------------------------------
    EPISODES
-   "release" is the date this episode unlocks (you said content for a
-   week goes out the Friday before that week starts). The dates below
-   are a straightforward weekly sequence starting from the Friday
-   before Week 1 — please double-check them against the real calendar,
-   especially around the mid-semester break and the Week 9 public
-   holiday, since those weeks may need a skipped/adjusted date.
+   Episodes 1 and 2 are already available. From Episode 3 onward,
+   each unlocks on the Friday before its relevant week (confirmed:
+   Episode 3 → Friday 24 July), continuing weekly after that. Still
+   worth double-checking Episodes 5–7 against the real calendar in
+   case the mid-semester break or Week 9 public holiday shifts one
+   of those Fridays.
 ------------------------------------------------------------------- */
 const EPISODES = [
   { n: 1, title: "Welcome to Introduction to Mechanical Engineering",
     url: "https://rmit.instructure.com/files/52931646/download?download_frd=1&verifier=8cBQnvTG3faxpgvixgtYhEwl7EQuYesH5RgCXnQ8",
-    release: "2026-07-18" },
+    release: "2026-07-01" },
   { n: 2, title: "May the Force Be With You",
     url: "https://rmit.instructure.com/files/52933702/download?download_frd=1&verifier=ywUFeruI4IGkQElawnybMYxAnY79rm11xoCnjxmn",
-    release: "2026-07-25" },
+    release: "2026-07-10" },
   { n: 3, title: "Get a Reaction",
     url: "https://rmit.instructure.com/files/52933927/download?download_frd=1&verifier=tmzSspoqjkUustTlrpOxM959IXvpEeKLLIbkHj7t",
-    release: "2026-08-01" },
+    release: "2026-07-24" },
   { n: 4, title: "What Is Going On Inside",
     url: "https://rmit.instructure.com/files/52933327/download?download_frd=1&verifier=rf1pCUzUMpB27jz5QYSMI16BJAXt0vR6Cce0aqdz",
-    release: "2026-08-08" },
+    release: "2026-07-31" },
   { n: 5, title: "Feeling the Pressure \u2014 Stress, Strain & Materials That Matter",
     url: "https://rmit.instructure.com/files/52934201/download?download_frd=1&verifier=rjqRFNGKbRmt1ukTUTr0bpZKFaZcXX4VRgmZyZK2",
-    release: "2026-08-15" },
+    release: "2026-08-07" },
   { n: 6, title: "What's Bending, What's Shearing \u2014 Drawing the Diagrams\u2026",
     url: "https://rmit.instructure.com/files/52934209/download?download_frd=1&verifier=ubVtjApit4vWSVCbSl2i4fXw7tACg0as9BP6mr20",
-    release: "2026-08-22" },
+    release: "2026-08-14" },
   { n: 7, title: "Stress Tested \u2014 The Mechanics of Bending",
     url: "https://rmit.instructure.com/files/52934234/download?download_frd=1&verifier=KO9MqGQbFg60g4IiU2bpCWZV5mGdlW0yuzGNVGyD",
-    release: "2026-08-29" }
+    release: "2026-08-21" }
 ];
 
 function fmtTime(sec) {
