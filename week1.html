@@ -73,6 +73,24 @@
   .reset{background:none;border:none;color:var(--muted);font-size:0.88rem;
     text-decoration:underline;cursor:pointer;margin-top:8px;padding:0;}
 
+  .mandatory-notice{background:rgba(0,189,214,0.08);border-left:3px solid var(--cyan);
+    border-radius:10px;padding:18px 22px;margin-bottom:24px;}
+  .mandatory-notice .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
+    font-size:0.75rem;font-weight:600;letter-spacing:0.02em;
+    padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+  .mandatory-notice h2{margin:0 0 8px;color:#ffffff;}
+  .mandatory-notice p{margin:0 0 12px;font-size:0.95rem;line-height:1.6;color:var(--ink);}
+  .mandatory-notice ul{margin:0 0 12px;padding-left:20px;}
+  .mandatory-notice li{font-size:0.95rem;line-height:1.6;}
+  .mandatory-notice a.btn-link{display:inline-block;background:var(--cyan);color:var(--navy);
+    font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;text-decoration:none;}
+
+  .item.mandatory{background:rgba(0,189,214,0.06);border-left:3px solid var(--cyan);
+    border-radius:8px;padding:10px 14px;margin-bottom:4px;}
+  .item.mandatory label{font-weight:600;}
+  .item.mandatory .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
+    font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;}
+
   footer{margin-top:36px;font-size:0.88rem;color:var(--muted);
     display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 </style>
@@ -83,6 +101,14 @@
   <div class="eyebrow">MIET2528 · Week 1</div>
   <h1>Welcome — Course Introduction</h1>
   <p class="dek">Lectorials only this week. No workshop, no tutorial — just watch, listen, and show up ready for Week 2.</p>
+
+  <div class="mandatory-notice">
+    <span class="tag">A university requirement — made easy</span>
+    <h2>Your Safety Induction</h2>
+    <p>This is required by the university for anyone using the workshop, and we've genuinely tried to make it painless. It's a fully digital, 360° walkthrough of the space, with safety and operational tips built directly around the tools and equipment you'll actually be using for your group project.</p>
+    <p>Please complete it by the end of this week, so you're all set for your project handouts and materials, and ready to walk into your first workshop session in Week 2.</p>
+    <a class="btn-link" href="https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380" target="_blank">Start the Safety Induction</a>
+  </div>
 
   <div class="notice">
     <p><b>No workshop or tutorial in Week 1.</b> Both begin in Week 2 (starting 28 July). This week is lectorial content only.</p>
@@ -118,10 +144,13 @@
   <div class="card">
     <div class="checklist-head">
       <h2 style="margin:0;">Your Week 1 prep</h2>
-      <span class="progress-label" id="progress-label">0 / 4 done</span>
+      <span class="progress-label" id="progress-label">0 / 5 done</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 
+    <div class="item mandatory">
+      <input type="checkbox" id="c0"><label for="c0">Completed my Safety Induction<span class="tag">Required</span></label>
+    </div>
     <div class="item">
       <input type="checkbox" id="c1"><label for="c1">Watched "Introduction to the Course"</label>
     </div>
