@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Podcast</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:820px;margin:0 auto;padding:32px 24px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2rem;color:var(--cyan);margin:0 0 8px;}
+  .dek{font-size:1.05rem;color:var(--muted);margin:0 0 28px;line-height:1.5;}
+
+  .ep-card{background:var(--card);border-radius:12px;padding:20px 22px;margin-bottom:14px;}
+  .ep-card.locked{opacity:0.55;}
+  .ep-head{display:flex;align-items:center;gap:14px;margin-bottom:4px;}
+  .ep-num{flex:0 0 40px;height:40px;border-radius:50%;background:var(--teal);
+    display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1rem;}
+  .ep-card.locked .ep-num{background:var(--muted);}
+  .ep-title{font-size:1.05rem;font-weight:600;color:#ffffff;flex:1;}
+  .ep-lock-note{font-size:0.85rem;color:var(--muted);margin-left:54px;}
+
+  .player{margin-top:14px;margin-left:54px;}
+  .player-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .play-btn{flex:0 0 42px;height:42px;border-radius:50%;background:var(--cyan);
+    border:none;color:var(--navy);font-size:1.1rem;cursor:pointer;display:flex;
+    align-items:center;justify-content:center;}
+  .scrub-wrap{flex:1 1 180px;display:flex;align-items:center;gap:10px;min-width:160px;}
+  .scrub-wrap input[type=range]{flex:1;accent-color:var(--cyan);}
+  .time{font-size:0.8rem;color:var(--muted);white-space:nowrap;min-width:80px;}
+  .speed-group{display:flex;gap:4px;}
+  .speed-group button{font-size:0.75rem;font-weight:600;padding:5px 9px;border-radius:6px;
+    border:1px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer;}
+  .speed-group button.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+  footer{margin-top:36px;font-size:0.85rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Podcast</div>
+  <h1>Warm-Up Podcast</h1>
+  <p class="dek">Short episodes to warm you up to each week's ideas — new episodes unlock automatically, one per week.</p>
+
+  <div id="episode-list"></div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   EPISODES
+   "release" is the date this episode unlocks (you said content for a
+   week goes out the Friday before that week starts). The dates below
+   are a straightforward weekly sequence starting from the Friday
+   before Week 1 — please double-check them against the real calendar,
+   especially around the mid-semester break and the Week 9 public
+   holiday, since those weeks may need a skipped/adjusted date.
+------------------------------------------------------------------- */
+const EPISODES = [
+  { n: 1, title: "Welcome to Introduction to Mechanical Engineering",
+    url: "https://rmit.instructure.com/files/52931646/download?download_frd=1&verifier=8cBQnvTG3faxpgvixgtYhEwl7EQuYesH5RgCXnQ8",
+    release: "2026-07-18" },
+  { n: 2, title: "May the Force Be With You",
+    url: "https://rmit.instructure.com/files/52933702/download?download_frd=1&verifier=ywUFeruI4IGkQElawnybMYxAnY79rm11xoCnjxmn",
+    release: "2026-07-25" },
+  { n: 3, title: "Get a Reaction",
+    url: "https://rmit.instructure.com/files/52933927/download?download_frd=1&verifier=tmzSspoqjkUustTlrpOxM959IXvpEeKLLIbkHj7t",
+    release: "2026-08-01" },
+  { n: 4, title: "What Is Going On Inside",
+    url: "https://rmit.instructure.com/files/52933327/download?download_frd=1&verifier=rf1pCUzUMpB27jz5QYSMI16BJAXt0vR6Cce0aqdz",
+    release: "2026-08-08" },
+  { n: 5, title: "Feeling the Pressure \u2014 Stress, Strain & Materials That Matter",
+    url: "https://rmit.instructure.com/files/52934201/download?download_frd=1&verifier=rjqRFNGKbRmt1ukTUTr0bpZKFaZcXX4VRgmZyZK2",
+    release: "2026-08-15" },
+  { n: 6, title: "What's Bending, What's Shearing \u2014 Drawing the Diagrams\u2026",
+    url: "https://rmit.instructure.com/files/52934209/download?download_frd=1&verifier=ubVtjApit4vWSVCbSl2i4fXw7tACg0as9BP6mr20",
+    release: "2026-08-22" },
+  { n: 7, title: "Stress Tested \u2014 The Mechanics of Bending",
+    url: "https://rmit.instructure.com/files/52934234/download?download_frd=1&verifier=KO9MqGQbFg60g4IiU2bpCWZV5mGdlW0yuzGNVGyD",
+    release: "2026-08-29" }
+];
+
+function fmtTime(sec) {
+  if (!isFinite(sec)) return "0:00";
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ":" + (s < 10 ? "0" : "") + s;
+}
+function fmtDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+}
+
+const now = new Date();
+const list = document.getElementById("episode-list");
+const releasedEpisodes = [];
+
+EPISODES.forEach((ep) => {
+  const releaseDate = new Date(ep.release + "T00:00:00");
+  const isReleased = now >= releaseDate;
+  const card = document.createElement("div");
+  card.className = "ep-card" + (isReleased ? "" : " locked");
+
+  let html = '<div class="ep-head"><div class="ep-num">' + ep.n + '</div>' +
+    '<div class="ep-title">' + ep.title + '</div></div>';
+
+  if (!isReleased) {
+    html += '<div class="ep-lock-note">\uD83D\uDD12 Available ' + fmtDate(ep.release) + '</div>';
+    card.innerHTML = html;
+  } else {
+    html += '<div class="player">' +
+      '<div class="player-controls">' +
+        '<button class="play-btn" data-play="' + ep.n + '">\u25B6</button>' +
+        '<div class="scrub-wrap"><input type="range" min="0" max="100" value="0" data-scrub="' + ep.n + '">' +
+        '<span class="time" data-time="' + ep.n + '">0:00 / 0:00</span></div>' +
+        '<div class="speed-group" data-speedgroup="' + ep.n + '">' +
+          '<button data-speed="1" class="active">1x</button>' +
+          '<button data-speed="1.25">1.25x</button>' +
+          '<button data-speed="1.5">1.5x</button>' +
+          '<button data-speed="2">2x</button>' +
+        '</div>' +
+      '</div>' +
+      '<audio data-audio="' + ep.n + '" preload="none" src="' + ep.url + '"></audio>' +
+      '</div>';
+    card.innerHTML = html;
+    releasedEpisodes.push(ep.n);
+  }
+  list.appendChild(card);
+});
+
+releasedEpisodes.forEach((n, idx) => {
+  const audio = document.querySelector('[data-audio="' + n + '"]');
+  const playBtn = document.querySelector('[data-play="' + n + '"]');
+  const scrub = document.querySelector('[data-scrub="' + n + '"]');
+  const timeEl = document.querySelector('[data-time="' + n + '"]');
+  const speedBtns = document.querySelectorAll('[data-speedgroup="' + n + '"] button');
+
+  playBtn.addEventListener("click", () => {
+    if (audio.paused) {
+      document.querySelectorAll("audio").forEach((a) => { if (a !== audio) a.pause(); });
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  });
+  audio.addEventListener("play", () => { playBtn.textContent = "\u23F8"; });
+  audio.addEventListener("pause", () => { playBtn.textContent = "\u25B6"; });
+  audio.addEventListener("timeupdate", () => {
+    if (audio.duration) scrub.value = (audio.currentTime / audio.duration) * 100;
+    timeEl.textContent = fmtTime(audio.currentTime) + " / " + fmtTime(audio.duration);
+  });
+  audio.addEventListener("loadedmetadata", () => {
+    timeEl.textContent = fmtTime(audio.currentTime) + " / " + fmtTime(audio.duration);
+  });
+  scrub.addEventListener("input", () => {
+    if (audio.duration) audio.currentTime = (scrub.value / 100) * audio.duration;
+  });
+  speedBtns.forEach((b) => b.addEventListener("click", () => {
+    speedBtns.forEach((x) => x.classList.remove("active"));
+    b.classList.add("active");
+    audio.playbackRate = parseFloat(b.dataset.speed);
+  }));
+  audio.addEventListener("ended", () => {
+    const nextIdx = idx + 1;
+    if (nextIdx < releasedEpisodes.length) {
+      const nextAudio = document.querySelector('[data-audio="' + releasedEpisodes[nextIdx] + '"]');
+      if (nextAudio) nextAudio.play();
+    }
+  });
+});
+</script>
+</body>
+</html>
