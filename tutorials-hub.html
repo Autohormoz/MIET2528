@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MIET2528 — Tutorials</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 24px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2rem;color:var(--cyan);margin:0 0 8px;}
+  .dek{font-size:1.05rem;color:var(--muted);margin:0 0 20px;line-height:1.5;}
+
+  .why-box{background:rgba(240,165,0,0.08);border-left:3px solid var(--amber);
+    border-radius:10px;padding:16px 20px;margin-bottom:30px;font-size:0.92rem;
+    line-height:1.65;color:var(--ink);}
+  .why-box b{color:#ffffff;}
+
+  .tut-card{background:var(--card);border-radius:12px;padding:20px 22px;
+    margin-bottom:14px;border-left:4px solid var(--accent, var(--cyan));}
+  .tut-head{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+  .tut-num{font-family:Georgia,serif;font-size:1.3rem;color:var(--accent, var(--cyan));font-weight:bold;}
+  .tut-title{font-size:1.05rem;font-weight:600;color:#ffffff;}
+
+  .resource-row{display:flex;gap:10px;flex-wrap:wrap;}
+  .res-btn{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;
+    font-size:0.88rem;font-weight:600;text-decoration:none;border:1px solid var(--muted);
+    color:var(--ink);}
+  .res-btn.open{border-color:var(--accent, var(--cyan));color:var(--accent, var(--cyan));cursor:pointer;}
+  .res-btn.locked{opacity:0.5;cursor:default;}
+  .res-btn .icon{font-size:0.95rem;}
+
+  footer{margin-top:36px;font-size:0.85rem;color:var(--muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Tutorials</div>
+  <h1>Tutorials T01–T11</h1>
+  <p class="dek">Problems are available from day one. Solutions and video walkthroughs unlock on a schedule — here's why.</p>
+
+  <div class="why-box">
+    You'll notice the solution doesn't appear right away, and the video takes even longer to show up after that. That's deliberate, not an oversight: <b>solutions unlock once everyone's actually been through that week's tutorial</b>, and the <b>video waits a further week after that</b>. Wrestling with the written solution on your own first is where most of the real learning happens — the video is there afterwards to fill in whatever's still unclear, not to replace that struggle.
+  </div>
+
+  <div id="tutorial-list"></div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   TUTORIALS
+   - problem: always available, no date needed
+   - solutionRelease: late Friday of the tutorial's own session week
+   - videoRelease: exactly one week after the solution
+   Swap the "problem"/"solution"/"video" URLs for the real hosted
+   files/links once ready — everything else (locking, colour) is
+   already wired up.
+------------------------------------------------------------------- */
+const TUTORIALS = [
+  { n: 1, title: "Force and Moment Systems", color: "1C7293",
+    problem: "https://rmit.instructure.com/files/55032622/download?download_frd=1&verifier=McWhI91SghSu5G3w8JDYqWBQXqRg5elJyZ7zXZ69", solution: "https://rmit.instructure.com/files/55032700/download?download_frd=1&verifier=WudGpysM5h9S92DK68tTxhxDwqjwejZa7gFQPu2A", video: "#",
+    solutionRelease: "2026-07-31", videoRelease: "2026-08-07" },
+  { n: 2, title: "Support Reactions", color: "197A9A",
+    problem: "https://rmit.instructure.com/files/55032623/download?download_frd=1&verifier=XQVwckEXeYKrquZanFsBD9eECSW6lOOG0lDAQk6W", solution: "https://rmit.instructure.com/files/55032701/download?download_frd=1&verifier=EKW5sZMDrG3NZveUk867xBI4q2jSx73JoM5lNH3Z", video: "#",
+    solutionRelease: "2026-08-07", videoRelease: "2026-08-14" },
+  { n: 3, title: "Joint & Section Methods", color: "1681A0",
+    problem: "https://rmit.instructure.com/files/55032624/download?download_frd=1&verifier=rASTpQSvmXmdOKByn4gSmZ8yqh0pZMq4wEnwDx9b", solution: "https://rmit.instructure.com/files/55032702/download?download_frd=1&verifier=cchmRF9lzWzXLfFA3F9GU5s9fsU5TmVdjaDhkXTT", video: "#",
+    solutionRelease: "2026-08-14", videoRelease: "2026-08-21" },
+  { n: 4, title: "Internal Loading", color: "1488A7",
+    problem: "https://rmit.instructure.com/files/55032625/download?download_frd=1&verifier=f2vPJTxd7PeY7eX8FDaGcnxKvFNpdDHVUQC39g2E", solution: "https://rmit.instructure.com/files/55032704/download?download_frd=1&verifier=m1mDtBkzvV66GAoIbV1Bk1wKasDWb6xWNs4Vd7sX", video: "#",
+    solutionRelease: "2026-08-21", videoRelease: "2026-08-28" },
+  { n: 5, title: "Stress & Strain", color: "1190AE",
+    problem: "https://rmit.instructure.com/files/55032626/download?download_frd=1&verifier=VRgbUAg5WH5WkzYd7crPX50maUOqTKIC05wNg566", solution: "https://rmit.instructure.com/files/55032706/download?download_frd=1&verifier=i95hmIuRmbdAKt4RIsQe3oj2WxzTgiYhRAcs969V", video: "#",
+    solutionRelease: "2026-08-28", videoRelease: "2026-09-04" },
+  { n: 6, title: "Internal Loading — Review", color: "0E98B4",
+    problem: "https://rmit.instructure.com/files/55032616/download?download_frd=1&verifier=SWXZl4bLTUcHCW1gAxFrnkP8bbgkDagQRWM08DtM", solution: "https://rmit.instructure.com/files/55032707/download?download_frd=1&verifier=NAhPVhTnlJo2nqeFfmL5McSAFTkDlpVIDKvXRAk6", video: "#",
+    solutionRelease: "2026-09-11", videoRelease: "2026-09-18" },
+  { n: 7, title: "Internal Loading — Beams", color: "0B9FBB",
+    problem: "https://rmit.instructure.com/files/55032617/download?download_frd=1&verifier=5s0ZQIqcWcTdadnTIg2H2qZXZfJX6ZmGYezcXuBn", solution: "https://rmit.instructure.com/files/55032694/download?download_frd=1&verifier=YqBzBNRnBU28wh6186tIcIAJgzDVvonb0k9sVY4T", video: "#",
+    solutionRelease: "2026-09-18", videoRelease: "2026-09-25" },
+  { n: 8, title: "Geometrical Properties", color: "08A6C2",
+    problem: "https://rmit.instructure.com/files/55032618/download?download_frd=1&verifier=JkMGahulyPFYwkLXhgafmDcdDvq0facAUsXgIEwQ", solution: "https://rmit.instructure.com/files/55032695/download?download_frd=1&verifier=MbTsPwVLXcUFkfDjy42mkNcRyHsrazoQttapzVzX", video: "#",
+    solutionRelease: "2026-09-25", videoRelease: "2026-10-02" },
+  { n: 9, title: "Bending Stress", color: "06AEC9",
+    problem: "https://rmit.instructure.com/files/55032619/download?download_frd=1&verifier=xFKPzqw86fSetrZKQ3rT31uDAZoBcwEk5gPREiD2", solution: "https://rmit.instructure.com/files/55032696/download?download_frd=1&verifier=9qCfThVe8B7PLHlr8WRBCMraIX2xqx7J7luoBiz4", video: "#",
+    solutionRelease: "2026-10-02", videoRelease: "2026-10-09" },
+  { n: 10, title: "Torsion", color: "03B6CF",
+    problem: "https://rmit.instructure.com/files/55032620/download?download_frd=1&verifier=X0R8SPq0LIHz1fs8fwnhnVGJSzXTq70TnLNspPBh", solution: "https://rmit.instructure.com/files/55032697/download?download_frd=1&verifier=2YyINu7CneDx7zDPC5NYtHy1aMzMoZFjsuWANN0s", video: "#",
+    solutionRelease: "2026-10-09", videoRelease: "2026-10-16" },
+  { n: 11, title: "Axial Loading", color: "00BDD6",
+    problem: "https://rmit.instructure.com/files/55032621/download?download_frd=1&verifier=D71xl9zJGhBUWab9z7iv9YRPX66Xi9DJtAr3m9IH", solution: "https://rmit.instructure.com/files/55032699/download?download_frd=1&verifier=SgHfCijGteDMfnlZJthRAH5VxtsPkpd1BpXqVh16", video: "#",
+    solutionRelease: "2026-10-16", videoRelease: "2026-10-23" }
+];
+
+function fmtDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+}
+
+const now = new Date();
+const list = document.getElementById("tutorial-list");
+
+TUTORIALS.forEach((t) => {
+  const solutionOpen = now >= new Date(t.solutionRelease + "T00:00:00");
+  const videoOpen = now >= new Date(t.videoRelease + "T00:00:00");
+
+  const card = document.createElement("div");
+  card.className = "tut-card";
+  card.style.setProperty("--accent", "#" + t.color);
+
+  let html = '<div class="tut-head"><span class="tut-num">T' + String(t.n).padStart(2, "0") + '</span>' +
+    '<span class="tut-title">' + t.title + '</span></div>';
+
+  html += '<div class="resource-row">';
+  html += '<a class="res-btn open" href="' + t.problem + '" target="_blank"><span class="icon">\uD83D\uDCC4</span> Problem</a>';
+
+  if (solutionOpen) {
+    html += '<a class="res-btn open" href="' + t.solution + '" target="_blank"><span class="icon">\u2705</span> Solution</a>';
+  } else {
+    html += '<span class="res-btn locked"><span class="icon">\uD83D\uDD12</span> Solution \u2014 ' + fmtDate(t.solutionRelease) + '</span>';
+  }
+
+  if (videoOpen) {
+    html += '<a class="res-btn open" href="' + t.video + '" target="_blank"><span class="icon">\u25B6</span> Video Walkthrough</a>';
+  } else {
+    html += '<span class="res-btn locked"><span class="icon">\uD83D\uDD12</span> Video \u2014 ' + fmtDate(t.videoRelease) + '</span>';
+  }
+  html += "</div>";
+
+  card.innerHTML = html;
+  list.appendChild(card);
+});
+</script>
+</body>
+</html>
