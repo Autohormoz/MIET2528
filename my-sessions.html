@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-07-20-02" />
 <title>MIET2528 — My Sessions</title>
 <style>
   :root{
@@ -17,7 +18,13 @@
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:transparent;
     font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);
-    display:flex;justify-content:center;}
+    display:flex;flex-direction:column;align-items:center;}
+  #update-banner{display:none;width:100%;max-width:640px;margin:0 0 10px;
+    background:var(--amber);color:var(--navy);font-weight:600;font-size:0.85rem;
+    padding:9px 14px;text-align:center;border-radius:8px;}
+  #update-banner button{margin-left:10px;background:var(--navy);color:#fff;
+    border:none;border-radius:6px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:0.8rem;}
+
   .card{background:var(--card);border-radius:12px;padding:22px 26px;
     width:100%;max-width:640px;}
   h2{font-family:Georgia,serif;font-weight:normal;font-size:1.2rem;
@@ -40,6 +47,10 @@
 </style>
 </head>
 <body>
+<div id="update-banner">
+  A newer version is available.
+  <button id="update-refresh-btn">Refresh now</button>
+</div>
 <div class="card">
   <h2>My Sessions</h2>
   <p class="dek">
@@ -87,20 +98,22 @@
 ------------------------------------------------------------------- */
 const MS_LECTORIALS = [
   ["LTL01/03", "Tuesday, 4:30pm\u20136:30pm, room 080.02.007"],
-  ["LTL01/01", "Thursday, 2:30pm\u20134:30pm, room 080.04.011"],
-  ["LTL01/02", "Friday, 4:30pm\u20136:30pm, Online (Collaborate Ultra)"],
+  ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
+  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
 ];
 const MS_TUTORIALS = [
-  ["TUT01/01", "Tuesday, 2:30pm\u20133:30pm, room 080.06.005"],
-  ["TUT01/02", "Thursday, 12:30pm\u20131:30pm, room 080.09.012"],
-  ["TUT01/03", "Wednesday, 10:30am\u201311:30am, room 080.04.019"],
-  ["TUT01/04", "Friday, 12:30pm\u20131:30pm, room 056.05.085"],
+  ["TUT01/01", "Wednesday, 11:30am\u201312:30pm, room 013.02.029"],
+  ["TUT01/02", "Tuesday, 9:30am\u201310:30am, room 080.09.012"],
+  ["TUT01/03", "Thursday, 3:30pm\u20134:30pm, room 013.03.009"],
+  ["TUT01/04", "Monday, 5:30pm\u20136:30pm, room 080.03.015"],
   ["TUT01/05", "Tuesday, 3:30pm\u20134:30pm, room 080.04.019"],
-  ["TUT01/06", "Wednesday, 1:30pm\u20132:30pm, room 056.05.085"],
-  ["TUT01/07", "Wednesday, 9:30am\u201310:30am, room 080.10.017"],
-  ["TUT01/08", "Friday, 2:30pm\u20133:30pm, room 080.03.015"],
-  ["TUT01/09", "Wednesday, 12:30pm\u20131:30pm, room 080.06.005"],
-  ["TUT01/10", "Friday, 10:30am\u201311:30am, room 056.03.093"],
+  ["TUT01/06", "Wednesday, 3:30pm\u20134:30pm, room 080.04.019"],
+  ["TUT01/07", "Friday, 9:30am\u201310:30am, room 013.03.009"],
+  ["TUT01/08", "Friday, 3:30pm\u20134:30pm, room 080.09.012"],
+  ["TUT01/09", "Friday, 8:30am\u20139:30am, room 080.09.012"],
+  ["TUT01/10", "Friday, 10:30am\u201311:30am, room 013.03.009"],
+  ["TUT01/11", "Wednesday, 11:30am\u201312:30pm, Online"],
+  ["TUT01/12", "Tuesday, 9:30am\u201310:30am, Online"],
 ];
 const MS_WORKSHOPS = [
   ["WRK01/01", "Wednesday, 12:30pm\u20131:30pm, room 056.02.030"],
@@ -134,24 +147,31 @@ msPopulate(msTutEl, MS_TUTORIALS);
 msPopulate(msWkEl, MS_WORKSHOPS);
 
 /* ------------------------------------------------------------------
-   MAP LINKS — the first number group in a room code is the RMIT
-   building number (e.g. "room 080.02.007" -> Building 80), which
-   Google Maps resolves fine as a plain search. Online sessions have
-   no room code, so no link is shown for those.
+   VENUE LINKS — the first number group in a room code is the RMIT
+   building number (e.g. "room 080.02.007" -> Building 80), linked to
+   a Google Maps search. Online sessions marked "Collaborate Ultra"
+   link there instead. Plain "Online" (no confirmed platform) gets
+   no link.
 ------------------------------------------------------------------- */
+const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
+function linkForVenue(text) {
+  if (text.includes("Collaborate Ultra")) {
+    return ' · <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
+  }
+  const match = text.match(/room (\d+)\./);
+  if (match) {
+    const building = parseInt(match[1], 10);
+    const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+    return ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
+      '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
+  }
+  return "";
+}
 function updateMapLink(selectEl, mapEl) {
   const label = selectEl.options[selectEl.selectedIndex]
     ? selectEl.options[selectEl.selectedIndex].textContent
     : "";
-  const match = label.match(/room (\d+)\./);
-  if (!match) {
-    mapEl.innerHTML = "";
-    return;
-  }
-  const building = parseInt(match[1], 10); // strips leading zeros
-  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
-  mapEl.innerHTML = '<a href="https://www.google.com/maps/search/?api=1&query=' + query +
-    '" target="_blank">\uD83D\uDCCD View Building ' + building + " on Google Maps</a>";
+  mapEl.innerHTML = linkForVenue(label).replace(/^\s*\u00b7\s*/, "");
 }
 const msLecMap = document.getElementById("ms-lec-map");
 const msTutMap = document.getElementById("ms-tut-map");
@@ -169,7 +189,7 @@ function summaryLineFor(selectEl) {
   const opt = selectEl.options[selectEl.selectedIndex];
   if (!selectEl.value || !opt) return null;
   const label = opt.textContent.replace(/^\S+\s\u2014\s/, "");
-  return "<div style=\"margin-bottom:6px;\">" + label + "</div>";
+  return "<div style=\"margin-bottom:6px;\">" + label + linkForVenue(label) + "</div>";
 }
 function showSummary() {
   const lines = [summaryLineFor(msLecEl), summaryLineFor(msTutEl), summaryLineFor(msWkEl)]
@@ -213,6 +233,29 @@ function msSave() {
 document.getElementById("ms-save-btn").addEventListener("click", msSave);
 document.getElementById("ms-edit-btn").addEventListener("click", showForm);
 msLoad();
+
+/* ------------------------------------------------------------------
+   FRESHNESS CHECK — see week1.html for the full explanation. Bump
+   the content="..." value in the page-version meta tag in <head>
+   any time this file is meaningfully changed.
+------------------------------------------------------------------- */
+(function () {
+  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
+  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
+  fetch(bustUrl, { cache: "no-store" })
+    .then((r) => r.text())
+    .then((html) => {
+      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
+      if (match && match[1] !== CURRENT_VERSION) {
+        const banner = document.getElementById("update-banner");
+        banner.style.display = "block";
+        document.getElementById("update-refresh-btn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+    })
+    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
+})();
 </script>
 </body>
 </html>
