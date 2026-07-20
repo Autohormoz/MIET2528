@@ -3,284 +3,96 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-20-02" />
-<title>MIET2528 — Week 1 at a Glance</title>
+<meta name="page-version" content="2026-07-20-03" />
+<title>MIET2528 — My Sessions</title>
 <style>
   :root{
     --navy:#0A0F1E;
     --card:#151d33;
     --cyan:#00BDD6;
     --amber:#F0A500;
-    --red:#E0262B;
     --teal:#1C7293;
     --ink:#C8D8F0;
     --muted:#7086a0;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;background:var(--navy);
-    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);}
-  .wrap{max-width:920px;margin:0 auto;padding:36px 28px 48px;}
+  html,body{margin:0;padding:0;background:transparent;
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;}
+  #update-banner{display:none;width:100%;max-width:640px;margin:0 0 10px;
+    background:var(--amber);color:var(--navy);font-weight:600;font-size:0.85rem;
+    padding:9px 14px;text-align:center;border-radius:8px;}
+  #update-banner button{margin-left:10px;background:var(--navy);color:#fff;
+    border:none;border-radius:6px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:0.8rem;}
 
-  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
-    color:var(--muted);margin-bottom:8px;}
-  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
-    font-size:2.15rem;color:var(--cyan);margin:0 0 8px;}
-  .dek{font-size:1.1rem;color:var(--muted);margin:0 0 28px;line-height:1.5;}
+  .card{background:var(--card);border-radius:12px;padding:22px 26px;
+    width:100%;max-width:640px;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.2rem;
+    color:#ffffff;margin:0 0 12px;}
+  p.dek{margin:0 0 16px;font-size:0.88rem;line-height:1.6;color:var(--muted);}
 
-  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.25rem;
-    color:#ffffff;margin:0 0 16px;}
-
-  .notice{background:rgba(224,38,43,0.1);border:1px solid var(--red);
-    border-radius:10px;padding:16px 22px;margin-bottom:28px;
-    display:flex;align-items:center;gap:12px;}
-  .notice b{color:var(--red);}
-  .notice p{margin:0;font-size:1.05rem;line-height:1.55;color:var(--ink);}
-
-  .card{background:var(--card);border-radius:10px;padding:24px 28px;margin-bottom:24px;}
-  .card ul{margin:0;padding-left:20px;}
-  .card li{font-size:1.05rem;line-height:1.8;}
-  .card a{color:var(--amber);font-weight:600;text-decoration:none;}
-  .card a:hover{text-decoration:underline;}
-
-  /* --- roadmap --- */
-  .roadmap{display:flex;align-items:center;margin:0 0 30px;}
-  .roadmap .stop{flex:1;text-align:center;position:relative;}
-  .roadmap .stop .bubble{width:34px;height:34px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;margin:0 auto 8px;
-    font-size:0.85rem;font-weight:700;color:var(--navy);}
-  .roadmap .stop.now .bubble{background:var(--amber);}
-  .roadmap .stop.next .bubble{background:var(--card);color:var(--muted);
-    border:1px solid var(--muted);}
-  .roadmap .stop .label{font-size:0.88rem;color:var(--muted);}
-  .roadmap .stop.now .label{color:#ffffff;}
-  .roadmap .line{flex:0 0 60px;height:1px;background:var(--muted);
-    opacity:0.5;margin-top:-24px;}
-
-  /* --- checklist --- */
-  .checklist-head{display:flex;justify-content:space-between;align-items:baseline;
-    margin-bottom:14px;}
-  .progress-track{background:rgba(255,255,255,0.08);border-radius:999px;
-    height:10px;overflow:hidden;margin-bottom:18px;}
-  .progress-fill{background:var(--cyan);height:100%;width:0%;
-    transition:width 0.25s ease;}
-  .progress-label{font-size:0.9rem;color:var(--muted);}
-  .item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;
-    border-top:1px solid rgba(255,255,255,0.06);}
-  .item:first-of-type{border-top:none;}
-  .item input{margin-top:4px;width:19px;height:19px;accent-color:var(--cyan);
-    cursor:pointer;flex-shrink:0;}
-  .item label{font-size:1.05rem;line-height:1.5;cursor:pointer;}
-  .item.done label{color:var(--muted);text-decoration:line-through;}
   .my-session-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
   .my-session-row label{flex:0 0 80px;font-size:0.9rem;font-weight:600;color:#ffffff;}
-  .my-session-row input, .my-session-row select{flex:1 1 200px;padding:8px 10px;border-radius:6px;
+  .my-session-row select{flex:1 1 200px;padding:8px 10px;border-radius:6px;
     border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);
     color:var(--ink);font-size:0.9rem;}
-  .my-session-row input::placeholder{color:var(--muted);}
   .my-session-row select option{background:var(--navy);color:var(--ink);}
   .ms-map{margin:-2px 0 12px 90px;font-size:0.85rem;}
   .ms-map a{color:var(--amber);text-decoration:none;font-weight:600;}
   .ms-map a:hover{text-decoration:underline;}
 
-  .reset{background:none;border:none;color:var(--muted);font-size:0.88rem;
-    text-decoration:underline;cursor:pointer;margin-top:8px;padding:0;}
-
-  .mandatory-notice{background:rgba(0,189,214,0.08);border-left:3px solid var(--cyan);
-    border-radius:10px;padding:18px 22px;margin-bottom:24px;}
-  .mandatory-notice .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
-    font-size:0.75rem;font-weight:600;letter-spacing:0.02em;
-    padding:3px 10px;border-radius:999px;margin-bottom:10px;}
-  .mandatory-notice h2{margin:0 0 8px;color:#ffffff;}
-  .mandatory-notice p{margin:0 0 12px;font-size:0.95rem;line-height:1.6;color:var(--ink);}
-  .mandatory-notice ul{margin:0 0 12px;padding-left:20px;}
-  .mandatory-notice li{font-size:0.95rem;line-height:1.6;}
-  .mandatory-notice a.btn-link{display:inline-block;background:var(--cyan);color:var(--navy);
-    font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;text-decoration:none;}
-
-  .item.mandatory{background:rgba(0,189,214,0.06);border-left:3px solid var(--cyan);
-    border-radius:8px;padding:10px 14px;margin-bottom:4px;}
-  .item.mandatory label{font-weight:600;}
-  .item.mandatory .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
-    font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;}
-
-  #update-banner{display:none;position:sticky;top:0;z-index:100;
-    background:var(--amber);color:var(--navy);font-weight:600;font-size:0.9rem;
-    padding:10px 16px;text-align:center;}
-  #update-banner button{margin-left:12px;background:var(--navy);color:#fff;
-    border:none;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;}
-
-  footer{margin-top:36px;font-size:0.88rem;color:var(--muted);
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .btn-link{display:inline-block;background:var(--cyan);color:var(--navy);
+    font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;
+    border:none;cursor:pointer;margin-top:6px;}
 </style>
 </head>
 <body>
 <div id="update-banner">
-  A newer version of this page is available.
+  A newer version is available.
   <button id="update-refresh-btn">Refresh now</button>
 </div>
-<div class="wrap">
+<div class="card">
+  <h2>My Sessions</h2>
+  <p class="dek">
+    Workshops and tutorials run in multiple parallel sessions, and everyone is individually
+    enrolled in their own — check Canvas if you're not sure which is yours.
+    Pick your own sessions below once — this page will remember them for you from then on.
+  </p>
 
-  <div class="eyebrow">MIET2528 · Week 1</div>
-  <h1>Welcome — Course Introduction</h1>
-  <p class="dek">Lectorials only this week. No workshop, no tutorial — just watch, listen, and show up ready for Week 2.</p>
+  <div id="ms-form">
+  <div class="my-session-row">
+    <label>Lectorial</label>
+    <select id="ms-lec"><option value="">Select your session…</option></select>
+  </div>
+  <div class="ms-map" id="ms-lec-map"></div>
 
-  <div class="mandatory-notice">
-    <span class="tag">A university requirement — made easy</span>
-    <h2>Your Safety Induction</h2>
-    <p>This is required by the university for anyone using the workshop, and we've genuinely tried to make it painless. It's a fully digital, 360° walkthrough of the space, with safety and operational tips built directly around the tools and equipment you'll actually be using for your group project.</p>
-    <p>Please complete it by the end of this week, so you're all set for your project handouts and materials, and ready to walk into your first workshop session in Week 2.</p>
-    <a class="btn-link" href="https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380" target="_blank">Start the Safety Induction</a>
+  <div class="my-session-row">
+    <label>Tutorial</label>
+    <select id="ms-tut"><option value="">Select your session…</option></select>
+  </div>
+  <div class="ms-map" id="ms-tut-map"></div>
+
+  <div class="my-session-row">
+    <label>Workshop</label>
+    <select id="ms-wk"><option value="">Select your session…</option></select>
+  </div>
+  <div class="ms-map" id="ms-wk-map"></div>
+
+  <button class="btn-link" id="ms-save-btn">Save my sessions</button>
   </div>
 
-  <div class="notice">
-    <p><b>No workshop or tutorial in Week 1.</b> Both begin in Week 2 (starting 28 July). This week is lectorial content only.</p>
+  <div id="ms-summary" style="display:none;">
+    <div id="ms-summary-lines"></div>
+    <button class="btn-link" id="ms-edit-btn" style="background:transparent;border:1px solid var(--muted);color:var(--ink);">Edit my sessions</button>
   </div>
 
-  <div class="roadmap">
-    <div class="stop now">
-      <div class="bubble">1</div>
-      <div class="label">Lectorials only<br>Week of 21 July</div>
-    </div>
-    <div class="line"></div>
-    <div class="stop next">
-      <div class="bubble">2</div>
-      <div class="label">Workshops + tutorials begin<br>28 July</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Lectorials — your timetabled session</h2>
-    <ul id="lectorial-list">
-      <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
-      <li><b>Thursdays</b> — 12:30–2:30pm, Room 080.07.001</li>
-      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
-    </ul>
-    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Before you attend</p>
-    <ul>
-      <li>Watch before attending: <a href="https://rmit.instructure.com/courses/158283/pages/week-1-introduction-to-course-and-force-systems?module_item_id=8428015" target="_blank">Introduction to the Course</a></li>
-      <li>Watch before attending: <a href="https://rmit.instructure.com/courses/158283/pages/week-1-continued-force-and-moment-systems-lightboard-videos?module_item_id=8501583" target="_blank">Force and Moment Systems</a></li>
-      <li>New this year — a short podcast episode is embedded directly on each lecture page above, warming you up to the ideas covered before you get to lectorial</li>
-    </ul>
-  </div>
-
-  <div class="card">
-    <h2>My Sessions</h2>
-    <p style="margin:0 0 16px;font-size:0.9rem;line-height:1.6;color:var(--muted);">
-      Workshops and tutorials run in multiple parallel sessions, and everyone is individually
-      enrolled in their own — check Canvas if you're not sure which is yours.
-      Pick your own sessions below once — this page will remember them for you from then on.
-    </p>
-
-    <div id="ms-form">
-    <div class="my-session-row">
-      <label>Lectorial</label>
-      <select id="ms-lec"><option value="">Select your session…</option></select>
-    </div>
-    <div class="ms-map" id="ms-lec-map"></div>
-
-    <div class="my-session-row">
-      <label>Tutorial</label>
-      <select id="ms-tut"><option value="">Select your session…</option></select>
-    </div>
-    <div class="ms-map" id="ms-tut-map"></div>
-
-    <div class="my-session-row">
-      <label>Workshop</label>
-      <select id="ms-wk"><option value="">Select your session…</option></select>
-    </div>
-    <div class="ms-map" id="ms-wk-map"></div>
-
-    <button class="btn-link" id="ms-save-btn" style="border:none;cursor:pointer;margin-top:6px;">Save my sessions</button>
-    </div>
-
-    <div id="ms-summary" style="display:none;">
-      <div id="ms-summary-lines"></div>
-      <button class="btn-link" id="ms-edit-btn" style="border:1px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer;margin-top:6px;">Edit my sessions</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="checklist-head">
-      <h2 style="margin:0;">Your Week 1 prep</h2>
-      <span class="progress-label" id="progress-label">0 / 5 done</span>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-
-    <div class="item mandatory">
-      <input type="checkbox" id="c0"><label for="c0">Completed my Safety Induction<span class="tag">Required</span></label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="c1"><label for="c1">Watched "Introduction to the Course"</label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="c2"><label for="c2">Watched "Force and Moment Systems"</label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="c3"><label for="c3">Listened to the Week 1 podcast episode</label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="c4"><label for="c4">Attended my timetabled lectorial session</label>
-    </div>
-    <button class="reset" id="reset-btn">Reset checklist</button>
-  </div>
-
-  <footer>
-    <span>RMIT University · School of Engineering</span>
-    <span>MIET2528 — Introduction to Mechanical Engineering</span>
-  </footer>
 </div>
 
 <script>
 /* ------------------------------------------------------------------
-   TO REUSE FOR ANOTHER WEEK:
-   - Update the eyebrow/title/dek text
-   - Update or remove the "no workshop/tutorial" notice + roadmap
-     once workshops are running
-   - Swap the card content and checklist items for that week
-   - Change STORAGE_KEY below so each week keeps its own progress
-   - Keep the small "hard refresh" line under the footer — standard
-     on every page from now on, given past GitHub Pages caching issues
-------------------------------------------------------------------- */
-const STORAGE_KEY = "miet2528-week1-checklist";
-const boxes = [...document.querySelectorAll(".item input")];
-const fill = document.getElementById("progress-fill");
-const label = document.getElementById("progress-label");
-
-function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    boxes.forEach((b) => { if (saved[b.id]) b.checked = true; });
-  } catch (e) { /* ignore corrupt storage */ }
-}
-function saveState() {
-  const state = {};
-  boxes.forEach((b) => { state[b.id] = b.checked; });
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
-}
-function updateProgress() {
-  const done = boxes.filter((b) => b.checked).length;
-  fill.style.width = (done / boxes.length) * 100 + "%";
-  label.textContent = done + " / " + boxes.length + " done";
-  boxes.forEach((b) => {
-    b.closest(".item").classList.toggle("done", b.checked);
-  });
-}
-boxes.forEach((b) => {
-  b.addEventListener("change", () => { saveState(); updateProgress(); });
-});
-document.getElementById("reset-btn").addEventListener("click", () => {
-  boxes.forEach((b) => (b.checked = false));
-  saveState();
-  updateProgress();
-});
-
-loadState();
-updateProgress();
-
-/* ------------------------------------------------------------------
-   MY SESSIONS — populated from the real MIET2528 S2 timetable export.
-   Student picks their own session once; saved to their own browser
-   only (not sent anywhere), so it's back next time they open the page.
+   Same session data and localStorage key as the widget on week1.html,
+   so a student's saved choice is shared between wherever this iframe
+   is embedded and the Week 1 page itself.
    TO UPDATE FOR A NEW SEMESTER: replace the three arrays below with
    a fresh export — each entry is [code, "Day, time, room"].
 ------------------------------------------------------------------- */
@@ -297,7 +109,7 @@ const MS_TUTORIALS = [
   ["TUT01/05", "Tuesday, 3:30pm\u20134:30pm, room 080.04.019"],
   ["TUT01/06", "Wednesday, 3:30pm\u20134:30pm, room 080.04.019"],
   ["TUT01/07", "Friday, 9:30am\u201310:30am, room 013.03.009"],
-  ["TUT01/08", "Friday, 3:30pm\u20134:30pm, room 080.09.012"],
+  ["TUT01/08", "Thursday, 3:30pm\u20134:30pm, room 080.09.012"],
   ["TUT01/09", "Friday, 8:30am\u20139:30am, room 080.09.012"],
   ["TUT01/10", "Friday, 10:30am\u201311:30am, room 013.03.009"],
   ["TUT01/11", "Wednesday, 11:30am\u201312:30pm, Online"],
@@ -335,48 +147,31 @@ msPopulate(msTutEl, MS_TUTORIALS);
 msPopulate(msWkEl, MS_WORKSHOPS);
 
 /* ------------------------------------------------------------------
-   SESSION SUMMARY — once a student has saved a choice for a category,
-   replace that category's static "all options" list with just their
-   own session. Reusable for Tutorial/Workshop too on later week pages
-   once those sessions are running (this week only Lectorial applies).
+   VENUE LINKS — the first number group in a room code is the RMIT
+   building number (e.g. "room 080.02.007" -> Building 80), linked to
+   a Google Maps search. Online sessions marked "Collaborate Ultra"
+   link there instead. Plain "Online" (no confirmed platform) gets
+   no link.
 ------------------------------------------------------------------- */
 const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
 function linkForVenue(text) {
   if (text.includes("Collaborate Ultra")) {
     return ' · <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
   }
-  const buildingMatch = text.match(/room (\d+)\./);
-  if (buildingMatch) {
-    const building = parseInt(buildingMatch[1], 10);
+  const match = text.match(/room (\d+)\./);
+  if (match) {
+    const building = parseInt(match[1], 10);
     const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
     return ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
       '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
   }
   return "";
 }
-function renderSessionSummary(selectEl, listElId) {
-  const listEl = document.getElementById(listElId);
-  if (!listEl) return;
-  const opt = selectEl.options[selectEl.selectedIndex];
-  if (!selectEl.value || !opt) return; // nothing saved yet — leave the default list showing
-  const label = opt.textContent.replace(/^\S+\s\u2014\s/, ""); // strip the leading "CODE — "
-  const commaIdx = label.indexOf(",");
-  const day = commaIdx === -1 ? label : label.slice(0, commaIdx);
-  const rest = commaIdx === -1 ? "" : label.slice(commaIdx + 1).trim();
-  const venueHtml = linkForVenue(rest);
-  listEl.innerHTML = "<li><b>" + day + "</b> \u2014 " + rest + venueHtml + "</li>";
-}
 function updateMapLink(selectEl, mapEl) {
   const label = selectEl.options[selectEl.selectedIndex]
     ? selectEl.options[selectEl.selectedIndex].textContent
     : "";
-  const venueHtml = linkForVenue(label);
-  if (!venueHtml) {
-    mapEl.innerHTML = "";
-    return;
-  }
-  // strip the leading " · " separator for the standalone map-line display
-  mapEl.innerHTML = venueHtml.replace(/^\s*\u00b7\s*/, "");
+  mapEl.innerHTML = linkForVenue(label).replace(/^\s*\u00b7\s*/, "");
 }
 const msLecMap = document.getElementById("ms-lec-map");
 const msTutMap = document.getElementById("ms-tut-map");
@@ -404,10 +199,6 @@ function showSummary() {
     : "<div style=\"color:var(--muted);\">No sessions saved yet.</div>";
   msFormEl.style.display = "none";
   msSummaryEl.style.display = "block";
-  renderSessionSummary(msLecEl, "lectorial-list");
-  // On future week pages, once tutorials/workshops are running, add:
-  // renderSessionSummary(msTutEl, "tutorial-list");
-  // renderSessionSummary(msWkEl, "workshop-list");
 }
 function showForm() {
   msFormEl.style.display = "block";
@@ -415,17 +206,22 @@ function showForm() {
 }
 
 function msLoad() {
-  let saved = {};
   try {
-    saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
+    const saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
     if (saved.lec) msLecEl.value = saved.lec;
     if (saved.tut) msTutEl.value = saved.tut;
     if (saved.wk) msWkEl.value = saved.wk;
+    updateMapLink(msLecEl, msLecMap);
+    updateMapLink(msTutEl, msTutMap);
+    updateMapLink(msWkEl, msWkMap);
+    if (saved.lec || saved.tut || saved.wk) {
+      showSummary();
+      return;
+    }
   } catch (e) { /* ignore corrupt storage */ }
   updateMapLink(msLecEl, msLecMap);
   updateMapLink(msTutEl, msTutMap);
   updateMapLink(msWkEl, msWkMap);
-  if (saved.lec || saved.tut || saved.wk) showSummary();
 }
 function msSave() {
   const data = { lec: msLecEl.value, tut: msTutEl.value, wk: msWkEl.value };
@@ -434,20 +230,14 @@ function msSave() {
   } catch (e) { /* ignore storage errors */ }
   showSummary();
 }
-const msSaveBtn = document.getElementById("ms-save-btn");
-if (msSaveBtn) msSaveBtn.addEventListener("click", msSave);
-const msEditBtn = document.getElementById("ms-edit-btn");
-if (msEditBtn) msEditBtn.addEventListener("click", showForm);
+document.getElementById("ms-save-btn").addEventListener("click", msSave);
+document.getElementById("ms-edit-btn").addEventListener("click", showForm);
 msLoad();
 
 /* ------------------------------------------------------------------
-   FRESHNESS CHECK — students never need to guess whether they're on
-   an old cached version. On load, fetch this same page fresh
-   (bypassing cache) and compare its <meta name="page-version"> to
-   this page's own. If they differ, show a small banner with a
-   Refresh button — nothing shown at all if the page is already current.
-   TO UPDATE: bump the content="..." value in the page-version meta
-   tag in <head> any time this file is meaningfully changed.
+   FRESHNESS CHECK — see week1.html for the full explanation. Bump
+   the content="..." value in the page-version meta tag in <head>
+   any time this file is meaningfully changed.
 ------------------------------------------------------------------- */
 (function () {
   const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
