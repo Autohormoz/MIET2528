@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-07-20-01" />
+<title>MIET2528 — Teaching Team Sessions</title>
+<style>
+  :root{
+    --navy:#0A0F1E;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --teal:#1C7293;
+    --ink:#C8D8F0;
+    --muted:#7086a0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--ink);
+    display:flex;flex-direction:column;align-items:center;}
+
+  #update-banner{display:none;width:100%;max-width:640px;margin:0 0 10px;
+    background:var(--amber);color:var(--navy);font-weight:600;font-size:0.85rem;
+    padding:9px 14px;text-align:center;border-radius:8px;}
+  #update-banner button{margin-left:10px;background:var(--navy);color:#fff;
+    border:none;border-radius:6px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:0.8rem;}
+
+  .card{background:var(--card);border-radius:12px;padding:22px 26px;
+    width:100%;max-width:640px;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.2rem;
+    color:#ffffff;margin:0 0 12px;}
+  p.dek{margin:0 0 16px;font-size:0.88rem;line-height:1.6;color:var(--muted);}
+
+  .row{display:flex;gap:10px;align-items:center;margin-bottom:6px;flex-wrap:wrap;}
+  .row label{flex:0 0 100px;font-size:0.9rem;font-weight:600;color:#ffffff;}
+  .row select{flex:1 1 200px;padding:8px 10px;border-radius:6px;
+    border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);
+    color:var(--ink);font-size:0.9rem;}
+  .row select option{background:var(--navy);color:var(--ink);}
+
+  .btn-link{display:inline-block;background:var(--cyan);color:var(--navy);
+    font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;
+    border:none;cursor:pointer;margin-top:10px;}
+
+  .sched-list{margin-top:16px;}
+  .sched-item{background:rgba(255,255,255,0.04);border-left:3px solid var(--teal);
+    border-radius:8px;padding:12px 16px;margin-bottom:10px;}
+  .sched-item .kind{display:inline-block;font-size:0.72rem;font-weight:700;
+    letter-spacing:0.03em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;}
+  .sched-item .when{font-size:0.98rem;color:#ffffff;}
+  .sched-item a{color:var(--amber);text-decoration:none;font-weight:600;font-size:0.85rem;}
+  .sched-item a:hover{text-decoration:underline;}
+  .sched-item .link-row{margin-top:4px;}
+</style>
+</head>
+<body>
+<div id="update-banner">
+  A newer version is available.
+  <button id="update-refresh-btn">Refresh now</button>
+</div>
+
+<div class="card">
+  <h2>Teaching Team — My Sessions</h2>
+  <p class="dek">
+    Pick your name to see every lectorial, tutorial, and workshop session you're
+    rostered for this semester — day, time, room, and a map or Collaborate Ultra
+    link for each. This page will remember your choice for next time.
+  </p>
+
+  <div class="row">
+    <label>My name</label>
+    <select id="staff-select"><option value="">Select your name…</option></select>
+  </div>
+
+  <div class="sched-list" id="sched-list"></div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   STAFF SCHEDULE DATA — built from Casual_time_allocation.xlsx,
+   cross-checked against the confirmed master timetable for exact
+   day/time/room (the roster sheet's own times were slightly stale
+   in places, e.g. the Thursday lectorial).
+   TO UPDATE FOR A NEW SEMESTER: replace this object with a fresh
+   roster + timetable cross-check.
+------------------------------------------------------------------- */
+const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
+
+const STAFF_SCHEDULES = {
+  "Riley": [
+    { kind: "Lectorial", day: "Thursday", time: "12:30pm\u20132:30pm", room: "080.07.001" },
+    { kind: "Workshop", day: "Wednesday", time: "12:30pm\u20134:30pm", room: "056.02.030" },
+    { kind: "Workshop", day: "Friday", time: "12:30pm\u20135:30pm", room: "056.02.030" },
+  ],
+  "Jax": [
+    { kind: "Lectorial", day: "Tuesday", time: "4:30pm\u20136:30pm", room: "080.02.007" },
+    { kind: "Workshop", day: "Friday", time: "12:30pm\u20135:30pm", room: "056.02.030" },
+  ],
+  "Tatjana": [
+    { kind: "Lectorial", day: "Tuesday", time: "4:30pm\u20136:30pm", room: "080.02.007" },
+    { kind: "Lectorial", day: "Thursday", time: "12:30pm\u20132:30pm", room: "080.07.001" },
+    { kind: "Workshop", day: "Tuesday", time: "1:30pm\u20134:30pm", room: "056.02.030" },
+    { kind: "Workshop", day: "Wednesday", time: "12:30pm\u20134:30pm", room: "056.02.030" },
+    { kind: "Workshop", day: "Friday", time: "12:30pm\u20135:30pm", room: "056.02.030" },
+  ],
+  "Zakiyyah": [
+    { kind: "Lectorial", day: "Wednesday", time: "5:30pm\u20137:30pm", room: null, online: true },
+    { kind: "Tutorial", day: "Monday", time: "5:30pm\u20136:30pm", room: "080.03.015" },
+    { kind: "Tutorial", day: "Wednesday", time: "11:30am\u201312:30pm", room: "013.02.029" },
+    { kind: "Tutorial", day: "Thursday", time: "3:30pm\u20134:30pm", room: "013.03.009" },
+    { kind: "Tutorial", day: "Friday", time: "8:30am\u20139:30am", room: "080.09.012" },
+  ],
+  "Ikram": [
+    { kind: "Tutorial", day: "Tuesday", time: "9:30am\u201310:30am", room: "080.09.012" },
+    { kind: "Tutorial", day: "Tuesday", time: "3:30pm\u20134:30pm", room: "080.04.019" },
+  ],
+  "Tharani": [
+    { kind: "Tutorial", day: "Wednesday", time: "3:30pm\u20134:30pm", room: "080.04.019" },
+    { kind: "Tutorial", day: "Thursday", time: "3:30pm\u20134:30pm", room: "013.03.009" },
+  ],
+  "Rehan": [
+    { kind: "Tutorial", day: "Friday", time: "9:30am\u201311:30am", room: "013.03.009" },
+  ],
+  "Hongru": [
+    { kind: "Workshop", day: "Tuesday", time: "1:30pm\u20134:30pm", room: "056.02.030" },
+    { kind: "Workshop", day: "Wednesday", time: "12:30pm\u20134:30pm", room: "056.02.030" },
+  ],
+  "Frank": [
+    { kind: "Workshop", day: "Tuesday", time: "1:30pm\u20134:30pm", room: "056.02.030" },
+  ],
+};
+
+const selectEl = document.getElementById("staff-select");
+Object.keys(STAFF_SCHEDULES).forEach((name) => {
+  const opt = document.createElement("option");
+  opt.value = name;
+  opt.textContent = name;
+  selectEl.appendChild(opt);
+});
+
+function venueLinkHtml(item) {
+  if (item.online) {
+    return '<div class="link-row"><a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a></div>';
+  }
+  const buildingMatch = item.room.match(/^(\d+)\./);
+  if (!buildingMatch) return "";
+  const building = parseInt(buildingMatch[1], 10);
+  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+  return '<div class="link-row"><a href="https://www.google.com/maps/search/?api=1&query=' + query +
+    '" target="_blank">\uD83D\uDCCD Building ' + building + " on Google Maps</a></div>";
+}
+
+function renderSchedule(name) {
+  const listEl = document.getElementById("sched-list");
+  const items = STAFF_SCHEDULES[name];
+  if (!items) {
+    listEl.innerHTML = "";
+    return;
+  }
+  listEl.innerHTML = items.map((item) => {
+    const venue = item.online ? "Online" : ("Room " + item.room);
+    return '<div class="sched-item">' +
+      '<div class="kind">' + item.kind + '</div>' +
+      '<div class="when"><b>' + item.day + '</b> \u2014 ' + item.time + ', ' + venue + '</div>' +
+      venueLinkHtml(item) +
+      '</div>';
+  }).join("");
+}
+
+const STAFF_KEY = "miet2528-staff-name";
+selectEl.addEventListener("change", () => {
+  renderSchedule(selectEl.value);
+  try { localStorage.setItem(STAFF_KEY, selectEl.value); } catch (e) {}
+});
+
+try {
+  const saved = localStorage.getItem(STAFF_KEY);
+  if (saved && STAFF_SCHEDULES[saved]) {
+    selectEl.value = saved;
+    renderSchedule(saved);
+  }
+} catch (e) {}
+
+/* ------------------------------------------------------------------
+   FRESHNESS CHECK — see week1.html for the full explanation. Bump
+   the content="..." value in the page-version meta tag in <head>
+   any time this file is meaningfully changed.
+------------------------------------------------------------------- */
+(function () {
+  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
+  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
+  fetch(bustUrl, { cache: "no-store" })
+    .then((r) => r.text())
+    .then((html) => {
+      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
+      if (match && match[1] !== CURRENT_VERSION) {
+        const banner = document.getElementById("update-banner");
+        banner.style.display = "block";
+        document.getElementById("update-refresh-btn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+    })
+    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
+})();
+</script>
+</body>
+</html>
