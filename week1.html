@@ -141,8 +141,8 @@
     <h2>Lectorials — your timetabled session</h2>
     <ul id="lectorial-list">
       <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
-      <li><b>Thursdays</b> — 2:30–4:30pm, Room 080.02.007</li>
-      <li><b>Fridays</b> — 4:30–6:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
+      <li><b>Thursdays</b> — 12:30–2:30pm, Room 080.07.001</li>
+      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
     </ul>
     <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Before you attend</p>
     <ul>
@@ -217,6 +217,9 @@
     <span>RMIT University · School of Engineering</span>
     <span>MIET2528 — Introduction to Mechanical Engineering</span>
   </footer>
+  <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:8px;">
+    Not seeing the latest version? Try a hard refresh — Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac).
+  </p>
 </div>
 
 <script>
@@ -227,6 +230,8 @@
      once workshops are running
    - Swap the card content and checklist items for that week
    - Change STORAGE_KEY below so each week keeps its own progress
+   - Keep the small "hard refresh" line under the footer — standard
+     on every page from now on, given past GitHub Pages caching issues
 ------------------------------------------------------------------- */
 const STORAGE_KEY = "miet2528-week1-checklist";
 const boxes = [...document.querySelectorAll(".item input")];
@@ -273,20 +278,22 @@ updateProgress();
 ------------------------------------------------------------------- */
 const MS_LECTORIALS = [
   ["LTL01/03", "Tuesday, 4:30pm\u20136:30pm, room 080.02.007"],
-  ["LTL01/01", "Thursday, 2:30pm\u20134:30pm, room 080.04.011"],
-  ["LTL01/02", "Friday, 4:30pm\u20136:30pm, Online (Collaborate Ultra)"],
+  ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
+  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
 ];
 const MS_TUTORIALS = [
-  ["TUT01/01", "Tuesday, 2:30pm\u20133:30pm, room 080.06.005"],
-  ["TUT01/02", "Thursday, 12:30pm\u20131:30pm, room 080.09.012"],
-  ["TUT01/03", "Wednesday, 10:30am\u201311:30am, room 080.04.019"],
-  ["TUT01/04", "Friday, 12:30pm\u20131:30pm, room 056.05.085"],
+  ["TUT01/01", "Wednesday, 11:30am\u201312:30pm, room 013.02.029"],
+  ["TUT01/02", "Tuesday, 9:30am\u201310:30am, room 080.09.012"],
+  ["TUT01/03", "Thursday, 3:30pm\u20134:30pm, room 013.03.009"],
+  ["TUT01/04", "Monday, 5:30pm\u20136:30pm, room 080.03.015"],
   ["TUT01/05", "Tuesday, 3:30pm\u20134:30pm, room 080.04.019"],
-  ["TUT01/06", "Wednesday, 1:30pm\u20132:30pm, room 056.05.085"],
-  ["TUT01/07", "Wednesday, 9:30am\u201310:30am, room 080.10.017"],
-  ["TUT01/08", "Friday, 2:30pm\u20133:30pm, room 080.03.015"],
-  ["TUT01/09", "Wednesday, 12:30pm\u20131:30pm, room 080.06.005"],
-  ["TUT01/10", "Friday, 10:30am\u201311:30am, room 056.03.093"],
+  ["TUT01/06", "Wednesday, 3:30pm\u20134:30pm, room 080.04.019"],
+  ["TUT01/07", "Friday, 9:30am\u201310:30am, room 013.03.009"],
+  ["TUT01/08", "Friday, 3:30pm\u20134:30pm, room 080.09.012"],
+  ["TUT01/09", "Friday, 8:30am\u20139:30am, room 080.09.012"],
+  ["TUT01/10", "Friday, 10:30am\u201311:30am, room 013.03.009"],
+  ["TUT01/11", "Wednesday, 11:30am\u201312:30pm, Online"],
+  ["TUT01/12", "Tuesday, 9:30am\u201310:30am, Online"],
 ];
 const MS_WORKSHOPS = [
   ["WRK01/01", "Wednesday, 12:30pm\u20131:30pm, room 056.02.030"],
@@ -325,6 +332,20 @@ msPopulate(msWkEl, MS_WORKSHOPS);
    own session. Reusable for Tutorial/Workshop too on later week pages
    once those sessions are running (this week only Lectorial applies).
 ------------------------------------------------------------------- */
+const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
+function linkForVenue(text) {
+  if (text.includes("Collaborate Ultra")) {
+    return ' · <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
+  }
+  const buildingMatch = text.match(/room (\d+)\./);
+  if (buildingMatch) {
+    const building = parseInt(buildingMatch[1], 10);
+    const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+    return ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
+      '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
+  }
+  return "";
+}
 function renderSessionSummary(selectEl, listElId) {
   const listEl = document.getElementById(listElId);
   if (!listEl) return;
@@ -334,29 +355,20 @@ function renderSessionSummary(selectEl, listElId) {
   const commaIdx = label.indexOf(",");
   const day = commaIdx === -1 ? label : label.slice(0, commaIdx);
   const rest = commaIdx === -1 ? "" : label.slice(commaIdx + 1).trim();
-  const buildingMatch = rest.match(/room (\d+)\./);
-  let mapHtml = "";
-  if (buildingMatch) {
-    const building = parseInt(buildingMatch[1], 10);
-    const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
-    mapHtml = ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
-      '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
-  }
-  listEl.innerHTML = "<li><b>" + day + "</b> \u2014 " + rest + mapHtml + "</li>";
+  const venueHtml = linkForVenue(rest);
+  listEl.innerHTML = "<li><b>" + day + "</b> \u2014 " + rest + venueHtml + "</li>";
 }
 function updateMapLink(selectEl, mapEl) {
   const label = selectEl.options[selectEl.selectedIndex]
     ? selectEl.options[selectEl.selectedIndex].textContent
     : "";
-  const match = label.match(/room (\d+)\./);
-  if (!match) {
+  const venueHtml = linkForVenue(label);
+  if (!venueHtml) {
     mapEl.innerHTML = "";
     return;
   }
-  const building = parseInt(match[1], 10);
-  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
-  mapEl.innerHTML = '<a href="https://www.google.com/maps/search/?api=1&query=' + query +
-    '" target="_blank">\uD83D\uDCCD View Building ' + building + " on Google Maps</a>";
+  // strip the leading " · " separator for the standalone map-line display
+  mapEl.innerHTML = venueHtml.replace(/^\s*\u00b7\s*/, "");
 }
 const msLecMap = document.getElementById("ms-lec-map");
 const msTutMap = document.getElementById("ms-tut-map");
@@ -374,7 +386,7 @@ function summaryLineFor(selectEl) {
   const opt = selectEl.options[selectEl.selectedIndex];
   if (!selectEl.value || !opt) return null;
   const label = opt.textContent.replace(/^\S+\s\u2014\s/, "");
-  return "<div style=\"margin-bottom:6px;\">" + label + "</div>";
+  return "<div style=\"margin-bottom:6px;\">" + label + linkForVenue(label) + "</div>";
 }
 function showSummary() {
   const lines = [summaryLineFor(msLecEl), summaryLineFor(msTutEl), summaryLineFor(msWkEl)]
