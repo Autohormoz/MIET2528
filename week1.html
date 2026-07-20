@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-07-20-02" />
 <title>MIET2528 — Week 1 at a Glance</title>
 <style>
   :root{
@@ -102,11 +103,21 @@
   .item.mandatory .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
     font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;}
 
+  #update-banner{display:none;position:sticky;top:0;z-index:100;
+    background:var(--amber);color:var(--navy);font-weight:600;font-size:0.9rem;
+    padding:10px 16px;text-align:center;}
+  #update-banner button{margin-left:12px;background:var(--navy);color:#fff;
+    border:none;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;}
+
   footer{margin-top:36px;font-size:0.88rem;color:var(--muted);
     display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 </style>
 </head>
 <body>
+<div id="update-banner">
+  A newer version of this page is available.
+  <button id="update-refresh-btn">Refresh now</button>
+</div>
 <div class="wrap">
 
   <div class="eyebrow">MIET2528 · Week 1</div>
@@ -217,9 +228,6 @@
     <span>RMIT University · School of Engineering</span>
     <span>MIET2528 — Introduction to Mechanical Engineering</span>
   </footer>
-  <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:8px;">
-    Not seeing the latest version? Try a hard refresh — Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac).
-  </p>
 </div>
 
 <script>
@@ -431,6 +439,33 @@ if (msSaveBtn) msSaveBtn.addEventListener("click", msSave);
 const msEditBtn = document.getElementById("ms-edit-btn");
 if (msEditBtn) msEditBtn.addEventListener("click", showForm);
 msLoad();
+
+/* ------------------------------------------------------------------
+   FRESHNESS CHECK — students never need to guess whether they're on
+   an old cached version. On load, fetch this same page fresh
+   (bypassing cache) and compare its <meta name="page-version"> to
+   this page's own. If they differ, show a small banner with a
+   Refresh button — nothing shown at all if the page is already current.
+   TO UPDATE: bump the content="..." value in the page-version meta
+   tag in <head> any time this file is meaningfully changed.
+------------------------------------------------------------------- */
+(function () {
+  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
+  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
+  fetch(bustUrl, { cache: "no-store" })
+    .then((r) => r.text())
+    .then((html) => {
+      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
+      if (match && match[1] !== CURRENT_VERSION) {
+        const banner = document.getElementById("update-banner");
+        banner.style.display = "block";
+        document.getElementById("update-refresh-btn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+    })
+    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
+})();
 </script>
 </body>
 </html>
