@@ -37,8 +37,6 @@
   .btn-link{display:inline-block;background:var(--cyan);color:var(--navy);
     font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;
     border:none;cursor:pointer;margin-top:6px;}
-  #ms-saved-note{margin-left:12px;font-size:0.85rem;color:var(--teal);
-    opacity:0;transition:opacity 0.3s;}
 </style>
 </head>
 <body>
@@ -46,13 +44,11 @@
   <h2>My Sessions</h2>
   <p class="dek">
     Workshops and tutorials run in multiple parallel sessions, and everyone is individually
-    enrolled in their own — check Canvas if you're not sure which is yours. As a reminder from
-    the timetable colour-coding: <span style="color:#F0A500;font-weight:600;">orange = Lectorial</span>,
-    <span style="color:#B07CC6;font-weight:600;"> purple = Tutorial</span>,
-    <span style="color:#2FBF71;font-weight:600;"> green = Workshop</span>.
+    enrolled in their own — check Canvas if you're not sure which is yours.
     Pick your own sessions below once — this page will remember them for you from then on.
   </p>
 
+  <div id="ms-form">
   <div class="my-session-row">
     <label>Lectorial</label>
     <select id="ms-lec"><option value="">Select your session…</option></select>
@@ -72,7 +68,13 @@
   <div class="ms-map" id="ms-wk-map"></div>
 
   <button class="btn-link" id="ms-save-btn">Save my sessions</button>
-  <span id="ms-saved-note">Saved ✓</span>
+  </div>
+
+  <div id="ms-summary" style="display:none;">
+    <div id="ms-summary-lines"></div>
+    <button class="btn-link" id="ms-edit-btn" style="background:transparent;border:1px solid var(--muted);color:var(--ink);">Edit my sessions</button>
+  </div>
+
 </div>
 
 <script>
@@ -159,12 +161,43 @@ msTutEl.addEventListener("change", () => updateMapLink(msTutEl, msTutMap));
 msWkEl.addEventListener("change", () => updateMapLink(msWkEl, msWkMap));
 
 const MS_KEY = "miet2528-my-sessions";
+const msFormEl = document.getElementById("ms-form");
+const msSummaryEl = document.getElementById("ms-summary");
+const msSummaryLines = document.getElementById("ms-summary-lines");
+
+function summaryLineFor(selectEl) {
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (!selectEl.value || !opt) return null;
+  const label = opt.textContent.replace(/^\S+\s\u2014\s/, "");
+  return "<div style=\"margin-bottom:6px;\">" + label + "</div>";
+}
+function showSummary() {
+  const lines = [summaryLineFor(msLecEl), summaryLineFor(msTutEl), summaryLineFor(msWkEl)]
+    .filter(Boolean);
+  msSummaryLines.innerHTML = lines.length
+    ? lines.join("")
+    : "<div style=\"color:var(--muted);\">No sessions saved yet.</div>";
+  msFormEl.style.display = "none";
+  msSummaryEl.style.display = "block";
+}
+function showForm() {
+  msFormEl.style.display = "block";
+  msSummaryEl.style.display = "none";
+}
+
 function msLoad() {
   try {
     const saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
     if (saved.lec) msLecEl.value = saved.lec;
     if (saved.tut) msTutEl.value = saved.tut;
     if (saved.wk) msWkEl.value = saved.wk;
+    updateMapLink(msLecEl, msLecMap);
+    updateMapLink(msTutEl, msTutMap);
+    updateMapLink(msWkEl, msWkMap);
+    if (saved.lec || saved.tut || saved.wk) {
+      showSummary();
+      return;
+    }
   } catch (e) { /* ignore corrupt storage */ }
   updateMapLink(msLecEl, msLecMap);
   updateMapLink(msTutEl, msTutMap);
@@ -174,12 +207,11 @@ function msSave() {
   const data = { lec: msLecEl.value, tut: msTutEl.value, wk: msWkEl.value };
   try {
     localStorage.setItem(MS_KEY, JSON.stringify(data));
-    const note = document.getElementById("ms-saved-note");
-    note.style.opacity = "1";
-    setTimeout(() => { note.style.opacity = "0"; }, 2000);
   } catch (e) { /* ignore storage errors */ }
+  showSummary();
 }
 document.getElementById("ms-save-btn").addEventListener("click", msSave);
+document.getElementById("ms-edit-btn").addEventListener("click", showForm);
 msLoad();
 </script>
 </body>
