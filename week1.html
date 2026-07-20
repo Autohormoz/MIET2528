@@ -77,6 +77,9 @@
     color:var(--ink);font-size:0.9rem;}
   .my-session-row input::placeholder{color:var(--muted);}
   .my-session-row select option{background:var(--navy);color:var(--ink);}
+  .ms-map{margin:-2px 0 12px 90px;font-size:0.85rem;}
+  .ms-map a{color:var(--amber);text-decoration:none;font-weight:600;}
+  .ms-map a:hover{text-decoration:underline;}
 
   .reset{background:none;border:none;color:var(--muted);font-size:0.88rem;
     text-decoration:underline;cursor:pointer;margin-top:8px;padding:0;}
@@ -136,7 +139,7 @@
 
   <div class="card">
     <h2>Lectorials — your timetabled session</h2>
-    <ul>
+    <ul id="lectorial-list">
       <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
       <li><b>Thursdays</b> — 2:30–4:30pm, Room 080.02.007</li>
       <li><b>Fridays</b> — 4:30–6:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
@@ -153,28 +156,36 @@
     <h2>My Sessions</h2>
     <p style="margin:0 0 16px;font-size:0.9rem;line-height:1.6;color:var(--muted);">
       Workshops and tutorials run in multiple parallel sessions, and everyone is individually
-      enrolled in their own — check Canvas if you're not sure which is yours. As a reminder from
-      the timetable colour-coding: <span style="color:#F0A500;font-weight:600;">orange = Lectorial</span>,
-      <span style="color:#B07CC6;font-weight:600;"> purple = Tutorial</span>,
-      <span style="color:#2FBF71;font-weight:600;"> green = Workshop</span>.
+      enrolled in their own — check Canvas if you're not sure which is yours.
       Pick your own sessions below once — this page will remember them for you from then on.
     </p>
 
+    <div id="ms-form">
     <div class="my-session-row">
       <label>Lectorial</label>
       <select id="ms-lec"><option value="">Select your session…</option></select>
     </div>
+    <div class="ms-map" id="ms-lec-map"></div>
+
     <div class="my-session-row">
       <label>Tutorial</label>
       <select id="ms-tut"><option value="">Select your session…</option></select>
     </div>
+    <div class="ms-map" id="ms-tut-map"></div>
+
     <div class="my-session-row">
       <label>Workshop</label>
       <select id="ms-wk"><option value="">Select your session…</option></select>
     </div>
+    <div class="ms-map" id="ms-wk-map"></div>
 
     <button class="btn-link" id="ms-save-btn" style="border:none;cursor:pointer;margin-top:6px;">Save my sessions</button>
-    <span id="ms-saved-note" style="margin-left:12px;font-size:0.85rem;color:var(--teal);opacity:0;transition:opacity 0.3s;">Saved ✓</span>
+    </div>
+
+    <div id="ms-summary" style="display:none;">
+      <div id="ms-summary-lines"></div>
+      <button class="btn-link" id="ms-edit-btn" style="border:1px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer;margin-top:6px;">Edit my sessions</button>
+    </div>
   </div>
 
   <div class="card">
@@ -308,26 +319,105 @@ msPopulate(msLecEl, MS_LECTORIALS);
 msPopulate(msTutEl, MS_TUTORIALS);
 msPopulate(msWkEl, MS_WORKSHOPS);
 
+/* ------------------------------------------------------------------
+   SESSION SUMMARY — once a student has saved a choice for a category,
+   replace that category's static "all options" list with just their
+   own session. Reusable for Tutorial/Workshop too on later week pages
+   once those sessions are running (this week only Lectorial applies).
+------------------------------------------------------------------- */
+function renderSessionSummary(selectEl, listElId) {
+  const listEl = document.getElementById(listElId);
+  if (!listEl) return;
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (!selectEl.value || !opt) return; // nothing saved yet — leave the default list showing
+  const label = opt.textContent.replace(/^\S+\s\u2014\s/, ""); // strip the leading "CODE — "
+  const commaIdx = label.indexOf(",");
+  const day = commaIdx === -1 ? label : label.slice(0, commaIdx);
+  const rest = commaIdx === -1 ? "" : label.slice(commaIdx + 1).trim();
+  const buildingMatch = rest.match(/room (\d+)\./);
+  let mapHtml = "";
+  if (buildingMatch) {
+    const building = parseInt(buildingMatch[1], 10);
+    const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+    mapHtml = ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
+      '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
+  }
+  listEl.innerHTML = "<li><b>" + day + "</b> \u2014 " + rest + mapHtml + "</li>";
+}
+function updateMapLink(selectEl, mapEl) {
+  const label = selectEl.options[selectEl.selectedIndex]
+    ? selectEl.options[selectEl.selectedIndex].textContent
+    : "";
+  const match = label.match(/room (\d+)\./);
+  if (!match) {
+    mapEl.innerHTML = "";
+    return;
+  }
+  const building = parseInt(match[1], 10);
+  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+  mapEl.innerHTML = '<a href="https://www.google.com/maps/search/?api=1&query=' + query +
+    '" target="_blank">\uD83D\uDCCD View Building ' + building + " on Google Maps</a>";
+}
+const msLecMap = document.getElementById("ms-lec-map");
+const msTutMap = document.getElementById("ms-tut-map");
+const msWkMap = document.getElementById("ms-wk-map");
+msLecEl.addEventListener("change", () => updateMapLink(msLecEl, msLecMap));
+msTutEl.addEventListener("change", () => updateMapLink(msTutEl, msTutMap));
+msWkEl.addEventListener("change", () => updateMapLink(msWkEl, msWkMap));
+
 const MS_KEY = "miet2528-my-sessions";
+const msFormEl = document.getElementById("ms-form");
+const msSummaryEl = document.getElementById("ms-summary");
+const msSummaryLines = document.getElementById("ms-summary-lines");
+
+function summaryLineFor(selectEl) {
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (!selectEl.value || !opt) return null;
+  const label = opt.textContent.replace(/^\S+\s\u2014\s/, "");
+  return "<div style=\"margin-bottom:6px;\">" + label + "</div>";
+}
+function showSummary() {
+  const lines = [summaryLineFor(msLecEl), summaryLineFor(msTutEl), summaryLineFor(msWkEl)]
+    .filter(Boolean);
+  msSummaryLines.innerHTML = lines.length
+    ? lines.join("")
+    : "<div style=\"color:var(--muted);\">No sessions saved yet.</div>";
+  msFormEl.style.display = "none";
+  msSummaryEl.style.display = "block";
+  renderSessionSummary(msLecEl, "lectorial-list");
+  // On future week pages, once tutorials/workshops are running, add:
+  // renderSessionSummary(msTutEl, "tutorial-list");
+  // renderSessionSummary(msWkEl, "workshop-list");
+}
+function showForm() {
+  msFormEl.style.display = "block";
+  msSummaryEl.style.display = "none";
+}
+
 function msLoad() {
+  let saved = {};
   try {
-    const saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
+    saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
     if (saved.lec) msLecEl.value = saved.lec;
     if (saved.tut) msTutEl.value = saved.tut;
     if (saved.wk) msWkEl.value = saved.wk;
   } catch (e) { /* ignore corrupt storage */ }
+  updateMapLink(msLecEl, msLecMap);
+  updateMapLink(msTutEl, msTutMap);
+  updateMapLink(msWkEl, msWkMap);
+  if (saved.lec || saved.tut || saved.wk) showSummary();
 }
 function msSave() {
   const data = { lec: msLecEl.value, tut: msTutEl.value, wk: msWkEl.value };
   try {
     localStorage.setItem(MS_KEY, JSON.stringify(data));
-    const note = document.getElementById("ms-saved-note");
-    note.style.opacity = "1";
-    setTimeout(() => { note.style.opacity = "0"; }, 2000);
   } catch (e) { /* ignore storage errors */ }
+  showSummary();
 }
 const msSaveBtn = document.getElementById("ms-save-btn");
 if (msSaveBtn) msSaveBtn.addEventListener("click", msSave);
+const msEditBtn = document.getElementById("ms-edit-btn");
+if (msEditBtn) msEditBtn.addEventListener("click", showForm);
 msLoad();
 </script>
 </body>
