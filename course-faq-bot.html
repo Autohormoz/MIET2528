@@ -92,11 +92,13 @@
 
   <div class="chips">
     <span class="chip" data-q="Where's my tutorial?">Where's my tutorial?</span>
+    <span class="chip" data-q="What's due next?">What's due next?</span>
     <span class="chip" data-q="Who is my tutor?">Who is my tutor?</span>
     <span class="chip" data-q="When does T05's solution come out?">Tutorial release dates</span>
     <span class="chip" data-q="Who do I contact?">Who do I contact?</span>
     <span class="chip" data-q="When are the quizzes and exam?">Quiz &amp; exam dates</span>
     <span class="chip" data-q="Safety induction">Safety induction</span>
+    <span class="chip" data-q="Self-assessment due dates">Self-assessments</span>
     <span class="chip" data-q="Podcast">Podcast</span>
   </div>
 
@@ -122,13 +124,46 @@
 const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
 const SAFETY_URL = "https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380";
 
-// quiz/exam schedule — all sat during the lectorial slot in that week.
-// Students normally in the online lectorial sit these face-to-face
-// instead, at a venue announced closer to the date.
+// quiz/exam schedule — all sat during the student's own lectorial
+// slot, but on a one-off date rather than weekly. Each lectorial
+// cohort sits in their own room; the online cohort now sits
+// in-person too (room 080.02.007, booked specifically for them),
+// at their usual Wednesday time rather than online.
 const ASSESSMENTS = [
-  { label: "Quiz 1", week: "Week 4", covers: "Weeks 1\u20133 (Tutorials T01\u2013T02)" },
-  { label: "Quiz 2", week: "Week 9", covers: "Weeks 5\u20138 (Tutorials T04\u2013T07)" },
-  { label: "Final Exam", week: "Week 12", covers: "the whole course" },
+  {
+    label: "Quiz 1", covers: "Weeks 1\u20133 (Tutorials T01\u2013T02)",
+    byLec: {
+      "LTL01/03": { date: "Tuesday 11 August 2026", iso: "2026-08-11", time: "4:30pm\u20136:30pm", room: "080.02.007" },
+      "LTL01/01": { date: "Thursday 13 August 2026", iso: "2026-08-13", time: "12:30pm\u20132:30pm", room: "080.07.001" },
+      "LTL01/02": { date: "Wednesday 12 August 2026", iso: "2026-08-12", time: "5:30pm\u20137:30pm", room: "080.02.007 (in person)" },
+    },
+  },
+  {
+    label: "Quiz 2", covers: "Weeks 5\u20138 (Tutorials T04\u2013T07)",
+    byLec: {
+      "LTL01/03": { date: "Tuesday 22 September 2026", iso: "2026-09-22", time: "4:30pm\u20136:30pm", room: "080.02.007" },
+      "LTL01/01": { date: "Thursday 24 September 2026", iso: "2026-09-24", time: "12:30pm\u20132:30pm", room: "080.07.001" },
+      "LTL01/02": { date: "Wednesday 23 September 2026", iso: "2026-09-23", time: "5:30pm\u20137:30pm", room: "080.02.007 (in person)" },
+    },
+  },
+  {
+    label: "Final Exam", covers: "the whole course",
+    byLec: {
+      "LTL01/03": { date: "Tuesday 13 October 2026", iso: "2026-10-13", time: "4:30pm\u20136:30pm", room: "080.02.007" },
+      "LTL01/01": { date: "Thursday 15 October 2026", iso: "2026-10-15", time: "12:30pm\u20132:30pm", room: "080.07.001" },
+      "LTL01/02": { date: "Wednesday 14 October 2026", iso: "2026-10-14", time: "5:30pm\u20137:30pm", room: "080.02.007 (in person)" },
+    },
+  },
+];
+
+// Every other known deadline, for the "what's due next" lookup —
+// keep in sync with Canvas's Assignments list.
+const FIXED_DEADLINES = [
+  { label: "Self-Assessment 1", iso: "2026-07-26", points: "2.5 pts" },
+  { label: "Safety Induction", iso: "2026-07-27", points: "100 pts" },
+  { label: "Progress Report", iso: "2026-08-30", points: "15 pts" },
+  { label: "Self-Assessment 2", iso: "2026-10-18", points: "2.5 pts" },
+  { label: "Final Report", iso: "2026-10-18", points: "25 pts" },
 ];
 const MY_SESSIONS_URL = "my-sessions.html";
 const TUTORIALS_HUB_URL = "tutorials-hub.html";
@@ -315,9 +350,9 @@ function answerQuiz(text) {
 
   if (mentionsFinal && !mentionsQuiz) {
     items = ASSESSMENTS.filter((a) => a.label === "Final Exam");
-  } else if (/quiz\s*2|second quiz/.test(text)) {
+  } else if (/quiz\s*2|second quiz|quiz two/.test(text)) {
     items = ASSESSMENTS.filter((a) => a.label === "Quiz 2");
-  } else if (/quiz\s*1|first quiz/.test(text)) {
+  } else if (/quiz\s*1|first quiz|quiz one/.test(text)) {
     items = ASSESSMENTS.filter((a) => a.label === "Quiz 1");
   } else if (mentionsQuiz && !mentionsFinal) {
     items = ASSESSMENTS.filter((a) => a.label !== "Final Exam");
@@ -327,41 +362,124 @@ function answerQuiz(text) {
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem("miet2528-my-sessions") || "{}"); } catch (e) {}
   const lecCode = saved.lec;
-  const isOnline = lecCode === "LTL01/02";
-  const lecInfo = lecCode && MS_LOOKUP[lecCode] ? MS_LOOKUP[lecCode] : null;
 
   const lines = items.map((a) => {
+    const venue = lecCode && a.byLec[lecCode] ? a.byLec[lecCode] : null;
     let where;
-    if (lecInfo && isOnline) {
-      where = "your usual lectorial time (" + lecInfo.replace(", Online (Collaborate Ultra)", "") +
-        "), but <b>face-to-face instead of online</b> \u2014 venue to be announced";
-    } else if (lecInfo) {
-      where = "your usual lectorial slot \u2014 " + lecInfo;
+    if (venue) {
+      where = venue.date + ", " + venue.time + ", room " + venue.room;
     } else {
-      where = "your lectorial session \u2014 save your session in My Sessions and I can tell you the exact time and room";
+      where = "save your lectorial in <a href='" + MY_SESSIONS_URL + "' target='_blank'>My Sessions</a> and I'll give you the exact date, time, and room";
     }
-    return "<b>" + a.label + "</b> \u2014 " + a.week + ", " + where + " (covers " + a.covers + ")";
+    return "<b>" + a.label + "</b> \u2014 " + where + " (covers " + a.covers + ")";
   });
 
   let footer = "";
-  if (!lecInfo) {
-    footer = "<br><br>Head to <a href='" + MY_SESSIONS_URL + "' target='_blank'>My Sessions</a> to save your lectorial " +
-      "and I'll give you the exact day, time, and room next time.";
-  } else if (!isOnline) {
-    footer = "<br><br>(If you're normally in the <b>online</b> lectorial, quizzes run face-to-face instead, at a venue to be announced.)";
+  if (!lecCode) {
+    footer = "";
+  } else if (lecCode === "LTL01/02") {
+    footer = "<br><br>(Since you're normally in the online lectorial, this one is held <b>in person</b> instead, in room 080.02.007, at your usual Wednesday time.)";
   }
   return lines.join("<br>") + footer;
+}
+
+// Small bit of session memory — just enough so "what's due after that"
+// actually advances instead of repeating the same answer. Resets
+// whenever a fresh "what's due" question is asked (not a follow-up).
+let dueTimeline = null;
+let dueCursor = 0;
+
+function buildDueTimeline() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("miet2528-my-sessions") || "{}"); } catch (e) {}
+  const lecCode = saved.lec;
+
+  const timeline = FIXED_DEADLINES.map((d) => ({
+    label: d.label, iso: d.iso, detail: d.points,
+  }));
+  ASSESSMENTS.forEach((a) => {
+    const venue = lecCode && a.byLec[lecCode] ? a.byLec[lecCode] : null;
+    if (venue) {
+      timeline.push({ label: a.label, iso: venue.iso, detail: venue.date + ", " + venue.time + ", room " + venue.room });
+    }
+  });
+
+  const now = new Date();
+  return timeline
+    .map((t) => ({ ...t, dt: new Date(t.iso + "T23:59:00") }))
+    .filter((t) => t.dt >= now)
+    .sort((a, b) => a.dt - b.dt);
+}
+
+function answerNextDue(isFollowUp) {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("miet2528-my-sessions") || "{}"); } catch (e) {}
+  const lecCode = saved.lec;
+
+  if (!isFollowUp || !dueTimeline) {
+    dueTimeline = buildDueTimeline();
+    dueCursor = 0;
+  } else {
+    dueCursor += 1;
+  }
+
+  if (!dueTimeline.length || dueCursor >= dueTimeline.length) {
+    return "That's everything I have upcoming \u2014 double-check Canvas's Assignments page in case something's been added since.";
+  }
+
+  const current = dueTimeline[dueCursor];
+  const dateStr = current.dt.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+  let answer = "<b>" + current.label + "</b> \u2014 " + dateStr + " (" + current.detail + ")";
+
+  if (!lecCode && !isFollowUp) {
+    answer += "<br><br>(Quiz and exam dates depend on your lectorial \u2014 save it in " +
+      "<a href='" + MY_SESSIONS_URL + "' target='_blank'>My Sessions</a> and I can factor those in too.)";
+  }
+
+  if (dueTimeline[dueCursor + 1]) {
+    const after = dueTimeline[dueCursor + 1];
+    const afterDate = after.dt.toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+    answer += "<br><br>After that: <b>" + after.label + "</b> \u2014 " + afterDate + ".";
+  }
+
+  return answer;
 }
 
 function matchIntent(raw) {
   const text = raw.toLowerCase();
 
-  const asksWho = /\bwho\b/.test(text);
-  const asksMine = /\bmy\b/.test(text);
-  if (asksWho && asksMine) {
-    if (/tutor/.test(text)) return answerWhoTeaches("tut");
+  // "What's due next" — checked first since it's a distinct question
+  // from asking about one specific thing (a quiz, an assignment, etc).
+  // A follow-up like "what's due after that" advances the same list
+  // instead of restarting it.
+  const isDueFollowUp = /after that|what.?s next\??$|then what|what else|another one|next one|and then/.test(text);
+  if (isDueFollowUp && dueTimeline) {
+    return answerNextDue(true);
+  }
+  if (/(next|upcoming).*(due|deadline|assignment)|(due|deadline).*(next|upcoming|soon)|what.*(due|deadline)/.test(text)) {
+    return answerNextDue(false);
+  }
+
+  // "Course coordinator" is a fixed fact (Hormoz, for everyone) — no
+  // session lookup needed. Matched as the specific phrase "course
+  // coordinator" so it doesn't clash with "workshop coordinator"
+  // (Tatjana), which should still go through the normal workshop lookup.
+  if (/course coordinator/.test(text)) {
+    return staffLine("Hormoz");
+  }
+
+  // Broad "who teaches/is my X" detection — doesn't require the exact
+  // words "who" and "my" together, since real phrasing varies a lot
+  // ("workshop instructor", "lab assistant", "tutor's email", etc).
+  // Any mention of a person-seeking word plus a session category
+  // routes straight to the personalized answer instead of a list.
+  // "Teacher" (with no other category word) means the lectorial
+  // presenter, per how this course uses the term.
+  const seeksPerson = /\bwho\b|instructor|assistant|teacher|contact|email/.test(text);
+  if (seeksPerson) {
+    if (/tutorial|tutor\b/.test(text)) return answerWhoTeaches("tut");
     if (/workshop|lab\b/.test(text)) return answerWhoTeaches("wk");
-    if (/lectorial|lecturer|lecture\b/.test(text)) return answerWhoTeaches("lec");
+    if (/lectorial|lecturer|lecture\b|teacher/.test(text)) return answerWhoTeaches("lec");
   }
 
   if (/\bquiz(zes)?\b|\bexam(s)?\b|\bfinal\b/.test(text)) {
@@ -383,7 +501,19 @@ function matchIntent(raw) {
   }
   if (/safety|induction/.test(text)) {
     return "The Safety Induction is required before you can access the workshop. " +
+      "It's due <b>Monday 27 July, 11:59pm</b> and is worth <b>100 points</b>. " +
       "<a href='" + SAFETY_URL + "' target='_blank'>Start it here</a>.";
+  }
+  if (/self.?assessment/.test(text)) {
+    const m = text.match(/1|2|one|two|first|second/);
+    if (m && /2|two|second/.test(m[0])) {
+      return "<b>Self-Assessment 2</b> is due <b>Sunday 18 October, 11:59pm</b> and is worth <b>2.5 points</b>.";
+    }
+    if (m && /1|one|first/.test(m[0])) {
+      return "<b>Self-Assessment 1</b> is due <b>Sunday 26 July, 11:59pm</b> and is worth <b>2.5 points</b>.";
+    }
+    return "<b>Self-Assessment 1</b> is due Sunday 26 July, 11:59pm (2.5 points).<br>" +
+      "<b>Self-Assessment 2</b> is due Sunday 18 October, 11:59pm (2.5 points).";
   }
   if (/podcast/.test(text)) {
     return "The weekly podcast is here: <a href='" + PODCAST_URL + "' target='_blank'>Podcast Hub</a>. " +
