@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-22-09" />
+<meta name="page-version" content="2026-07-22-10" />
 <title>MIET2528 — WingBox Prototyping Tool</title>
 <style>
   :root{
@@ -60,10 +60,6 @@
   #btn-envelope.active{background:var(--amber);color:var(--navy);}
   #btn-bendtest{color:var(--cyan);border-color:var(--cyan);}
   #btn-bendtest.active{background:var(--cyan);color:var(--navy);}
-  #btn-orient-vertical{color:var(--teal);border-color:var(--teal);}
-  #btn-orient-vertical.active{background:var(--teal);color:var(--navy);}
-  #btn-orient-horizontal{color:var(--amber);border-color:var(--amber);}
-  #btn-orient-horizontal.active{background:var(--amber);color:var(--navy);}
 
   /* ---- viewport (the 3D area, bounded now instead of full window) ---- */
   #viewport{position:relative;flex:1 1 auto;min-width:0;}
@@ -124,10 +120,7 @@
     </div>
 
     <h4>Ribs</h4>
-    <div class="toggle" style="margin-bottom:10px;">
-      <button id="btn-orient-vertical" class="active">Vertical ribs</button>
-      <button id="btn-orient-horizontal">Horizontal ribs</button>
-    </div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0 0 10px;">Ribs run along the wing box length, matching the real fold-and-rivet construction.</p>
     <div id="rib-list"></div>
     <button class="add-rib-btn" id="add-rib-btn">+ Add rib</button>
     <div class="hint-text">Different profiles resist bending differently for the same amount of material &mdash; what property of a cross-section do you think matters most under a bending load?</div>
@@ -269,12 +262,11 @@ dom.addEventListener("wheel", (e) => {
 const SCALE = 1 / 100; // 1 scene unit = 100mm
 const LENGTH_MM = 250, WIDTH_MM = 100, THICK_MM = 8;
 const LENGTH = LENGTH_MM * SCALE, WIDTH = WIDTH_MM * SCALE, THICK = THICK_MM * SCALE;
-const RIB_DEPTH = WIDTH * 0.92; // ribs run almost the full width
 const ALU_DENSITY = 2.7; // g/cm^3 — standard aluminium sheet
 const RIVET_WEIGHT_G = 0.5; // midpoint of the 0.4-0.6g given
-const FLANGE = LENGTH * 0.06; // ~half leg spacing for U/V ribs
-const LIP = LENGTH * 0.032;   // lip length riveted to the skins
-const BASE = LENGTH * 0.024;  // small flat base for the V-channel (a real fold can't come to a sharp point)
+const FLANGE = WIDTH * 0.06; // ~half leg spacing for U/V ribs — sized against WIDTH since ribs now always space across it
+const LIP = WIDTH * 0.032;   // lip length riveted to the skins
+const BASE = WIDTH * 0.024;  // small flat base for the V-channel (a real fold can't come to a sharp point)
 
 // VISUAL thickness — deliberately much thinner than the true 8mm sheet.
 // At true thickness, skins/ribs look clunky at this scale, so this is
@@ -283,12 +275,11 @@ const BASE = LENGTH * 0.024;  // small flat base for the V-channel (a real fold 
 // of whatever thickness the meshes are actually drawn at.
 const THICK_VIS = mm(2);
 
-// mm-based twins of FLANGE/LIP/RIB_DEPTH, for the analytic (true-
+// mm-based twins of FLANGE/LIP/BASE, for the analytic (true-
 // thickness) volume maths — kept in mm so there's no unit confusion.
-const FLANGE_MM = LENGTH_MM * 0.06;
-const LIP_MM = LENGTH_MM * 0.032;
-const BASE_MM = LENGTH_MM * 0.024;
-const RIB_DEPTH_MM = WIDTH_MM * 0.92;
+const FLANGE_MM = WIDTH_MM * 0.06;
+const LIP_MM = WIDTH_MM * 0.032;
+const BASE_MM = WIDTH_MM * 0.024;
 
 function mm(v) { return v * SCALE; }
 
@@ -298,8 +289,8 @@ function mm(v) { return v * SCALE; }
 let heightMM = 30;
 let ribShapes = ["U", "U", "V", "S", "U"]; // one entry per rib, shape per rib
 let rivetsPerFlange = 3;
-let ribOrientation = "vertical"; // "vertical" = ribs across the length (current default);
-                                 // "horizontal" = corrugation running along the length instead
+// Ribs always run along the wing box length (matching real construction);
+// spaced across the width. There is no orientation toggle any more.
 
 let skinTop = null, skinBottom = null;
 let envelopeGroup = new THREE.Group(); scene.add(envelopeGroup);
@@ -468,24 +459,18 @@ function buildRibs() {
   let totalRibVolMM3 = 0;
   weight.rivetCount = 0;
 
-  const horizontal = ribOrientation === "horizontal";
-  // vertical: ribs spaced along LENGTH, each running the WIDTH
-  // horizontal: ribs spaced along WIDTH, each running the LENGTH
-  const spacingSpan = horizontal ? WIDTH : LENGTH;
-  const spacingSpanMM = horizontal ? WIDTH_MM : LENGTH_MM;
-  const runLength = horizontal ? LENGTH * 0.92 : RIB_DEPTH;
-  const runLengthMM = horizontal ? LENGTH_MM * 0.92 : RIB_DEPTH_MM;
+  // Ribs are spaced across the WIDTH, each running the full LENGTH —
+  // matching the real fold-and-rivet construction (confirmed: the
+  // corrugation runs along the wing box's length).
+  const runLength = LENGTH * 0.92;
+  const runLengthMM = LENGTH_MM * 0.92;
 
   for (let i = 0; i < n; i++) {
-    const center = -spacingSpan / 2 + ((i + 1) * spacingSpan) / (n + 1);
+    const center = -WIDTH / 2 + ((i + 1) * WIDTH) / (n + 1);
     const shape = ribShapes[i];
     const result = buildRibProfile(shape, 0, runLength); // build un-positioned, at local origin
-    if (horizontal) {
-      result.group.rotation.y = Math.PI / 2; // turns the run direction to align with LENGTH
-      result.group.position.set(0, 0, center);
-    } else {
-      result.group.position.set(center, 0, 0);
-    }
+    result.group.rotation.y = Math.PI / 2; // turns the run direction to align with LENGTH
+    result.group.position.set(0, 0, center);
     totalRibVolMM3 += ribVolumeMM3(shape, heightMM, runLengthMM);
     buildRivetsForRib(result, runLength);
   }
@@ -514,7 +499,7 @@ function buildEnvelope() {
 function buildBendRig() {
   while (bendRigGroup.children.length) bendRigGroup.remove(bendRigGroup.children[0]);
   const H = mm(heightMM);
-  const supportInset = LENGTH * 0.08;
+  const supportInset = LENGTH * 0.16; // doubled from 0.08, per Hormoz's request — supports sit further in from the edges
   const rigMat = new THREE.MeshStandardMaterial({ color: RED, metalness: 0.3, roughness: 0.5 });
 
   [-1, 1].forEach((side) => {
@@ -593,22 +578,6 @@ btnBendtest.addEventListener("click", () => {
   showBendTest = !showBendTest;
   bendRigGroup.visible = showBendTest;
   btnBendtest.classList.toggle("active", showBendTest);
-});
-
-// ---------- rib orientation toggle ----------
-const btnOrientVertical = document.getElementById("btn-orient-vertical");
-const btnOrientHorizontal = document.getElementById("btn-orient-horizontal");
-btnOrientVertical.addEventListener("click", () => {
-  ribOrientation = "vertical";
-  btnOrientVertical.classList.add("active");
-  btnOrientHorizontal.classList.remove("active");
-  regenerate();
-});
-btnOrientHorizontal.addEventListener("click", () => {
-  ribOrientation = "horizontal";
-  btnOrientHorizontal.classList.add("active");
-  btnOrientVertical.classList.remove("active");
-  regenerate();
 });
 
 // ---------- height slider ----------
