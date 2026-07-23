@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-07-22-01" />
+<title>MIET2528 — Week 2 at a Glance</title>
+<style>
+  :root{
+    --navy:#F4F6FB;
+    --page-ink:#1B2838;
+    --page-muted:#5C6B80;
+    --card:#151d33;
+    --cyan:#00BDD6;
+    --amber:#F0A500;
+    --red:#E0262B;
+    --teal:#1C7293;
+    --ink:#C8D8F0;
+    --muted:#7C92B0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--page-ink);}
+  .wrap{max-width:920px;margin:0 auto;padding:36px 28px 48px;}
+
+  .eyebrow{font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--page-muted);margin-bottom:8px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:2.15rem;color:var(--teal);margin:0 0 8px;}
+  .dek{font-size:1.1rem;color:var(--page-muted);margin:0 0 28px;line-height:1.5;}
+
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.25rem;
+    color:#ffffff;margin:0 0 16px;}
+
+  .notice{background:rgba(224,38,43,0.1);border:1px solid var(--red);
+    border-radius:10px;padding:16px 22px;margin-bottom:28px;
+    display:flex;align-items:center;gap:12px;}
+  .notice b{color:var(--red);}
+  .notice a{color:inherit;font-weight:700;text-decoration:underline;}
+  .notice p{margin:0;font-size:1.05rem;line-height:1.55;color:var(--page-ink);}
+
+  .card{background:var(--card);border-radius:10px;padding:24px 28px;margin-bottom:14px;
+    box-shadow:0 4px 14px rgba(18,32,47,0.12);color:var(--ink);}
+  .card-toggle{display:flex;justify-content:space-between;align-items:center;
+    cursor:pointer;user-select:none;}
+  .card-toggle h2{margin:0;}
+  .card-toggle:hover .chevron{color:#ffffff;}
+  .chevron{font-size:1.5rem;font-weight:700;color:var(--amber);transition:transform 0.2s ease, color 0.15s ease;
+    flex-shrink:0;margin-left:12px;line-height:1;}
+  .chevron.collapsed{transform:rotate(-90deg);}
+  .card-body{overflow:hidden;margin-top:16px;}
+  .card-body.collapsed{display:none;}
+  .card p, .card li, .card label{color:var(--ink);}
+  .card ul{margin:0;padding-left:20px;}
+  .card li{font-size:1.05rem;line-height:1.8;}
+  .card a{color:var(--amber);font-weight:600;text-decoration:none;}
+  .card a:hover{text-decoration:underline;}
+
+  /* --- semester cylinder (connected drum, minimal faces) --- */
+  .cf-card{text-align:center;margin-bottom:14px;}
+  .cf-wrap{position:relative;height:100px;margin:22px auto 0;max-width:100%;
+    perspective:6500px;touch-action:pan-y;overflow:hidden;}
+  .cf-pointer{position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;
+    border-top:12px solid var(--red);z-index:30;}
+  .cf-track{position:absolute;top:0;left:50%;width:0;height:100%;
+    transform-style:preserve-3d;cursor:grab;}
+  .cf-track.grabbing{cursor:grabbing;}
+  .cf-panel{position:absolute;top:0;left:50%;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink);background:var(--card);
+    border-right:1px solid rgba(255,255,255,0.08);
+    transition:filter 0.25s ease;
+    backface-visibility:hidden;}
+  .cf-panel:last-child{border-right:none;}
+  .cf-week-label{font-size:0.62rem;font-weight:700;letter-spacing:0.08em;
+    text-transform:uppercase;color:var(--ink);opacity:0.8;margin:0 0 2px;}
+  .cf-badge{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:0.95rem;font-weight:700;color:#ffffff;margin:0 auto 4px;
+    transition:background 0.2s ease, color 0.2s ease;}
+  .cf-badge.current{background:var(--amber);color:#12202F;}
+  .cf-sub{font-size:0.68rem;line-height:1.3;color:var(--ink);
+    max-width:150px;padding:0 6px;}
+  .cf-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:20;
+    width:36px;height:36px;border-radius:50%;border:1px solid var(--page-muted);
+    background:var(--navy);color:var(--page-ink);font-size:1.3rem;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .cf-nav:disabled{opacity:0.3;cursor:default;}
+  .cf-nav-prev{left:2px;}
+  .cf-nav-next{right:2px;}
+  .cf-dots{display:flex;justify-content:center;gap:8px;margin:10px 0 4px;}
+  .cf-dot{width:8px;height:8px;border-radius:50%;background:var(--page-muted);
+    opacity:0.4;cursor:pointer;border:none;padding:0;}
+  .cf-dot.active{opacity:1;background:var(--teal);}
+  .cf-info{background:#DFF0FA;border:1px solid rgba(18,32,47,0.12);
+    border-radius:8px;padding:12px 16px;min-height:0;max-width:340px;
+    margin:10px auto 0;text-align:left;color:#12202F;
+    box-shadow:0 2px 8px rgba(18,32,47,0.08);}
+  .cf-info h3{font-family:Georgia,serif;font-weight:700;font-size:0.82rem;
+    margin:0 0 3px;color:#12202F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cf-info .cf-info-dates{font-size:0.72rem;font-weight:600;color:#3C5064;margin:0 0 6px;}
+  .cf-info .cf-info-note{font-size:0.72rem;color:#965A00;margin:0 0 6px;font-weight:700;}
+  .cf-info ul{margin:0;padding-left:16px;}
+  .cf-info li{font-size:0.76rem;font-weight:600;line-height:1.5;color:#12202F;}
+  .wheel-today-btn{margin-top:10px;background:none;border:1px solid var(--page-muted);
+    color:var(--page-muted);font-size:0.82rem;padding:5px 14px;border-radius:999px;
+    cursor:pointer;}
+
+  /* --- checklist --- */
+  .checklist-head{display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:14px;}
+  .progress-track{background:rgba(255,255,255,0.08);border-radius:999px;
+    height:10px;overflow:hidden;margin-bottom:18px;}
+  .progress-fill{background:var(--cyan);height:100%;width:0%;
+    transition:width 0.25s ease;}
+  .progress-label{font-size:0.9rem;color:var(--muted);}
+  .item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;
+    border-top:1px solid rgba(255,255,255,0.06);}
+  .item:first-of-type{border-top:none;}
+  .item input{margin-top:4px;width:19px;height:19px;accent-color:var(--cyan);
+    cursor:pointer;flex-shrink:0;}
+  .item label{font-size:1.05rem;line-height:1.5;cursor:pointer;}
+  .item.done label{color:var(--muted);text-decoration:line-through;}
+  .my-session-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+  .my-session-row label{flex:0 0 80px;font-size:0.9rem;font-weight:600;color:#ffffff;}
+  .my-session-row input, .my-session-row select{flex:1 1 200px;padding:8px 10px;border-radius:6px;
+    border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);
+    color:var(--ink);font-size:0.9rem;}
+  .my-session-row input::placeholder{color:var(--muted);}
+  .my-session-row select option{background:#151d33;color:var(--ink);}
+  .ms-map{margin:-2px 0 12px 90px;font-size:0.85rem;}
+  .ms-map a{color:var(--amber);text-decoration:none;font-weight:600;}
+  .ms-map a:hover{text-decoration:underline;}
+
+  .reset{background:none;border:none;color:var(--muted);font-size:0.88rem;
+    text-decoration:underline;cursor:pointer;margin-top:8px;padding:0;}
+
+  .mandatory-notice{background:rgba(0,189,214,0.08);border-left:3px solid var(--cyan);
+    border-radius:10px;padding:18px 22px;margin-bottom:24px;}
+  .mandatory-notice .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
+    font-size:0.75rem;font-weight:600;letter-spacing:0.02em;
+    padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+  .mandatory-notice h2{margin:0 0 8px;color:#ffffff;}
+  .mandatory-notice p{margin:0 0 12px;font-size:0.95rem;line-height:1.6;color:var(--ink);}
+  .mandatory-notice ul{margin:0 0 12px;padding-left:20px;}
+  .mandatory-notice li{font-size:0.95rem;line-height:1.6;}
+  .mandatory-notice a.btn-link{display:inline-block;background:var(--cyan);color:#12202F;
+    font-weight:700;font-size:0.9rem;padding:9px 18px;border-radius:8px;text-decoration:none;}
+
+  .item.mandatory{background:rgba(0,189,214,0.06);border-left:3px solid var(--cyan);
+    border-radius:8px;padding:10px 14px;margin-bottom:4px;}
+  .item.mandatory label{font-weight:600;}
+  .item.mandatory .tag{display:inline-block;background:rgba(0,189,214,0.15);color:var(--cyan);
+    font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;}
+
+  #update-banner{display:none;position:sticky;top:0;z-index:100;
+    background:var(--amber);color:#12202F;font-weight:600;font-size:0.9rem;
+    padding:10px 16px;text-align:center;}
+  #update-banner button{margin-left:12px;background:#12202F;color:#fff;
+    border:none;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;}
+
+  footer{margin-top:36px;font-size:0.88rem;color:var(--page-muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<!-- ==================================================================
+     MIET2528 WEEKLY ANNOUNCEMENT — OFFICIAL TEMPLATE
+     Confirmed standing design as of Week 2, 2026. Reuse this exact
+     file for every future week — only touch the items below.
+
+     CHANGE PER WEEK:
+     1. <meta name="page-version"> — bump the date-string value
+     2. <title> and the .eyebrow / <h1> / .dek text
+     3. The Safety Induction reminder <div class="notice"> — remove it
+        entirely once it's no longer relevant (useful ~Weeks 1–2 only)
+     4. The Lectorial / Tutorial / Workshop <div class="card"> blocks —
+        swap in that week's real content, but keep the card-toggle /
+        chevron / card-body markup pattern so collapsing still works
+     5. The checklist items inside "Your Week N prep"
+     6. STORAGE_KEY (checklist progress, near the bottom script) —
+        change "week2" to "weekN"
+     7. CARD_STORAGE_PREFIX (collapsible card open/closed state) —
+        change "week2" to "weekN"
+
+     DO NOT TOUCH — shared across every week automatically:
+     - My Sessions widget (localStorage key is student-persistent,
+       not week-specific)
+     - The semester wheel/carousel (CF_WEEKS, CF_MILESTONES, and all
+       of its rendering logic) — it's date-driven and semester-wide,
+       so it's identical on every week's page by design
+     - The freshness-check / "Refresh now" banner — standard on every
+       page given past GitHub Pages caching issues
+================================================================== -->
+<div id="update-banner">
+  A newer version of this page is available.
+  <button id="update-refresh-btn">Refresh now</button>
+</div>
+<div class="wrap">
+
+  <div class="eyebrow">MIET2528 · Week 2</div>
+  <h1>Project Overview & Material Investigation</h1>
+  <p class="dek">Workshops and tutorials start this week. Haven't done your Safety Induction yet? You'll need it to access the workshop — do it before your session.</p>
+
+  <div class="notice">
+    <p><b>Safety Induction still outstanding?</b> It's required for workshop access. <a href="https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380" target="_blank">Complete it here</a> before you attend.</p>
+  </div>
+
+  <div class="cf-card">
+    <div class="cf-wrap" id="cf-wrap">
+      <div class="cf-pointer"></div>
+      <button class="cf-nav cf-nav-prev" id="cf-prev" aria-label="Previous week block">‹</button>
+      <div class="cf-track" id="cf-track"></div>
+      <button class="cf-nav cf-nav-next" id="cf-next" aria-label="Next week block">›</button>
+    </div>
+    <div class="cf-dots" id="cf-dots"></div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;">
+      <button class="wheel-today-btn" id="wheel-today-btn">Jump to today</button>
+      <select class="wheel-today-btn" id="cf-jump" style="cursor:pointer;"></select>
+    </div>
+    <div class="cf-info" id="cf-info"><!-- filled by JS --></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <h2 style="margin:0;">My Sessions</h2>
+      <button class="btn-link" id="ms-edit-btn" style="display:none;border:1px solid var(--muted);background:transparent;color:var(--ink);cursor:pointer;font-size:0.85rem;padding:6px 14px;white-space:nowrap;">Edit my sessions</button>
+    </div>
+    <p id="ms-desc" style="margin:0 0 16px;font-size:0.9rem;line-height:1.6;color:var(--muted);">
+      Workshops and tutorials run in multiple parallel sessions, and everyone is individually
+      enrolled in their own — check Canvas if you're not sure which is yours.
+      Pick your own sessions below once — this page will remember them for you from then on.
+    </p>
+
+    <div id="ms-form">
+    <div class="my-session-row">
+      <label>Lectorial</label>
+      <select id="ms-lec"><option value="">Select your session…</option></select>
+    </div>
+    <div class="ms-map" id="ms-lec-map"></div>
+
+    <div class="my-session-row">
+      <label>Tutorial</label>
+      <select id="ms-tut"><option value="">Select your session…</option></select>
+    </div>
+    <div class="ms-map" id="ms-tut-map"></div>
+
+    <div class="my-session-row">
+      <label>Workshop</label>
+      <select id="ms-wk"><option value="">Select your session…</option></select>
+    </div>
+    <div class="ms-map" id="ms-wk-map"></div>
+
+    <button class="btn-link" id="ms-save-btn" style="border:none;cursor:pointer;margin-top:6px;">Save my sessions</button>
+    </div>
+
+    <div id="ms-summary" style="display:none;">
+      <div id="ms-summary-lines"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-toggle" onclick="toggleCard('lectorial')">
+      <h2>Lectorials — your timetabled session</h2>
+      <span class="chevron" id="chev-lectorial">▾</span>
+    </div>
+    <div class="card-body" id="body-lectorial">
+    <ul id="lectorial-list">
+      <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
+      <li><b>Thursdays</b> — 12:30–2:30pm, Room 080.07.001</li>
+      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Before you attend</p>
+    <ul>
+      <li>Watch before attending: <a href="https://rmit.instructure.com/courses/158283/pages/week-2-force-analysis-support-reactions-lightboard?module_item_id=8677647" target="_blank">Force Analysis — Support Reactions (lightboard)</a> — includes the Support Reactions Practice tool</li>
+      <li>Feeling rusty on vectors? <a href="https://rmit.instructure.com/courses/158283/pages/knowledge-refresher-algebra-vectors?module_item_id=8428018" target="_blank">Knowledge Refresher — Linear Algebra (Vectors)</a></li>
+      <li>Week 2 podcast episode embedded directly on the lecture page above, or catch up any time on the <a href="https://rmit.instructure.com/courses/158283/pages/introduction-to-mechanical-engineering-the-podcast?module_item_id=8428014" target="_blank">Podcast Hub</a></li>
+    </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-toggle" onclick="toggleCard('tutorial')">
+      <h2>Tutorial — T01 begins this week</h2>
+      <span class="chevron" id="chev-tutorial">▾</span>
+    </div>
+    <div class="card-body" id="body-tutorial">
+    <ul id="tutorial-list">
+      <li>Check My Sessions above for your timetabled tutorial</li>
+    </ul>
+    <ul>
+      <li>First tutorial: solving problems on force and moment systems</li>
+      <li><a href="https://rmit.instructure.com/files/55032622/download?download_frd=1&verifier=McWhI91SghSu5G3w8JDYqWBQXqRg5elJyZ7zXZ69" target="_blank">T01 problem sheet</a> (solutions release Friday this week)</li>
+      <li>Bring your questions for your tutor</li>
+    </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-toggle" onclick="toggleCard('workshop')">
+      <h2>Workshop — Project Overview &amp; Material Investigation</h2>
+      <span class="chevron" id="chev-workshop">▾</span>
+    </div>
+    <div class="card-body" id="body-workshop">
+    <p style="margin:0 0 14px;font-size:0.95rem;color:var(--muted);">Room 056.02.030 (Building 56, Level 2) — Wednesday or Friday per your timetabled session.</p>
+    <ul id="workshop-list">
+      <li>Check My Sessions above for your timetabled workshop</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Task 1 — Workshop Outcomes</p>
+    <ul>
+      <li>Quick lab safety reminder (your Safety Induction should already be done)</li>
+      <li>The wing box project explained: material analysis → design iterations → cardboard prototype → final design &amp; manufacturing — <a href="https://rmit.instructure.com/courses/158283/pages/project-specification-and-workshops-slash-labs?module_item_id=8428000" target="_blank">try the WingBox Prototyping Tool</a></li>
+      <li>Introduction to candidate materials: aluminium, steel, polymer</li>
+      <li>Tensile testing demonstration on the Universal Testing Machine</li>
+      <li>Q&amp;A on the project and workshops ahead</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Task 2 — Material Analysis (in class + at home)</p>
+    <ul>
+      <li>Analyse the tensile test results to determine material properties</li>
+      <li>Compare materials and evaluate suitability for the wing box design</li>
+      <li>Results template released end of day, once lab assistants send through the workshop's tensile test data</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Register your group</p>
+    <ul>
+      <li>Groups of 5 — you organise this yourselves, with teammates from your own workshop timeslot only</li>
+      <li><a href="https://rmit.instructure.com/courses/158283/groups#" target="_blank">Register your group here</a></li>
+      <li><b>Deadline: end of Week 4.</b> Can't find a team? Talk to your lab assistants closer to the deadline.</li>
+    </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="checklist-head card-toggle" onclick="toggleCard('checklist')">
+      <h2 style="margin:0;">Your Week 2 prep</h2>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="progress-label" id="progress-label">0 / 5 done</span>
+        <span class="chevron" id="chev-checklist">▾</span>
+      </div>
+    </div>
+    <div class="card-body" id="body-checklist">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+    <div class="item mandatory">
+      <input type="checkbox" id="c0"><label for="c0">Completed my Safety Induction<span class="tag">Required for workshop access</span></label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c1"><label for="c1">Attended my timetabled lectorial session</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c2"><label for="c2">Attended my timetabled tutorial (T01)</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c3"><label for="c3">Attended my timetabled workshop</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c4"><label for="c4">Completed the material analysis (Task 2)</label>
+    </div>
+    <button class="reset" id="reset-btn">Reset checklist</button>
+    </div>
+  </div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   SEMESTER CYLINDER — a real, connected CSS 3D drum, minimal faces.
+   Faces sit edge-to-edge (equal angular spacing + width computed via
+   the standard regular-prism formula: 2*R*tan(step/2)), all one
+   uniform colour so it reads as a single mechanical wheel rather than
+   separate cards. A fixed red pointer marks the front position, like
+   a roller/tally-counter indicator; whatever sits under it has its
+   full detail (title, dates, milestones) shown in the info panel
+   below — the faces themselves only show "Week" + number + dates.
+
+   TO REUSE FOR ANOTHER WEEK: this is semester-wide and date-driven —
+   nothing here needs to change week to week. Only touch CF_SEGMENTS
+   if the weekly plan itself changes.
+------------------------------------------------------------------- */
+const CF_WEEKS = [
+  { id:"wk1",  badge:"1",  title:"Course Introduction",                       start:"2026-07-20", end:"2026-07-26", noSession:true },
+  { id:"wk2",  badge:"2",  title:"Project Overview & Material Investigation", start:"2026-07-27", end:"2026-08-02" },
+  { id:"wk3",  badge:"3",  title:"Wing Box Geometry & Design",                start:"2026-08-03", end:"2026-08-09" },
+  { id:"wk4",  badge:"4",  title:"Wing Box Geometry & Design",                start:"2026-08-10", end:"2026-08-16" },
+  { id:"wk5",  badge:"5",  title:"Wing Box Geometry & Design",                start:"2026-08-17", end:"2026-08-23" },
+  { id:"wk6",  badge:"6",  title:"Wing Box Geometry & Design",                start:"2026-08-24", end:"2026-08-30" },
+  { id:"wk7",  badge:"7",  title:"Wing Box Construction",                     start:"2026-09-07", end:"2026-09-13" },
+  { id:"wk8",  badge:"8",  title:"Wing Box Construction",                     start:"2026-09-14", end:"2026-09-20" },
+  { id:"wk9",  badge:"9",  title:"Wing Box Construction",                     start:"2026-09-21", end:"2026-09-27", holiday:true },
+  { id:"wk10", badge:"10", title:"Wing Box Construction",                     start:"2026-09-28", end:"2026-10-04" },
+  { id:"wk11", badge:"11", title:"Finalising the Final Report",               start:"2026-10-05", end:"2026-10-11" },
+  { id:"wk12", badge:"12", title:"Wing Box Competition & Conclusion",         start:"2026-10-12", end:"2026-10-18" },
+];
+const CF_MILESTONES = [
+  { date:"2026-07-26", label:"Self-Assessment 1 due Sun 26 Jul, 23:59 (2.5 pts)" },
+  { date:"2026-07-27", label:"Mandatory Safety Induction due Mon 27 Jul, 23:59 (100 pts)" },
+  { date:"2026-08-12", label:"Quiz 1 (11–13 Aug)" },
+  { date:"2026-08-30", label:"Progress Report due Sun 30 Aug, 23:59 (15 pts)" },
+  { date:"2026-09-23", label:"Quiz 2 (22–24 Sep)" },
+  { date:"2026-10-14", label:"Final Exam (13–15 Oct)" },
+  { date:"2026-10-18", label:"Final Report due Sun 18 Oct, 23:59 (25 pts)" },
+];
+// fold each milestone + the holiday note into its own week's extra info
+const CF_SEGMENTS = CF_WEEKS.map(w => {
+  const start = new Date(w.start + "T00:00:00");
+  const end = new Date(w.end + "T23:59:59");
+  const extra = [];
+  if (w.holiday) extra.push("Public holiday — no workshop this week");
+  if (w.noSession) extra.push("Lectorials only this week — no workshop or tutorial yet");
+  for (const m of CF_MILESTONES) {
+    const md = new Date(m.date + "T12:00:00");
+    if (md >= start && md <= end) extra.push(m.label);
+  }
+  return { ...w, extra };
+});
+
+(function () {
+  const N = CF_SEGMENTS.length;
+  const ANGLE_STEP = 28;               // degrees between adjacent face centers
+  const RADIUS = 260;                  // px — cylinder radius (translateZ distance)
+  const FACE_WIDTH = 2 * RADIUS * Math.tan((ANGLE_STEP / 2) * Math.PI / 180);
+
+  const track = document.getElementById("cf-track");
+  const dotsEl = document.getElementById("cf-dots");
+  const prevBtn = document.getElementById("cf-prev");
+  const nextBtn = document.getElementById("cf-next");
+  const todayBtn = document.getElementById("wheel-today-btn");
+  const jumpSelect = document.getElementById("cf-jump");
+  const infoEl = document.getElementById("cf-info");
+
+  function fmt(dateStr) {
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  }
+
+  function todayIndex() {
+    const today = new Date();
+    const starts = CF_SEGMENTS.map(s => new Date(s.start + "T00:00:00"));
+    const ends = CF_SEGMENTS.map(s => new Date(s.end + "T23:59:59"));
+    if (today < starts[0]) return 0;
+    if (today > ends[N - 1]) return N - 1;
+    for (let i = 0; i < N; i++) {
+      if (today >= starts[i] && today <= ends[i]) return i;
+    }
+    let best = 0, bestDiff = Infinity;
+    for (let i = 0; i < N; i++) {
+      const mid = (starts[i].getTime() + ends[i].getTime()) / 2;
+      const diff = Math.abs(today.getTime() - mid);
+      if (diff < bestDiff) { bestDiff = diff; best = i; }
+    }
+    return best;
+  }
+
+  // build faces — fixed position on the drum, set once. Minimal content:
+  // "Week" label, the badge number/range, and the date span only.
+  const panelEls = CF_SEGMENTS.map((seg, i) => {
+    const el = document.createElement("div");
+    el.className = "cf-panel";
+    el.style.width = FACE_WIDTH + "px";
+    el.style.marginLeft = (-FACE_WIDTH / 2) + "px";
+    el.style.transform = `rotateY(${i * ANGLE_STEP}deg) translateZ(${RADIUS}px)`;
+    el.innerHTML = `
+      <p class="cf-week-label">Week</p>
+      <div class="cf-badge">${seg.badge}</div>
+      <p class="cf-sub">${fmt(seg.start)} – ${fmt(seg.end)}</p>
+    `;
+    el.addEventListener("click", () => {
+      if (dragMoved) return;
+      if (i !== currentIndex) animateTo(i);
+    });
+    track.appendChild(el);
+    return el;
+  });
+
+  const dotEls = CF_SEGMENTS.map((seg, i) => {
+    const b = document.createElement("button");
+    b.className = "cf-dot";
+    b.setAttribute("aria-label", seg.badge);
+    b.addEventListener("click", () => animateTo(i));
+    dotsEl.appendChild(b);
+    return b;
+  });
+
+  CF_SEGMENTS.forEach((seg, i) => {
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = `Jump to Week ${seg.badge}`;
+    jumpSelect.appendChild(opt);
+  });
+  jumpSelect.addEventListener("change", () => animateTo(parseInt(jumpSelect.value, 10)));
+
+  function renderInfo(seg) {
+    const startD = new Date(seg.start + "T00:00:00");
+    const today = new Date();
+    let noteHTML = "";
+    if (today < startD) {
+      noteHTML = `<p class="cf-info-note">Starts ${fmt(seg.start)}</p>`;
+    }
+    const extraHTML = seg.extra.length
+      ? `<ul>${seg.extra.map(t => `<li>${t}</li>`).join("")}</ul>`
+      : "";
+    infoEl.innerHTML = `
+      <h3>Week ${seg.badge} — ${seg.title}</h3>
+      <p class="cf-info-dates">${fmt(seg.start)} – ${fmt(seg.end)}</p>
+      ${noteHTML}
+      ${extraHTML}
+    `;
+  }
+
+  let currentIndex = todayIndex();
+  let renderIndex = currentIndex;
+
+  function clampIdx(v) { return Math.min(N - 1, Math.max(0, v)); }
+
+  const TODAY_IDX = currentIndex; // fixed — the real "present" week, doesn't change as you browse
+  panelEls.forEach((el, i) => {
+    el.querySelector(".cf-badge").classList.toggle("current", i === TODAY_IDX);
+  });
+
+  function render() {
+    track.style.transform = `rotateY(${-renderIndex * ANGLE_STEP}deg)`;
+    for (let i = 0; i < N; i++) {
+      const d = i - renderIndex;
+      const absD = Math.abs(d);
+      const brightness = 1 - Math.min(1, absD) * 0.25;
+      panelEls[i].style.filter = `brightness(${brightness})`;
+      panelEls[i].style.zIndex = Math.round(100 - absD * 10);
+    }
+    const nearest = clampIdx(Math.round(renderIndex));
+    dotEls.forEach((b, i) => b.classList.toggle("active", i === nearest));
+    prevBtn.disabled = nearest <= 0;
+    nextBtn.disabled = nearest >= N - 1;
+    renderInfo(CF_SEGMENTS[nearest]);
+    jumpSelect.value = nearest;
+  }
+
+  let rafId = null;
+  function animateTo(targetIndex) {
+    targetIndex = clampIdx(targetIndex);
+    currentIndex = targetIndex;
+    const from = renderIndex, to = targetIndex, dur = 380;
+    const t0 = performance.now();
+    if (rafId) cancelAnimationFrame(rafId);
+    function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      const ease = 1 - Math.pow(1 - t, 3);
+      renderIndex = from + (to - from) * ease;
+      render();
+      if (t < 1) rafId = requestAnimationFrame(step);
+      else rafId = null;
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  const PX_PER_STEP = 140;
+  let dragging = false, dragMoved = false, dragStartX = 0, dragStartIndex = 0;
+  track.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    dragMoved = false;
+    track.classList.add("dragging");
+    track.setPointerCapture(e.pointerId);
+    dragStartX = e.clientX;
+    dragStartIndex = renderIndex;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  });
+  track.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    if (Math.abs(dx) > 3) dragMoved = true;
+    renderIndex = clampIdx(dragStartIndex - dx / PX_PER_STEP);
+    render();
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    track.classList.remove("dragging");
+    if (dragMoved) animateTo(Math.round(renderIndex));
+    setTimeout(() => { dragMoved = false; }, 0);
+  }
+  track.addEventListener("pointerup", endDrag);
+  track.addEventListener("pointercancel", endDrag);
+
+  prevBtn.addEventListener("click", () => animateTo(currentIndex - 1));
+  nextBtn.addEventListener("click", () => animateTo(currentIndex + 1));
+  todayBtn.addEventListener("click", () => animateTo(todayIndex()));
+
+  render();
+})();
+</script>
+
+<script>
+/* ------------------------------------------------------------------
+   COLLAPSIBLE CARDS — each collapsible card (Lectorials, Tutorial,
+   Workshop, Checklist) can be minimized via its chevron/header click.
+   Expanded by default on first visit; state remembered per card per
+   week via localStorage so returning students keep their preference.
+   TO REUSE FOR ANOTHER WEEK: change CARD_STORAGE_PREFIX below.
+------------------------------------------------------------------- */
+const CARD_STORAGE_PREFIX = "miet2528-week2-card-";
+function toggleCard(id) {
+  const body = document.getElementById("body-" + id);
+  const chev = document.getElementById("chev-" + id);
+  const collapsed = body.classList.toggle("collapsed");
+  chev.classList.toggle("collapsed", collapsed);
+  try { localStorage.setItem(CARD_STORAGE_PREFIX + id, collapsed ? "1" : "0"); } catch (e) {}
+}
+["lectorial", "tutorial", "workshop", "checklist"].forEach((id) => {
+  let collapsed = false;
+  try { collapsed = localStorage.getItem(CARD_STORAGE_PREFIX + id) === "1"; } catch (e) {}
+  if (collapsed) {
+    document.getElementById("body-" + id).classList.add("collapsed");
+    document.getElementById("chev-" + id).classList.add("collapsed");
+  }
+});
+
+/* See the OFFICIAL TEMPLATE guide at the top of <body> for what to
+   change per week. STORAGE_KEY below just needs "week2" → "weekN". */
+const STORAGE_KEY = "miet2528-week2-checklist";
+const boxes = [...document.querySelectorAll(".item input")];
+const fill = document.getElementById("progress-fill");
+const label = document.getElementById("progress-label");
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    boxes.forEach((b) => { if (saved[b.id]) b.checked = true; });
+  } catch (e) { /* ignore corrupt storage */ }
+}
+function saveState() {
+  const state = {};
+  boxes.forEach((b) => { state[b.id] = b.checked; });
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function updateProgress() {
+  const done = boxes.filter((b) => b.checked).length;
+  fill.style.width = (done / boxes.length) * 100 + "%";
+  label.textContent = done + " / " + boxes.length + " done";
+  boxes.forEach((b) => {
+    b.closest(".item").classList.toggle("done", b.checked);
+  });
+}
+boxes.forEach((b) => {
+  b.addEventListener("change", () => { saveState(); updateProgress(); });
+});
+document.getElementById("reset-btn").addEventListener("click", () => {
+  boxes.forEach((b) => (b.checked = false));
+  saveState();
+  updateProgress();
+});
+
+loadState();
+updateProgress();
+
+/* ------------------------------------------------------------------
+   MY SESSIONS — populated from the real MIET2528 S2 timetable export.
+   Student picks their own session once; saved to their own browser
+   only (not sent anywhere), so it's back next time they open the page.
+   TO UPDATE FOR A NEW SEMESTER: replace the three arrays below with
+   a fresh export — each entry is [code, "Day, time, room"].
+------------------------------------------------------------------- */
+const MS_LECTORIALS = [
+  ["LTL01/03", "Tuesday, 4:30pm\u20136:30pm, room 080.02.007"],
+  ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
+  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
+];
+const MS_TUTORIALS = [
+  ["TUT01/01", "Wednesday, 11:30am\u201312:30pm, room 013.02.029"],
+  ["TUT01/02", "Tuesday, 9:30am\u201310:30am, room 080.09.012"],
+  ["TUT01/03", "Thursday, 3:30pm\u20134:30pm, room 013.03.009"],
+  ["TUT01/04", "Monday, 5:30pm\u20136:30pm, room 080.03.015"],
+  ["TUT01/05", "Tuesday, 3:30pm\u20134:30pm, room 080.04.019"],
+  ["TUT01/06", "Wednesday, 3:30pm\u20134:30pm, room 080.04.019"],
+  ["TUT01/07", "Friday, 9:30am\u201310:30am, room 013.03.009"],
+  ["TUT01/08", "Thursday, 3:30pm\u20134:30pm, room 080.09.012"],
+  ["TUT01/09", "Friday, 8:30am\u20139:30am, room 080.09.012"],
+  ["TUT01/10", "Friday, 10:30am\u201311:30am, room 013.03.009"],
+  ["TUT01/11", "Wednesday, 11:30am\u201312:30pm, Online"],
+  ["TUT01/12", "Tuesday, 9:30am\u201310:30am, Online"],
+];
+const MS_WORKSHOPS = [
+  ["WRK01/01", "Wednesday, 12:30pm\u20131:30pm, room 056.02.030"],
+  ["WRK01/02", "Wednesday, 1:30pm\u20132:30pm, room 056.02.030"],
+  ["WRK01/03", "Wednesday, 2:30pm\u20133:30pm, room 056.02.030"],
+  ["WRK01/04", "Wednesday, 3:30pm\u20134:30pm, room 056.02.030"],
+  ["WRK01/05", "Wednesday, 4:30pm\u20135:30pm, room 056.02.030"],
+  ["WRK01/06", "Friday, 12:30pm\u20131:30pm, room 056.02.030"],
+  ["WRK01/07", "Friday, 1:30pm\u20132:30pm, room 056.02.030"],
+  ["WRK01/08", "Friday, 2:30pm\u20133:30pm, room 056.02.030"],
+  ["WRK01/09", "Friday, 3:30pm\u20134:30pm, room 056.02.030"],
+  ["WRK01/10", "Friday, 4:30pm\u20135:30pm, room 056.02.030"],
+  ["WRK01/11", "Tuesday, 1:30pm\u20132:30pm, room 056.02.030"],
+  ["WRK01/12", "Tuesday, 2:30pm\u20133:30pm, room 056.02.030"],
+  ["WRK01/13", "Tuesday, 3:30pm\u20134:30pm, room 056.02.030"],
+];
+
+function msPopulate(selectEl, options) {
+  options.forEach(([code, label]) => {
+    const opt = document.createElement("option");
+    opt.value = code;
+    opt.textContent = code + " \u2014 " + label;
+    selectEl.appendChild(opt);
+  });
+}
+const msLecEl = document.getElementById("ms-lec");
+const msTutEl = document.getElementById("ms-tut");
+const msWkEl = document.getElementById("ms-wk");
+msPopulate(msLecEl, MS_LECTORIALS);
+msPopulate(msTutEl, MS_TUTORIALS);
+msPopulate(msWkEl, MS_WORKSHOPS);
+
+/* ------------------------------------------------------------------
+   SESSION SUMMARY — once a student has saved a choice for a category,
+   replace that category's static "all options" list with just their
+   own session. Reusable for Tutorial/Workshop too on later week pages
+   once those sessions are running (this week only Lectorial applies).
+------------------------------------------------------------------- */
+const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
+function linkForVenue(text) {
+  if (text.includes("Collaborate Ultra")) {
+    return ' · <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
+  }
+  const buildingMatch = text.match(/room (\d+)\./);
+  if (buildingMatch) {
+    const building = parseInt(buildingMatch[1], 10);
+    const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+    return ' · <a href="https://www.google.com/maps/search/?api=1&query=' + query +
+      '" target="_blank">\uD83D\uDCCD Building ' + building + "</a>";
+  }
+  return "";
+}
+function renderSessionSummary(selectEl, listElId) {
+  const listEl = document.getElementById(listElId);
+  if (!listEl) return;
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (!selectEl.value || !opt) return; // nothing saved yet — leave the default list showing
+  const label = opt.textContent.replace(/^\S+\s\u2014\s/, ""); // strip the leading "CODE — "
+  const commaIdx = label.indexOf(",");
+  const day = commaIdx === -1 ? label : label.slice(0, commaIdx);
+  const rest = commaIdx === -1 ? "" : label.slice(commaIdx + 1).trim();
+  const venueHtml = linkForVenue(rest);
+  listEl.innerHTML = "<li><b>" + day + "</b> \u2014 " + rest + venueHtml + "</li>";
+}
+function updateMapLink(selectEl, mapEl) {
+  const label = selectEl.options[selectEl.selectedIndex]
+    ? selectEl.options[selectEl.selectedIndex].textContent
+    : "";
+  const venueHtml = linkForVenue(label);
+  if (!venueHtml) {
+    mapEl.innerHTML = "";
+    return;
+  }
+  // strip the leading " · " separator for the standalone map-line display
+  mapEl.innerHTML = venueHtml.replace(/^\s*\u00b7\s*/, "");
+}
+const msLecMap = document.getElementById("ms-lec-map");
+const msTutMap = document.getElementById("ms-tut-map");
+const msWkMap = document.getElementById("ms-wk-map");
+msLecEl.addEventListener("change", () => updateMapLink(msLecEl, msLecMap));
+msTutEl.addEventListener("change", () => updateMapLink(msTutEl, msTutMap));
+msWkEl.addEventListener("change", () => updateMapLink(msWkEl, msWkMap));
+
+const MS_KEY = "miet2528-my-sessions";
+const msFormEl = document.getElementById("ms-form");
+const msDescEl = document.getElementById("ms-desc");
+const msSummaryEl = document.getElementById("ms-summary");
+const msSummaryLines = document.getElementById("ms-summary-lines");
+
+function summaryLineFor(selectEl) {
+  const opt = selectEl.options[selectEl.selectedIndex];
+  if (!selectEl.value || !opt) return null;
+  const label = opt.textContent.replace(/^\S+\s\u2014\s/, "");
+  return "<div style=\"margin-bottom:6px;\">" + label + linkForVenue(label) + "</div>";
+}
+function showSummary() {
+  const lines = [summaryLineFor(msLecEl), summaryLineFor(msTutEl), summaryLineFor(msWkEl)]
+    .filter(Boolean);
+  msSummaryLines.innerHTML = lines.length
+    ? lines.join("")
+    : "<div style=\"color:var(--muted);\">No sessions saved yet.</div>";
+  msFormEl.style.display = "none";
+  msDescEl.style.display = "none";
+  msSummaryEl.style.display = "block";
+  msEditBtn.style.display = "inline-block";
+  renderSessionSummary(msLecEl, "lectorial-list");
+  renderSessionSummary(msTutEl, "tutorial-list");
+  renderSessionSummary(msWkEl, "workshop-list");
+}
+function showForm() {
+  msFormEl.style.display = "block";
+  msDescEl.style.display = "block";
+  msSummaryEl.style.display = "none";
+  msEditBtn.style.display = "none";
+}
+
+function msLoad() {
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
+    if (saved.lec) msLecEl.value = saved.lec;
+    if (saved.tut) msTutEl.value = saved.tut;
+    if (saved.wk) msWkEl.value = saved.wk;
+  } catch (e) { /* ignore corrupt storage */ }
+  updateMapLink(msLecEl, msLecMap);
+  updateMapLink(msTutEl, msTutMap);
+  updateMapLink(msWkEl, msWkMap);
+  if (saved.lec || saved.tut || saved.wk) showSummary();
+}
+function msSave() {
+  const data = { lec: msLecEl.value, tut: msTutEl.value, wk: msWkEl.value };
+  try {
+    localStorage.setItem(MS_KEY, JSON.stringify(data));
+  } catch (e) { /* ignore storage errors */ }
+  showSummary();
+}
+const msSaveBtn = document.getElementById("ms-save-btn");
+if (msSaveBtn) msSaveBtn.addEventListener("click", msSave);
+const msEditBtn = document.getElementById("ms-edit-btn");
+if (msEditBtn) msEditBtn.addEventListener("click", showForm);
+msLoad();
+
+/* ------------------------------------------------------------------
+   FRESHNESS CHECK — students never need to guess whether they're on
+   an old cached version. On load, fetch this same page fresh
+   (bypassing cache) and compare its <meta name="page-version"> to
+   this page's own. If they differ, show a small banner with a
+   Refresh button — nothing shown at all if the page is already current.
+   TO UPDATE: bump the content="..." value in the page-version meta
+   tag in <head> any time this file is meaningfully changed.
+------------------------------------------------------------------- */
+(function () {
+  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
+  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
+  fetch(bustUrl, { cache: "no-store" })
+    .then((r) => r.text())
+    .then((html) => {
+      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
+      if (match && match[1] !== CURRENT_VERSION) {
+        const banner = document.getElementById("update-banner");
+        banner.style.display = "block";
+        document.getElementById("update-refresh-btn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+    })
+    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
+})();
+</script>
+</body>
+</html>
