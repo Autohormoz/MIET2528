@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-07-25-01" />
+<title>MIET2528 — My Quiz &amp; Exam Schedule</title>
+<style>
+  :root{
+    --navy:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80;
+    --card:#151d33; --cyan:#00BDD6; --amber:#F0A500; --red:#E0262B;
+    --teal:#1C7293; --ink:#C8D8F0; --muted:#7C92B0;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--navy);
+    font-family:Calibri,"Segoe UI",sans-serif;color:var(--page-ink);}
+  .wrap{max-width:600px;margin:0 auto;padding:18px 20px 24px;}
+  .eyebrow{font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--page-muted);margin-bottom:6px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:1.35rem;color:var(--teal);margin:0 0 4px;}
+  .dek{font-size:0.86rem;color:var(--page-muted);margin:0 0 12px;line-height:1.4;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.05rem;color:#ffffff;margin:0 0 10px;}
+
+  .card{background:var(--card);border-radius:10px;padding:12px 16px;margin-bottom:10px;
+    box-shadow:0 4px 14px rgba(18,32,47,0.12);color:var(--ink);}
+  .card p, .card li, .card label{color:var(--ink);}
+  .card a{color:var(--amber);font-weight:600;text-decoration:none;}
+  .card a:hover{text-decoration:underline;}
+
+  .my-session-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;}
+  .my-session-row label{flex:0 0 90px;font-size:0.9rem;font-weight:600;color:#ffffff;}
+  .my-session-row select{flex:1 1 220px;padding:9px 11px;border-radius:6px;
+    border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.04);
+    color:var(--ink);font-size:0.95rem;}
+  .my-session-row select option{background:#151d33;color:var(--ink);}
+  .btn-link{display:inline-block;background:var(--amber);color:#12202F;border:none;
+    padding:9px 18px;border-radius:8px;font-weight:700;font-size:0.9rem;cursor:pointer;}
+  .btn-link.outline{background:transparent;border:1px solid var(--muted);color:var(--ink);}
+
+  #ms-summary-line{font-size:1.02rem;margin-bottom:6px;}
+  #ms-edit-btn{display:none;}
+
+  .no-session-notice{background:rgba(240,165,0,0.1);border:1px solid var(--amber);
+    border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:0.95rem;}
+
+  .quiz-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;
+    border-top:1px solid rgba(255,255,255,0.08);}
+  .quiz-row:first-child{border-top:none;padding-top:4px;}
+  .quiz-row .badge{flex-shrink:0;width:34px;height:34px;border-radius:50%;
+    background:rgba(0,189,214,0.12);border:2px solid var(--cyan);color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    font-family:Georgia,serif;font-size:0.68rem;text-align:center;line-height:1.1;}
+  .quiz-row.final .badge{background:rgba(224,38,43,0.12);border-color:var(--red);color:var(--red);}
+  .quiz-row .details h3{margin:0 0 2px;font-family:Georgia,serif;font-weight:normal;
+    font-size:0.98rem;color:#ffffff;}
+  .quiz-row .details .when{font-size:0.9rem;font-weight:700;color:var(--ink);margin:0;}
+  .quiz-row .details .where{font-size:0.82rem;color:var(--muted);margin:2px 0 0;}
+  .quiz-row .details .note{font-size:0.78rem;color:var(--amber);margin-top:4px;font-weight:600;}
+  .quiz-row .details .canvas-link{font-size:0.82rem;margin-top:4px;}
+
+  footer{margin-top:16px;font-size:0.75rem;color:var(--page-muted);text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">MIET2528 · Assessments</div>
+  <h1>My Quiz &amp; Exam Schedule</h1>
+  <p class="dek">Quizzes and the final exam run face-to-face, in your own timetabled lectorial slot. Save your lectorial session below to see your exact date, time, and room.</p>
+
+  <div class="card" id="card-my-session">
+    <h2>My Lectorial Session</h2>
+    <div id="ms-form">
+      <p style="margin:0 0 14px;font-size:0.9rem;color:var(--muted);">Select your timetabled lectorial — this is also used across the weekly pages, so you only need to set it once.</p>
+      <div class="my-session-row">
+        <label>Lectorial</label>
+        <select id="ms-lec"><option value="">Select your session…</option></select>
+      </div>
+      <button class="btn-link" id="ms-save-btn">Save my session</button>
+    </div>
+    <div id="ms-summary" style="display:none;">
+      <p id="ms-summary-line"></p>
+      <button class="btn-link outline" id="ms-edit-btn">Edit my session</button>
+    </div>
+  </div>
+
+  <div id="no-session-notice" class="no-session-notice" style="display:none;">
+    Save your lectorial session above to see your quiz and exam dates, times, and rooms.
+  </div>
+
+  <div class="card" id="quiz-card" style="display:none;">
+    <h2>Quiz &amp; Exam Dates</h2>
+    <div id="quiz-cards"></div>
+  </div>
+
+  <footer>RMIT University · School of Engineering — MIET2528 Introduction to Mechanical Engineering</footer>
+</div>
+
+<script>
+const MS_KEY = "miet2528-my-sessions";
+const MS_LECTORIALS = [
+  ["LTL01/03", "Tuesday, 4:30pm\u20136:30pm, room 080.02.007"],
+  ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
+  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
+];
+
+// Confirmed schedule: quizzes/exam run face-to-face, in the student's own
+// lectorial slot. The Wednesday/online cohort sits in-person for these
+// three dates specifically, since quizzes/exams aren't held online.
+const SCHEDULE = {
+  "LTL01/03": {
+    day: "Tuesday", time: "4:30pm\u20136:30pm", room: "080.02.007", inPersonNote: false,
+    quiz1: "11 Aug 2026", quiz2: "22 Sep 2026", final: "13 Oct 2026",
+  },
+  "LTL01/01": {
+    day: "Thursday", time: "12:30pm\u20132:30pm", room: "080.07.001", inPersonNote: false,
+    quiz1: "13 Aug 2026", quiz2: "24 Sep 2026", final: "15 Oct 2026",
+  },
+  "LTL01/02": {
+    day: "Wednesday", time: "5:30pm\u20137:30pm", room: "080.02.007", inPersonNote: true,
+    quiz1: "12 Aug 2026", quiz2: "23 Sep 2026", final: "14 Oct 2026",
+  },
+};
+const CANVAS_LINKS = {
+  quiz1: "https://rmit.instructure.com/courses/158283/assignments/1241543",
+  quiz2: "https://rmit.instructure.com/courses/158283/assignments/1241546",
+  final: "https://rmit.instructure.com/courses/158283/assignments/1241539",
+};
+
+function msPopulate(selectEl, options) {
+  options.forEach(([code, label]) => {
+    const opt = document.createElement("option");
+    opt.value = code;
+    opt.textContent = code + " \u2014 " + label;
+    selectEl.appendChild(opt);
+  });
+}
+const msLecEl = document.getElementById("ms-lec");
+msPopulate(msLecEl, MS_LECTORIALS);
+
+const msFormEl = document.getElementById("ms-form");
+const msSummaryEl = document.getElementById("ms-summary");
+const msSummaryLine = document.getElementById("ms-summary-line");
+const msEditBtn = document.getElementById("ms-edit-btn");
+const msSaveBtn = document.getElementById("ms-save-btn");
+const noSessionNotice = document.getElementById("no-session-notice");
+const quizCardsEl = document.getElementById("quiz-cards");
+
+function mapLink(room) {
+  const building = parseInt(room.split(".")[0], 10);
+  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+  return `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank">\uD83D\uDCCD Building ${building}, room ${room}</a>`;
+}
+
+const quizCardEl = document.getElementById("quiz-card");
+
+function renderQuizCards(lecCode) {
+  const s = SCHEDULE[lecCode];
+  if (!s) {
+    quizCardsEl.innerHTML = "";
+    quizCardEl.style.display = "none";
+    noSessionNotice.style.display = "block";
+    return;
+  }
+  noSessionNotice.style.display = "none";
+  quizCardEl.style.display = "block";
+  const items = [
+    { label: "QUIZ\u00A01", title: "Quiz 1", date: s.quiz1, cls: "", link: CANVAS_LINKS.quiz1 },
+    { label: "QUIZ\u00A02", title: "Quiz 2", date: s.quiz2, cls: "", link: CANVAS_LINKS.quiz2 },
+    { label: "FINAL", title: "Final Exam", date: s.final, cls: "final", link: CANVAS_LINKS.final },
+  ];
+  quizCardsEl.innerHTML = items.map((it) => `
+    <div class="quiz-row ${it.cls}">
+      <div class="badge">${it.label}</div>
+      <div class="details">
+        <h3>${it.title}</h3>
+        <p class="when">${s.day} ${it.date}, ${s.time}</p>
+        <p class="where">${mapLink(s.room)}</p>
+        ${s.inPersonNote ? `<p class="note">In-person for this one — quizzes/exams aren't held online.</p>` : ""}
+        <p class="canvas-link"><a href="${it.link}" target="_blank">View on Canvas \u2192</a></p>
+      </div>
+    </div>
+  `).join("");
+}
+
+function showSummary(lecCode) {
+  const opt = msLecEl.querySelector(`option[value="${lecCode}"]`);
+  const label = opt ? opt.textContent.replace(/^\S+\s\u2014\s/, "") : "";
+  msSummaryLine.innerHTML = `<b>Your lectorial:</b> ${label}`;
+  msFormEl.style.display = "none";
+  msSummaryEl.style.display = "block";
+  msEditBtn.style.display = "inline-block";
+  renderQuizCards(lecCode);
+}
+function showForm() {
+  msFormEl.style.display = "block";
+  msSummaryEl.style.display = "none";
+  msEditBtn.style.display = "none";
+  quizCardsEl.innerHTML = "";
+  quizCardEl.style.display = "none";
+  noSessionNotice.style.display = "block";
+}
+
+function msLoad() {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}"); } catch (e) {}
+  if (saved.lec) {
+    msLecEl.value = saved.lec;
+    showSummary(saved.lec);
+  } else {
+    showForm();
+  }
+}
+function msSave() {
+  if (!msLecEl.value) return;
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}"); } catch (e) {}
+  saved.lec = msLecEl.value; // preserve any existing tut/wk selections from other pages
+  try { localStorage.setItem(MS_KEY, JSON.stringify(saved)); } catch (e) {}
+  showSummary(saved.lec);
+}
+msSaveBtn.addEventListener("click", msSave);
+msEditBtn.addEventListener("click", showForm);
+msLoad();
+</script>
+</body>
+</html>
