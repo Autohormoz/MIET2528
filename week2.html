@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-22-01" />
+<meta name="page-version" content="2026-07-26-01" />
 <title>MIET2528 — Week 2 at a Glance</title>
 <style>
   :root{
@@ -133,6 +133,23 @@
   .ms-map a{color:var(--amber);text-decoration:none;font-weight:600;}
   .ms-map a:hover{text-decoration:underline;}
 
+  .quiz-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;
+    border-top:1px solid rgba(255,255,255,0.08);}
+  .quiz-row:first-child{border-top:none;padding-top:2px;}
+  .quiz-row .badge{flex-shrink:0;width:34px;height:34px;border-radius:50%;
+    background:rgba(0,189,214,0.12);border:2px solid var(--cyan);color:var(--cyan);
+    display:flex;align-items:center;justify-content:center;font-weight:700;
+    font-family:Georgia,serif;font-size:0.58rem;text-align:center;line-height:1.1;}
+  .quiz-row.final .badge{background:rgba(224,38,43,0.12);border-color:var(--red);color:var(--red);}
+  .quiz-row .details h3{margin:0 0 2px;font-family:Georgia,serif;font-weight:normal;
+    font-size:0.98rem;color:#ffffff;}
+  .quiz-row .details .when{font-size:0.9rem;font-weight:700;color:var(--ink);margin:0;}
+  .quiz-row .details .where{font-size:0.82rem;color:var(--muted);margin:2px 0 0;}
+  .quiz-row .details .note{font-size:0.78rem;color:var(--amber);margin-top:4px;font-weight:600;}
+  .quiz-row .details .canvas-link{font-size:0.82rem;margin-top:4px;}
+  .quiz-row .details .canvas-link a{color:var(--amber);font-weight:600;text-decoration:none;}
+  .quiz-row .details .canvas-link a:hover{text-decoration:underline;}
+
   .reset{background:none;border:none;color:var(--muted);font-size:0.88rem;
     text-decoration:underline;cursor:pointer;margin-top:8px;padding:0;}
 
@@ -257,6 +274,17 @@
 
     <div id="ms-summary" style="display:none;">
       <div id="ms-summary-lines"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-toggle" onclick="toggleCard('quizdates')">
+      <h2>My Quiz &amp; Exam Dates</h2>
+      <span class="chevron" id="chev-quizdates">▾</span>
+    </div>
+    <div class="card-body" id="body-quizdates">
+      <p id="quizdates-nudge" style="margin:0;color:var(--muted);font-size:0.95rem;">Save your lectorial session above to see your exact Quiz 1, Quiz 2, and Final Exam date, time, and room.</p>
+      <div id="quizdates-rows" style="display:none;"></div>
     </div>
   </div>
 
@@ -608,7 +636,7 @@ function toggleCard(id) {
   chev.classList.toggle("collapsed", collapsed);
   try { localStorage.setItem(CARD_STORAGE_PREFIX + id, collapsed ? "1" : "0"); } catch (e) {}
 }
-["lectorial", "tutorial", "workshop", "checklist"].forEach((id) => {
+["quizdates", "lectorial", "tutorial", "workshop", "checklist"].forEach((id) => {
   let collapsed = false;
   try { collapsed = localStorage.getItem(CARD_STORAGE_PREFIX + id) === "1"; } catch (e) {}
   if (collapsed) {
@@ -667,6 +695,64 @@ const MS_LECTORIALS = [
   ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
   ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
 ];
+
+// Confirmed schedule: quizzes/exam run face-to-face, in the student's own
+// lectorial slot. The Wednesday/online cohort sits in-person for these
+// three dates specifically, since quizzes/exams aren't held online.
+const QUIZ_SCHEDULE = {
+  "LTL01/03": {
+    day: "Tuesday", time: "4:30pm\u20136:30pm", room: "080.02.007", inPersonNote: false,
+    quiz1: "11 Aug 2026", quiz2: "22 Sep 2026", final: "13 Oct 2026",
+  },
+  "LTL01/01": {
+    day: "Thursday", time: "12:30pm\u20132:30pm", room: "080.07.001", inPersonNote: false,
+    quiz1: "13 Aug 2026", quiz2: "24 Sep 2026", final: "15 Oct 2026",
+  },
+  "LTL01/02": {
+    day: "Wednesday", time: "5:30pm\u20137:30pm", room: "080.02.007", inPersonNote: true,
+    quiz1: "12 Aug 2026", quiz2: "23 Sep 2026", final: "14 Oct 2026",
+  },
+};
+const QUIZ_CANVAS_LINKS = {
+  quiz1: "https://rmit.instructure.com/courses/158283/assignments/1241543",
+  quiz2: "https://rmit.instructure.com/courses/158283/assignments/1241546",
+  final: "https://rmit.instructure.com/courses/158283/assignments/1241539",
+};
+function quizMapLink(room) {
+  const building = parseInt(room.split(".")[0], 10);
+  const query = encodeURIComponent("RMIT University Building " + building + " Melbourne");
+  return `<a href="https://www.google.com/maps/search/?api=1&query=${query}" target="_blank">\uD83D\uDCCD Building ${building}, room ${room}</a>`;
+}
+function renderQuizDates(lecCode) {
+  const nudge = document.getElementById("quizdates-nudge");
+  const rowsEl = document.getElementById("quizdates-rows");
+  const s = QUIZ_SCHEDULE[lecCode];
+  if (!s) {
+    nudge.style.display = "block";
+    rowsEl.style.display = "none";
+    return;
+  }
+  nudge.style.display = "none";
+  rowsEl.style.display = "block";
+  const items = [
+    { label: "QUIZ\u00A01", title: "Quiz 1", date: s.quiz1, cls: "", link: QUIZ_CANVAS_LINKS.quiz1 },
+    { label: "QUIZ\u00A02", title: "Quiz 2", date: s.quiz2, cls: "", link: QUIZ_CANVAS_LINKS.quiz2 },
+    { label: "FINAL", title: "Final Exam", date: s.final, cls: "final", link: QUIZ_CANVAS_LINKS.final },
+  ];
+  rowsEl.innerHTML = items.map((it) => `
+    <div class="quiz-row ${it.cls}">
+      <div class="badge">${it.label}</div>
+      <div class="details">
+        <h3>${it.title}</h3>
+        <p class="when">${s.day} ${it.date}, ${s.time}</p>
+        <p class="where">${quizMapLink(s.room)}</p>
+        ${s.inPersonNote ? `<p class="note">In-person for this one — quizzes/exams aren't held online.</p>` : ""}
+        <p class="canvas-link"><a href="${it.link}" target="_blank">View on Canvas \u2192</a></p>
+      </div>
+    </div>
+  `).join("");
+}
+
 const MS_TUTORIALS = [
   ["TUT01/01", "Wednesday, 11:30am\u201312:30pm, room 013.02.029"],
   ["TUT01/02", "Tuesday, 9:30am\u201310:30am, room 080.09.012"],
@@ -788,12 +874,14 @@ function showSummary() {
   renderSessionSummary(msLecEl, "lectorial-list");
   renderSessionSummary(msTutEl, "tutorial-list");
   renderSessionSummary(msWkEl, "workshop-list");
+  renderQuizDates(msLecEl.value);
 }
 function showForm() {
   msFormEl.style.display = "block";
   msDescEl.style.display = "block";
   msSummaryEl.style.display = "none";
   msEditBtn.style.display = "none";
+  renderQuizDates(null);
 }
 
 function msLoad() {
