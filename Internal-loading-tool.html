@@ -707,9 +707,9 @@ function renderFBD(svg, beam, cutX) {
   const mArcCx = O.x + AL + 44, mArcCy = O.y + 4, mR = 12;
   const mTop = { x: mArcCx, y: mArcCy - mR };
   const mBottom = { x: mArcCx, y: mArcCy + mR };
-  const sweepFlag = 0; // flipped to the opposite fixed reference direction
+  const sweepFlag = 0; // bulge flipped to the right side of the axis; path still bottom->top so the arrowhead/sense sits at the top
   const arcM = svgEl("path", {
-    d: `M ${mTop.x} ${mTop.y} A ${mR} ${mR} 0 0 ${sweepFlag} ${mBottom.x} ${mBottom.y}`,
+    d: `M ${mBottom.x} ${mBottom.y} A ${mR} ${mR} 0 0 ${sweepFlag} ${mTop.x} ${mTop.y}`,
     fill: "none", stroke: "#1C7293", "stroke-width": 1.6, "marker-end": "url(#arrowTeal)",
   });
   svg.appendChild(arcM);
