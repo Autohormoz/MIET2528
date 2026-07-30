@@ -60,25 +60,25 @@
 
   /* --- Checklist --- */
   .checklist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;
-    border-top:1px solid #EDF1F6;}
+    border-top:1px solid rgba(255,255,255,0.08);}
   .checklist-item:first-child{border-top:none;padding-top:2px;}
   .cl-badge{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;
     align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;margin-top:1px;}
   .cl-badge.overdue{background:rgba(224,38,43,0.12);color:var(--red);}
-  .cl-badge.due-soon{background:rgba(240,165,0,0.15);color:#8a5c00;}
-  .cl-badge.upcoming{background:rgba(28,114,147,0.1);color:var(--teal);}
-  .cl-name{font-weight:700;color:var(--page-ink);font-size:0.98rem;}
-  .cl-meta{font-size:0.85rem;color:var(--page-muted);margin-top:1px;}
+  .cl-badge.due-soon{background:rgba(240,165,0,0.18);color:var(--amber);}
+  .cl-badge.upcoming{background:rgba(28,114,147,0.15);color:var(--cyan);}
+  .cl-name{font-weight:700;color:var(--ink);font-size:0.98rem;}
+  .cl-meta{font-size:0.85rem;color:var(--muted);margin-top:1px;}
   .cl-status{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;
     padding:3px 9px;border-radius:999px;margin-left:auto;white-space:nowrap;}
-  .cl-status.overdue{background:rgba(224,38,43,0.1);color:var(--red);}
-  .cl-status.due-soon{background:rgba(240,165,0,0.15);color:#8a5c00;}
-  .cl-status.upcoming{background:#EEF1F6;color:var(--page-muted);}
+  .cl-status.overdue{background:rgba(224,38,43,0.15);color:#ff8a8a;}
+  .cl-status.due-soon{background:rgba(240,165,0,0.2);color:var(--amber);}
+  .cl-status.upcoming{background:rgba(255,255,255,0.08);color:var(--muted);}
 
   /* --- Week catch-up --- */
   .week-row{display:flex;gap:14px;padding:13px 0;border-top:1px solid rgba(255,255,255,0.08);}
   .week-row:first-child{border-top:none;padding-top:2px;}
-  .week-num{flex-shrink:0;width:52px;font-family:Georgia,serif;font-size:0.95rem;color:var(--amber);font-weight:700;padding-top:1px;}
+  .week-num{flex-shrink:0;width:62px;font-family:Georgia,serif;font-size:0.95rem;color:var(--amber);font-weight:700;padding-top:1px;white-space:nowrap;}
   .week-body h3{color:#ffffff;font-size:0.98rem;margin-bottom:3px;}
   .week-body p{margin:0;font-size:0.88rem;color:var(--muted);line-height:1.5;}
 
@@ -94,9 +94,19 @@
   .reassure-banner{background:rgba(0,189,214,0.1);border:1px solid rgba(0,189,214,0.3);
     border-radius:10px;padding:14px 18px;font-size:0.92rem;color:var(--page-ink);margin-bottom:18px;line-height:1.5;}
   .reassure-banner b{color:var(--teal);}
+
+  #update-banner{display:none;position:sticky;top:0;z-index:100;
+    background:var(--amber);color:#12202F;font-weight:600;font-size:0.9rem;
+    padding:10px 16px;text-align:center;}
+  #update-banner button{margin-left:12px;background:#12202F;color:#fff;
+    border:none;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;}
 </style>
 </head>
 <body>
+<div id="update-banner">
+  A newer version of this page is available.
+  <button id="update-refresh-btn">Refresh now</button>
+</div>
 <div class="wrap">
   <div class="eyebrow">MIET2528 · Introduction to Mechanical Engineering</div>
   <h1>Fast Track Hub</h1>
@@ -311,7 +321,11 @@ function renderTimeline(todayStr, semStatus) {
     const markerLabel = document.createElement("div");
     markerLabel.className = "timeline-marker-label";
     markerLabel.style.left = todayPct + "%";
-    markerLabel.textContent = "Today";
+    // adaptive anchoring: centering the label on the dot overflows the
+    // track near either end, so left/right-align instead when too close
+    if (todayPct < 10) markerLabel.style.transform = "translateX(0%)";
+    else if (todayPct > 90) markerLabel.style.transform = "translateX(-100%)";
+    markerLabel.textContent = semStatus.status === "mid-sem-break" ? "Today (mid-sem break)" : `Today \u2014 Week ${semStatus.week}`;
     track.appendChild(markerLabel);
   }
 }
@@ -322,12 +336,23 @@ function renderChecklist(todayStr) {
   const withStatus = ASSESSMENTS.map((a) => ({ ...a, status: assessmentStatus(a, todayStr) }));
   withStatus.sort((a, b) => order[a.status] - order[b.status] || new Date(a.due) - new Date(b.due));
 
-  box.innerHTML = withStatus.map((a) => {
+  // Every overdue/due-soon item stays visible (that's the urgent stuff), but
+  // only the next couple of "upcoming" ones — no need to preview the whole
+  // remaining semester here.
+  const UPCOMING_LIMIT = 2;
+  let upcomingSeen = 0;
+  const visible = withStatus.filter((a) => {
+    if (a.status !== "upcoming") return true;
+    upcomingSeen++;
+    return upcomingSeen <= UPCOMING_LIMIT;
+  });
+
+  box.innerHTML = visible.map((a) => {
     const badgeSymbol = a.status === "overdue" ? "!" : a.status === "due-soon" ? "\u25CF" : "\u2192";
     let statusLabel = a.status === "overdue" ? "Overdue" : a.status === "due-soon" ? "Due soon" : "Upcoming";
     let metaText = a.range ? `In-class ${a.range}` : `Due ${formatDate(a.due)}`;
     if (a.soft && a.status === "overdue") { statusLabel = "Past the usual window"; }
-    const linkHtml = a.link ? ` \u2014 <a href="${a.link}" target="_blank">Open on Canvas \u2192</a>` : "";
+    const linkHtml = a.link ? ` \u2014 <a href="${a.link}" target="_blank">Open on Canvas</a>` : "";
     return `<div class="checklist-item">
       <div class="cl-badge ${a.status}">${badgeSymbol}</div>
       <div style="flex:1;">
@@ -381,6 +406,31 @@ renderTimeline(todayStr, semStatus);
 renderChecklist(todayStr);
 renderWeekCatchup(semStatus);
 renderQuickLinks();
+
+/* --------------------------------------------------------------------
+   FRESHNESS CHECK — same mechanism as the week pages: fetch this same
+   page fresh (bypassing cache) and compare its page-version to this
+   page's own. If they differ, show a banner with a Refresh button.
+   TO UPDATE: bump the content="..." value in the page-version meta
+   tag in <head> any time this file is meaningfully changed.
+-------------------------------------------------------------------- */
+(function () {
+  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
+  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
+  fetch(bustUrl, { cache: "no-store" })
+    .then((r) => r.text())
+    .then((html) => {
+      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
+      if (match && match[1] !== CURRENT_VERSION) {
+        const banner = document.getElementById("update-banner");
+        banner.style.display = "block";
+        document.getElementById("update-refresh-btn").addEventListener("click", () => {
+          location.reload();
+        });
+      }
+    })
+    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
+})();
 </script>
 </body>
 </html>
