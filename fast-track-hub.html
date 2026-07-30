@@ -134,6 +134,7 @@
   <div class="card">
     <h2>What you've missed <span style="font-weight:400;font-size:0.85rem;color:var(--muted);">— the short version</span></h2>
     <div id="week-catchup"></div>
+    <p style="margin:14px 0 0;font-size:0.88rem;color:var(--muted);border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;">You've probably missed some tutorials too — whatever's already happened is available on the <a href="https://autohormoz.github.io/MIET2528/tutorials-hub.html" target="_blank" style="color:var(--cyan);font-weight:600;">Tutorials Hub</a> (problem sheets, solutions, and videos), and the rest will be added there as the semester goes on.</p>
   </div>
 
   <div class="light-card">
@@ -214,6 +215,14 @@ function assessmentStatus(a, todayStr) {
    range without a finer week-by-week split), so that's kept honest
    here rather than inventing false precision.
 ================================================================ */
+// Lectorial session recordings (Collaborate Ultra), added week by week as
+// they're recorded. Kept separate from WEEK_SUMMARIES so adding a new
+// week's recording is a one-line addition here, nothing else to touch.
+const LECTORIAL_RECORDINGS = {
+  1: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
+  2: "https://au-lti.bbcollab.com/recording/a638947aa1b4475a87ee7710c4a4e81c",
+};
+
 const WEEK_SUMMARIES = {
   1: `Lectorials only this week (workshops/tutorials hadn't started). Two lecture videos to watch before your lectorial:
     <a href="https://rmit.instructure.com/courses/158283/pages/week-1-introduction-to-course-and-force-systems?module_item_id=8428015" target="_blank">Introduction to the Course</a> and
@@ -381,9 +390,13 @@ function renderWeekCatchup(semStatus) {
 
   let rows = "";
   for (let w = 1; w <= upToWeek; w++) {
+    const recording = LECTORIAL_RECORDINGS[w];
+    const recordingHtml = recording
+      ? `<p style="margin-top:6px;"><a href="${recording}" target="_blank" style="color:var(--cyan);font-weight:700;">\u25B6 Missed the lectorial? Watch the recording</a></p>`
+      : "";
     rows += `<div class="week-row">
       <div class="week-num">Week ${w}</div>
-      <div class="week-body"><p>${WEEK_SUMMARIES[w]}</p></div>
+      <div class="week-body"><p>${WEEK_SUMMARIES[w]}</p>${recordingHtml}</div>
     </div>`;
   }
   box.innerHTML = rows;
