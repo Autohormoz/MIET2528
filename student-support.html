@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="page-version" content="2026-08-01-01" />
+<title>MIET2528 — RMIT Peer Mentoring</title>
+<style>
+  :root{
+    --navy:#0A0F1E; --card:#151d33; --cyan:#00BDD6; --amber:#F0A500;
+    --red:#E0262B; --teal:#1C7293; --ink:#C8D8F0; --muted:#7086a0;
+    --bg:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--page-ink);
+    font-family:Calibri,"Segoe UI",sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:30px 18px 60px;}
+
+  .eyebrow{font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--page-muted);margin-bottom:6px;}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
+    font-size:1.9rem;color:var(--teal);margin:0 0 10px;}
+  .dek{font-size:1.05rem;color:var(--page-muted);margin:0 0 24px;line-height:1.55;max-width:620px;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.2rem;color:#ffffff;margin:0 0 10px;}
+
+  .card{background:var(--card);border-radius:12px;padding:22px 24px;margin-bottom:18px;
+    box-shadow:0 4px 16px rgba(18,32,47,0.14);color:var(--ink);}
+  .card p{color:var(--ink);line-height:1.6;}
+  .card a{color:var(--amber);font-weight:600;text-decoration:none;}
+  .card a:hover{text-decoration:underline;}
+  .light-card{background:#fff;border:1px solid #DCE3EC;border-radius:12px;padding:22px 24px;
+    margin-bottom:18px;box-shadow:0 2px 10px rgba(27,40,56,0.06);}
+  .light-card h2{color:var(--teal);}
+  .light-card a{color:var(--teal);font-weight:600;text-decoration:none;}
+  .light-card a:hover{text-decoration:underline;}
+
+  .feature-row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 4px;}
+  .feature-chip{background:rgba(0,189,214,0.12);border:1px solid rgba(0,189,214,0.3);
+    border-radius:999px;padding:6px 14px;font-size:0.85rem;color:var(--cyan);font-weight:600;}
+
+  .steps{counter-reset:step;list-style:none;margin:0;padding:0;}
+  .steps li{counter-increment:step;position:relative;padding:8px 0 8px 40px;line-height:1.5;}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:8px;
+    width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;
+    font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;}
+
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
+  .card a.btn, a.btn{display:inline-block;background:var(--amber);color:#12202F !important;font-weight:700;
+    padding:10px 20px;border-radius:8px;text-decoration:none;font-size:0.92rem;}
+  .card a.btn:hover, a.btn:hover{text-decoration:none;opacity:0.92;}
+  .card a.btn.secondary, a.btn.secondary{background:transparent;border:1px solid var(--teal);color:var(--teal) !important;}
+
+  footer{margin-top:36px;font-size:0.88rem;color:var(--page-muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">MIET2528 · Student Support</div>
+  <h1>RMIT Peer Mentoring</h1>
+  <p class="dek">Free support from students who've done your course before — help with assignments, study tips, or just someone who gets what you're going through right now.</p>
+
+  <div class="card">
+    <h2>Chat with a peer mentor who's been in your shoes</h2>
+    <p>Need help with assignments, study tips, or just want to connect with someone who understands the course? You can now chat with a peer mentor who's already been through it. It's a great way to stay on top of things and make a new friend along the way.</p>
+    <div class="feature-row">
+      <span class="feature-chip">Free and flexible</span>
+      <span class="feature-chip">Chat online or meet in person</span>
+      <span class="feature-chip">Friendly, experienced student mentors</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How to connect — super easy</h2>
+    <ol class="steps">
+      <li>Go to <a href="https://rmit.vygo.app/" target="_blank">rmit.vygo.app</a></li>
+      <li>Log in with your RMIT ID and password</li>
+      <li>Go to the <b>Programs</b> tab</li>
+      <li>Select the <b>Peer Mentoring Program</b> for your degree</li>
+      <li>Click <b>Join Program</b></li>
+      <li>Say hi to your matched mentor, or browse mentor profiles!</li>
+    </ol>
+    <div class="cta-row">
+      <a class="btn" href="https://rmit.vygo.app/" target="_blank">Get started at rmit.vygo.app</a>
+      <a class="btn secondary" href="https://youtu.be/VD1paNgo50Y" target="_blank">Watch the quick how-it-works video</a>
+    </div>
+  </div>
+
+  <div class="light-card">
+    <h2>Want to know more?</h2>
+    <p>Full details are on the <a href="https://www.rmit.edu.au/students/support-services/study-support/peer-mentoring" target="_blank">Peer Mentoring webpage</a>. Having trouble? Email the team directly at <a href="mailto:peer.mentoring@rmit.edu.au">peer.mentoring@rmit.edu.au</a>, or <a href="https://www.instagram.com/rmitpeermentoring/" target="_blank">follow @rmitpeermentoring on Instagram</a> for tips from mentors and real mentoring stories.</p>
+  </div>
+
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
+</div>
+</body>
+</html>
