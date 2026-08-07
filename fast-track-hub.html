@@ -221,6 +221,7 @@ function assessmentStatus(a, todayStr) {
 const LECTORIAL_RECORDINGS = {
   1: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
   2: "https://au-lti.bbcollab.com/recording/a638947aa1b4475a87ee7710c4a4e81c",
+  3: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
 };
 
 const WEEK_SUMMARIES = {
@@ -234,7 +235,12 @@ const WEEK_SUMMARIES = {
     Tutorial T01 started (<a href="https://rmit.instructure.com/files/55032622/download?download_frd=1&verifier=McWhI91SghSu5G3w8JDYqWBQXqRg5elJyZ7zXZ69" target="_blank">problem sheet</a>).
     Workshop: project intro, candidate materials (aluminium/steel/polymer), tensile testing demo, then analysing those results to compare material properties (Task 2).
     This is also when group registration opens — see below.`,
-  3: "Bending fundamentals: pick two cross-sectional shapes, fabricate test specimens, then bend-test them to see which shape resists bending best.",
+  3: `Workshop moved to designing and bend-testing two beam cross-sections. Lectorial video:
+    <a href="https://rmit.instructure.com/courses/158283/pages/week-3-force-analysis-internal-loading-lightboard?module_item_id=8766084" target="_blank">Force Analysis — Internal Loading</a>
+    (distributed loading, then joint and section methods).
+    Tutorial T02 covered support reactions under concentrated and distributed loading — problem sheet and solutions on the
+    <a href="https://autohormoz.github.io/MIET2528/tutorials-hub.html" target="_blank">Tutorials Hub</a>.
+    Still no group? Registration opened back in Week 2 — the deadline is end of Week 4.`,
   4: "Brainstorm wing box designs based on your beam results, score them with a selection matrix, and predict performance theoretically before building anything.",
   5: "Build cardboard prototypes of your two shortlisted designs and iterate based on what breaks or bends unexpectedly.",
   6: "Pull theory and prototype results together into the Progress Report — due 30 Aug.",
@@ -384,7 +390,7 @@ function renderWeekCatchup(semStatus) {
   if (semStatus.status === "before-semester") { box.innerHTML = "<p style='color:var(--muted);margin:0;'>Nothing's happened yet — you're starting from the very beginning, same as everyone else.</p>"; return; }
   if (semStatus.status === "after-semester") upToWeek = 12;
   else if (semStatus.status === "mid-sem-break") upToWeek = 6;
-  else upToWeek = Math.min(semStatus.week - 1, 12);
+  else upToWeek = Math.min(semStatus.week, 12); // include the current week too — its lecture may already be recorded
 
   if (upToWeek < 1) { box.innerHTML = "<p style='color:var(--muted);margin:0;'>You're right at the start — nothing to catch up on yet.</p>"; return; }
 
