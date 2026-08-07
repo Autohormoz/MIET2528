@@ -242,6 +242,7 @@
   <div class="card" style="border:2px solid var(--red);">
     <h2 style="color:var(--red);">Quiz 1 is this week</h2>
     <p style="margin:0 0 14px;font-size:1.05rem;font-weight:700;color:#fff;">Attend in person, at your own timetabled lectorial day and time — including if you're normally in the online (Wednesday) lectorial. Quizzes are not held online; see the "My Quiz & Exam Dates" card below for your exact room.</p>
+    <p style="margin:-4px 0 14px;font-size:0.92rem;color:var(--amber);">Wednesday cohort: this week you attend in person, in Building 80, room 080.02.007, at your usual 5:30pm time.</p>
 
     <div class="notice" style="margin-bottom:16px;">
       <p style="margin:0;"><b>Moving between timeslots is not possible, for any reason — every session is full.</b> You must sit the quiz at the timetabled lectorial session you're enrolled in. If you genuinely cannot attend for any reason, you must apply for <a href="https://www.rmit.edu.au/students/my-course/assessment-results/special-consideration-extensions/special-consideration" target="_blank">Special Consideration</a> — this is the only path around a missed quiz.</p>
@@ -325,8 +326,11 @@
     <ul id="lectorial-list">
       <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
       <li><b>Thursdays</b> — 12:30–2:30pm, Room 080.07.001</li>
-      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
+      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (Collaborate Ultra)</li>
     </ul>
+    <div class="notice" style="margin:10px 0 16px;">
+      <p style="margin:0;"><b>Normally in the Wednesday online session? This week is different.</b> Quiz 1 is not held online — you need to attend <b>in person</b>, at your usual Wednesday time, in <a href="https://www.google.com/maps/search/?api=1&query=RMIT%20University%20Building%2080%20Melbourne" target="_blank">Building 80, room 080.02.007</a>.</p>
+    </div>
     <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">This week</p>
     <ul>
       <li>Your timetabled lectorial session this week <b>is Quiz 1</b> — see the card above for everything you need</li>
@@ -828,10 +832,11 @@ msPopulate(msWkEl, MS_WORKSHOPS);
    own session. Reusable for Tutorial/Workshop too on later week pages
    once those sessions are running (this week only Lectorial applies).
 ------------------------------------------------------------------- */
-const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
 function linkForVenue(text) {
   if (text.includes("Collaborate Ultra")) {
-    return ' · <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
+    // This week only: no online join link — Quiz 1 is in-person for everyone,
+    // including the usually-online Wednesday cohort.
+    return ' · <a href="https://www.google.com/maps/search/?api=1&query=RMIT%20University%20Building%2080%20Melbourne" target="_blank">\uD83D\uDCCD In person this week: Building 80, room 080.02.007</a>';
   }
   const buildingMatch = text.match(/room (\d+)\./);
   if (buildingMatch) {
