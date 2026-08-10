@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-31-01" />
+<meta name="page-version" content="2026-08-10-01" />
 <title>MIET2528 — Fast Track Hub</title>
 <style>
   :root{
@@ -175,15 +175,15 @@ const SEMESTER_START = '2026-07-20';
 const SEMESTER_END = '2026-11-15';
 
 const ASSESSMENTS = [
-  { key: 'sa1', name: 'Self-Assessment 1', due: '2026-07-26', points: '2.5 pts', link: 'https://rmit.instructure.com/courses/158283/quizzes/765730' },
+  { key: 'sa1', name: 'Self-Assessment 1', due: '2026-07-26', points: '2.5 pts', link: 'https://rmit.instructure.com/courses/158283/quizzes/765730', notExtendable: true },
   { key: 'safety', name: 'Mandatory Safety Induction', due: '2026-07-27', points: 'required for workshop access', critical: true, link: 'https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380' },
   { key: 'group', name: 'Join a project group', due: '2026-08-16', points: 'practical deadline (Week 4)', soft: true, link: 'https://rmit.instructure.com/courses/158283/groups#' },
   { key: 'quiz1', name: 'Quiz 1 (in-class)', due: '2026-08-13', points: '10 pts', range: 'Aug 11\u201313' },
-  { key: 'progress', name: 'Progress Report', due: '2026-08-30', points: '15 pts' },
+  { key: 'progress', name: 'Progress Report', due: '2026-08-30', points: '15 pts', notExtendable: true },
   { key: 'quiz2', name: 'Quiz 2 (in-class)', due: '2026-09-24', points: '10 pts', range: 'Sep 22\u201324' },
   { key: 'finaltest', name: 'Final Test (in-class)', due: '2026-10-15', points: '35 pts', range: 'Oct 13\u201315' },
-  { key: 'finalreport', name: 'Final Report', due: '2026-10-18', points: '25 pts' },
-  { key: 'sa2', name: 'Self-Assessment 2', due: '2026-10-18', points: '2.5 pts' },
+  { key: 'finalreport', name: 'Final Report', due: '2026-10-18', points: '25 pts', notExtendable: true },
+  { key: 'sa2', name: 'Self-Assessment 2', due: '2026-10-18', points: '2.5 pts', notExtendable: true },
 ];
 
 function dateOnly(d) {
@@ -221,7 +221,7 @@ function assessmentStatus(a, todayStr) {
 const LECTORIAL_RECORDINGS = {
   1: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
   2: "https://au-lti.bbcollab.com/recording/a638947aa1b4475a87ee7710c4a4e81c",
-  3: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
+  3: "https://au-lti.bbcollab.com/recording/2912eeece38344c0871a312612d53602",
 };
 
 const WEEK_SUMMARIES = {
@@ -367,12 +367,17 @@ function renderChecklist(todayStr) {
     let statusLabel = a.status === "overdue" ? "Overdue" : a.status === "due-soon" ? "Due soon" : "Upcoming";
     let metaText = a.range ? `In-class ${a.range}` : `Due ${formatDate(a.due)}`;
     if (a.soft && a.status === "overdue") { statusLabel = "Past the usual window"; }
-    const linkHtml = a.link ? ` \u2014 <a href="${a.link}" target="_blank">Open on Canvas</a>` : "";
+    const overdueAndDone = a.notExtendable && a.status === "overdue";
+    if (overdueAndDone) { statusLabel = "Overdue \u2014 not extendable"; }
+    const linkHtml = overdueAndDone
+      ? ""
+      : (a.link ? ` \u2014 <a href="${a.link}" target="_blank">Open on Canvas</a>` : "");
+    const metaExtra = overdueAndDone ? ` \u2014 this deadline has passed and can't be extended` : "";
     return `<div class="checklist-item">
       <div class="cl-badge ${a.status}">${badgeSymbol}</div>
       <div style="flex:1;">
         <div class="cl-name">${a.name}</div>
-        <div class="cl-meta">${metaText} \u2014 ${a.points}${linkHtml}</div>
+        <div class="cl-meta">${metaText} \u2014 ${a.points}${linkHtml}${metaExtra}</div>
       </div>
       <div class="cl-status ${a.status}">${statusLabel}</div>
     </div>`;
