@@ -450,13 +450,16 @@ function renderSpecimen(svg, mat, kind, eps) {
   clear(svg);
   const region = regionAt(mat, kind, eps);
   const W = 700, H = 46;
-  const gripW = 60;
+  const gripW = 55, FRAME_MARGIN = 6, MAX_STRETCH = 30;
   const barY0 = 12, barY1 = 34;
-  const stretch = Math.min(1, eps / mat.epsFracture) * 60;
-  const barStart = gripW, barEnd = W - gripW + stretch;
+  const stretch = Math.min(1, eps / mat.epsFracture) * MAX_STRETCH;
+  // right grip's unstretched position leaves MAX_STRETCH of room to grow into,
+  // so even at full stretch its right edge stays FRAME_MARGIN inside the viewBox
+  const rightGripX = W - FRAME_MARGIN - gripW - MAX_STRETCH + stretch;
+  const barStart = gripW, barEnd = rightGripX;
 
   svg.appendChild(svgEl("rect", { x: 0, y: 6, width: gripW, height: H - 12, class: "specimen-bar", fill: "#5C6B80" }));
-  svg.appendChild(svgEl("rect", { x: W - gripW + stretch, y: 6, width: gripW, height: H - 12, class: "specimen-bar", fill: "#5C6B80" }));
+  svg.appendChild(svgEl("rect", { x: rightGripX, y: 6, width: gripW, height: H - 12, class: "specimen-bar", fill: "#5C6B80" }));
 
   if (region === "fractured") {
     const midX = (barStart + barEnd) / 2;
