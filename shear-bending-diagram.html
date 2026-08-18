@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shear Force and Bending Moment Diagram</title>
+<style>
+  :root{
+    --navy:#0A0F1E; --card:#151d33; --cyan:#00BDD6; --amber:#F0A500;
+    --red:#E0262B; --teal:#1C7293; --ink:#C8D8F0; --muted:#7086a0;
+    --bg:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--page-ink);
+    font-family:Calibri,"Segoe UI",sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 50px;}
+  h1{font-family:Georgia,serif;font-weight:normal;font-size:1.5rem;color:var(--teal);
+    margin:0 0 4px;}
+  .sub{color:var(--page-muted);margin:0 0 16px;font-size:0.95rem;}
+
+  .topbar{display:flex;justify-content:space-between;align-items:center;
+    flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+  .mode-toggle{display:flex;border:1px solid var(--teal);border-radius:999px;overflow:hidden;}
+  .mode-toggle button{background:none;border:none;padding:8px 18px;font-size:0.9rem;
+    font-weight:600;color:var(--teal);cursor:pointer;}
+  .mode-toggle button.active{background:var(--teal);color:#fff;}
+  .btn{background:var(--amber);color:#12202F;border:none;padding:8px 16px;
+    border-radius:8px;font-weight:700;font-size:0.9rem;cursor:pointer;}
+  .btn.secondary{background:none;border:1px solid var(--page-muted);color:var(--page-ink);}
+
+  .legend{background:var(--card);color:var(--ink);border-radius:8px;
+    padding:10px 14px;font-size:0.82rem;line-height:1.5;margin-bottom:16px;
+    display:flex;gap:18px;flex-wrap:wrap;align-items:center;}
+  .legend b{color:#fff;}
+  .legend .swatch{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;}
+
+  .panel{background:#fff;border:1px solid #DCE3EC;border-radius:10px;
+    padding:16px 18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(27,40,56,0.05);}
+  .panel h3{font-family:Georgia,serif;font-weight:normal;font-size:1.05rem;margin:0 0 10px;}
+
+  svg{width:100%;height:auto;display:block;}
+  .beam-line{stroke:var(--page-ink);stroke-width:4;}
+  .support{fill:var(--teal);}
+  .load-arrow{stroke:var(--red);stroke-width:2.5;fill:none;}
+  .load-label{font-size:12px;fill:var(--red);font-weight:700;}
+  .section-mark-label{font-size:11px;font-weight:700;}
+
+  .marker-legend{display:flex;flex-direction:column;gap:8px;margin-top:14px;padding-top:14px;
+    border-top:1px solid #EDF1F6;}
+  .marker-legend span{font-size:0.85rem;color:var(--page-muted);line-height:1.5;display:flex;
+    align-items:flex-start;gap:10px;}
+  .mini-badge{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;color:#fff;font-weight:700;font-size:0.78rem;
+    margin-top:1px;}
+  .section-item{display:flex;gap:14px;padding:14px 10px;border-top:1px solid #EDF1F6;
+    cursor:pointer;border-radius:8px;transition:background 0.12s;}
+  .section-item:hover{background:#F4F6FB;}
+  .section-item.active{background:rgba(0,189,214,0.08);}
+  .section-item.active .section-badge{background:var(--teal);}
+  .section-note{font-size:0.82rem;color:var(--teal);background:rgba(0,189,214,0.08);
+    border-radius:6px;padding:6px 10px;margin-bottom:8px;}
+  .section-item:first-child{border-top:none;padding-top:4px;}
+  .section-badge{flex-shrink:0;width:26px;height:26px;border-radius:50%;background:#5C6B80;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:2px;}
+  .section-body{flex:1;min-width:0;}
+  .section-range{font-weight:700;color:var(--page-ink);font-size:0.92rem;margin-bottom:6px;}
+  .section-eq{font-family:"Cambria Math",Georgia,serif;font-size:0.95rem;color:var(--page-ink);
+    line-height:1.7;word-break:break-word;}
+  .section-eq i{color:var(--page-muted);font-style:italic;font-family:Calibri,sans-serif;font-size:0.85rem;}
+  .section-term-label{color:var(--page-muted);font-style:italic;font-family:Calibri,sans-serif;font-size:0.85rem;}
+  .udl-band{fill:rgba(224,38,43,0.12);stroke:none;}
+  .udl-arrow{stroke:var(--red);stroke-width:1.5;fill:none;}
+  .cut-line{stroke:var(--amber);stroke-width:2;stroke-dasharray:5,4;}
+  .dim-line{stroke:var(--page-muted);stroke-width:1;}
+  .dim-label{font-size:11px;fill:var(--page-muted);}
+  .reaction-arrow{stroke:var(--teal);stroke-width:3;fill:none;}
+  .reaction-label{font-size:12px;fill:var(--teal);font-weight:700;}
+
+  .fbd-values{display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;}
+  .fbd-values .val{background:var(--bg);border-radius:8px;padding:8px 14px;text-align:center;}
+  .fbd-values .val .num{font-size:1.3rem;font-weight:700;font-family:Georgia,serif;}
+  .fbd-values .val .lbl{font-size:0.75rem;color:var(--page-muted);text-transform:uppercase;
+    letter-spacing:0.04em;}
+  .fbd-values .val.n .num{color:var(--muted);}
+  .fbd-values .val.v .num{color:var(--red);}
+  .fbd-values .val.m .num{color:var(--teal);}
+
+  .slider-row{margin-top:10px;}
+  input[type=range]{width:100%;accent-color:var(--amber);}
+  .x-readout{text-align:center;font-size:0.9rem;color:var(--page-muted);margin-top:2px;}
+
+  .diagram-charts{display:grid;grid-template-columns:1fr;gap:12px;}
+  .chart-label{font-size:0.85rem;font-weight:700;color:var(--page-ink);margin-bottom:2px;}
+  .chart-line{fill:none;stroke-width:2.5;}
+  .chart-line.v{stroke:var(--red);}
+  .chart-line.m{stroke:var(--teal);}
+  .chart-zero{stroke:#ccc;stroke-width:1;}
+  .chart-dot{fill:var(--amber);stroke:#fff;stroke-width:1.5;}
+  .chart-fill{opacity:0.12;}
+  .chart-fill.v{fill:var(--red);}
+  .chart-fill.m{fill:var(--teal);}
+
+  /* Practice mode */
+  .practice-box{text-align:center;}
+  .practice-inputs{display:flex;justify-content:center;gap:16px;margin:14px 0;flex-wrap:wrap;}
+  .practice-inputs label{display:block;font-size:0.85rem;font-weight:600;margin-bottom:4px;}
+  .practice-inputs input{width:120px;padding:8px 10px;border:1px solid #DCE3EC;
+    border-radius:6px;font-size:1rem;text-align:center;}
+  .feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-weight:600;display:none;}
+  .feedback.correct{background:rgba(30,142,90,0.12);color:#1E8E5A;display:block;}
+  .feedback.wrong{background:rgba(224,38,43,0.1);color:var(--red);display:block;}
+  .score{font-size:0.9rem;color:var(--page-muted);margin-top:6px;}
+  .checkpoint-progress{font-size:0.85rem;color:var(--page-muted);margin-bottom:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Shear Force and Bending Moment Diagram</h1>
+  <p class="sub">Slide the cut along the beam and watch the free-body diagram, shear force diagram, and bending moment diagram respond.</p>
+
+  <div class="topbar">
+    <div class="mode-toggle">
+      <button id="btn-explore" class="active">Explore</button>
+      <button id="btn-practice">Practice</button>
+    </div>
+    <button class="btn" id="btn-new-beam">New random beam</button>
+  </div>
+
+  <div class="topbar" style="margin-top:-6px;">
+    <div class="mode-toggle" id="toggle-shape">
+      <button data-shape="uniform" class="active">Uniform</button>
+      <button data-shape="tri-up">Triangle ↗</button>
+      <button data-shape="tri-down">Triangle ↘</button>
+      <button data-shape="trapezoid">Trapezoidal</button>
+    </div>
+    <div class="mode-toggle" id="toggle-support">
+      <button data-support="simple" class="active">Simply supported</button>
+      <button data-support="cantilever">Cantilever</button>
+      <button data-support="cantilever-mirrored">Cantilever (mirrored)</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><b>Sign convention:</b></span>
+    <span><span class="swatch" style="background:var(--muted);"></span><b>N</b> tension positive</span>
+    <span><span class="swatch" style="background:var(--red);"></span><b>V</b> positive = clockwise on segment</span>
+    <span><span class="swatch" style="background:var(--teal);"></span><b>M</b> positive = hogging, concave down</span>
+  </div>
+
+  <div class="panel">
+    <h3>Beam <span style="font-weight:400;font-size:0.8rem;color:var(--page-muted);">— drag the amber handle to move the cut</span></h3>
+    <svg id="svg-beam" viewBox="0 0 700 190"></svg>
+    <div class="x-readout" id="x-readout">x = 5.00 m</div>
+    <div class="marker-legend">
+      <span><span class="mini-badge" style="background:#5C6B80;">1</span> A section boundary — just before and after here, V(x) or M(x) changes. <b>Click a marker to jump the cut there.</b></span>
+      <span><span class="mini-badge" style="background:#1C7293;">2</span> Same, but caused by a pure applied moment — M(x) jumps here, but V(x) doesn't change at all, so this cut only matters for the moment diagram.</span>
+      <span><span class="mini-badge" style="background:#8E5FC7;font-style:italic;">e</span> A sample cut mid-way through the distributed load, not a discontinuity — just a representative point to show V(x) and M(x)'s shape there.</span>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-fbd">
+    <h3>Free-body diagram — left segment</h3>
+    <svg id="svg-fbd" viewBox="0 -25 700 320"></svg>
+    <div class="fbd-values">
+      <div class="val n"><div class="num" id="val-N">0.0 kN</div><div class="lbl">Normal, N</div></div>
+      <div class="val v"><div class="num" id="val-V">0.0 kN</div><div class="lbl">Shear, V</div></div>
+      <div class="val m"><div class="num" id="val-M">0.0 kN·m</div><div class="lbl">Moment, M</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-practice-controls" style="display:none;">
+    <div class="practice-box">
+      <div class="checkpoint-progress" id="cp-progress">Checkpoint 1 of 6</div>
+      <div id="cp-question" style="font-weight:600;"></div>
+      <div class="practice-inputs">
+        <div>
+          <label>Predicted V (kN)</label>
+          <input type="number" step="any" id="in-guess-v">
+        </div>
+        <div>
+          <label>Predicted M (kN·m)</label>
+          <input type="number" step="any" id="in-guess-m">
+        </div>
+      </div>
+      <button class="btn" id="btn-check">Check</button>
+      <button class="btn secondary" id="btn-next" style="display:none;">Next →</button>
+      <div class="feedback" id="feedback"></div>
+      <div class="score" id="score">Score: 0 / 0</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="diagram-charts">
+      <div>
+        <div class="chart-label">Shear Force Diagram (SFD)</div>
+        <svg id="svg-sfd" viewBox="0 0 700 130"></svg>
+      </div>
+      <div>
+        <div class="chart-label">Bending Moment Diagram (BMD)</div>
+        <svg id="svg-bmd" viewBox="0 0 700 130"></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="chart-label" style="margin-bottom:10px;">Sections &amp; Equations — numbered flags on the beam above mark where each section starts</div>
+    <div id="sections-list"></div>
+  </div>
+
+</div>
+<script>/* ================================================================
+   ENGINE — simply-supported OR cantilever (either end fixed) beam,
+   general trapezoidal distributed load (uniform / triangle-up /
+   triangle-down / trapezoidal are all special cases), method of
+   sections. Sign convention: V positive = net upward force on LEFT
+   segment; M positive = sagging (concave up).
+================================================================ */
+
+// General trapezoidal load: intensity varies linearly from w1 at x1
+// to w2 at x2. Returns {force, centroidX} for the portion between
+// x1 and `upTo` (upTo may be beyond x2, which just caps at the full load).
+function partialDistLoad(udl, upTo) {
+  if (!udl) return { force: 0, centroidX: 0 };
+  const { x1, x2, w1, w2 } = udl;
+  const b = Math.min(x2, upTo);
+  if (b <= x1) return { force: 0, centroidX: 0 };
+  const span = x2 - x1;
+  const h1 = w1;
+  const h2 = w1 + (w2 - w1) * (b - x1) / span;
+  const L = b - x1;
+  const force = 0.5 * (h1 + h2) * L;
+  const centroidX = (h1 + h2) === 0 ? x1 + L / 2 : x1 + L * (h1 + 2 * h2) / (3 * (h1 + h2));
+  return { force, centroidX };
+}
+function totalDistLoad(udl) {
+  if (!udl) return { force: 0, centroidX: 0 };
+  return partialDistLoad(udl, udl.x2);
+}
+
+// For DISPLAY only: decompose the (partial) load into its rectangle +
+// triangle components, same technique used to derive/verify the combined
+// formula above. A uniform load yields just the rectangle; a pure triangle
+// yields just the triangle; a true trapezoid yields both. Components under
+// 1e-9 are omitted so nothing near-zero gets drawn.
+function partialDistLoadComponents(udl, upTo) {
+  if (!udl) return [];
+  const { x1, x2, w1, w2 } = udl;
+  const b = Math.min(x2, upTo);
+  if (b <= x1) return [];
+  const span = x2 - x1;
+  const h1 = w1;
+  const h2 = w1 + (w2 - w1) * (b - x1) / span;
+  const L = b - x1;
+  const comps = [];
+  const rectH = Math.min(h1, h2);
+  if (rectH > 1e-9) comps.push({ force: rectH * L, centroidX: x1 + L / 2, kind: "rect" });
+  const triH = Math.abs(h2 - h1);
+  if (triH > 1e-9) {
+    const frac = h2 > h1 ? 2 / 3 : 1 / 3;
+    comps.push({ force: 0.5 * triH * L, centroidX: x1 + L * frac, kind: "tri" });
+  }
+  return comps;
+}
+
+function buildBeam({ L, pointLoads, udl, supportType, appliedMoments }) {
+  appliedMoments = appliedMoments || [];
+  supportType = supportType || "simple"; // "simple" | "cantilever" | "cantilever-mirrored"
+  const distTotal = totalDistLoad(udl);
+
+  let sumP = 0, momentAboutA = 0; // moment of all loads about x=0
+  pointLoads.forEach(({ x, P }) => { sumP += P; momentAboutA += P * x; });
+  sumP += distTotal.force;
+  momentAboutA += distTotal.force * distTotal.centroidX;
+  appliedMoments.forEach(({ M0 }) => { momentAboutA += M0; }); // pure couple: same contribution regardless of reference point
+
+  let R_A, R_B, M_0, M_L;
+  M_0 = 0; M_L = 0;
+  if (supportType === "cantilever") {
+    // fixed at x=0, free at x=L
+    R_A = sumP; R_B = 0; M_0 = momentAboutA;
+  } else if (supportType === "cantilever-mirrored") {
+    // free at x=0, fixed at x=L — mirror: moment of all loads about x=L
+    let momentAboutB = 0;
+    pointLoads.forEach(({ x, P }) => { momentAboutB += P * (L - x); });
+    momentAboutB += distTotal.force * (L - distTotal.centroidX);
+    appliedMoments.forEach(({ M0 }) => { momentAboutB += M0; });
+    R_A = 0; R_B = sumP; M_L = momentAboutB;
+  } else {
+    R_B = momentAboutA / L;
+    R_A = sumP - R_B;
+  }
+
+  function shearAt(x) {
+    let V = R_A;
+    pointLoads.forEach(({ x: xi, P }) => { if (xi < x - 1e-9) V -= P; });
+    V -= partialDistLoad(udl, x).force;
+    return V; // pure applied moments never affect shear
+  }
+  function momentAt(x) {
+    let M = R_A * x - M_0;
+    pointLoads.forEach(({ x: xi, P }) => { if (xi < x - 1e-9) M -= P * (x - xi); });
+    const d = partialDistLoad(udl, x);
+    if (d.force > 0) M -= d.force * (x - d.centroidX);
+    appliedMoments.forEach(({ x: xi, M0 }) => { if (xi < x - 1e-9) M += M0; }); // direct jump, no distance scaling
+    return -M; // sign convention flipped per instruction: positive M = hogging (concave down)
+  }
+
+  return { L, pointLoads, udl, supportType, appliedMoments, R_A, R_B, M_0, M_L, shearAt, momentAt };
+}
+
+/* ================================================================
+   SECTIONS & EQUATIONS — the discrete "method of sections" cut points:
+   just before/after every point load and applied moment (since V or M
+   jumps or kinks there), both boundaries of any distributed load (the
+   algebraic form changes there), plus one illustrative cut through the
+   middle of the distributed load itself.
+
+   Every term tracked here is a real NUMBER, and every equation's terms
+   are summed and checked (in app.js, at load time) against the engine's
+   own shearAt/momentAt for that exact x — not just assembled as display
+   strings and trusted blindly.
+================================================================ */
+function computeSections(beam) {
+  const { L, pointLoads, udl, appliedMoments } = beam;
+  const kinkCauses = new Map(); // x -> Set of cause tags
+  const addCause = (x, cause) => {
+    if (!kinkCauses.has(x)) kinkCauses.set(x, new Set());
+    kinkCauses.get(x).add(cause);
+  };
+  pointLoads.forEach((p) => addCause(p.x, "pointLoad"));
+  (appliedMoments || []).forEach((m) => addCause(m.x, "appliedMoment"));
+  if (udl) { addCause(udl.x1, "udlEdge"); addCause(udl.x2, "udlEdge"); }
+  const kinkXs = [...kinkCauses.keys()].sort((a, b) => a - b);
+  const boundaries = [0, ...kinkXs, L];
+
+  const udlMidX = udl ? (udl.x1 + udl.x2) / 2 : null;
+
+  const segments = [];
+  for (let i = 0; i < boundaries.length - 1; i++) {
+    const xStart = boundaries[i], xEnd = boundaries[i + 1];
+    if (xEnd - xStart < 1e-6) continue;
+    const xRep = (xStart + xEnd) / 2;
+    const startCauses = kinkCauses.get(xStart) || new Set();
+    // A boundary is "moment-only" when the ONLY reason a cut is needed there
+    // is a pure applied moment — shear doesn't actually change at that point.
+    const momentOnlyStart = startCauses.has("appliedMoment") && startCauses.size === 1;
+    segments.push({ ...buildSegmentEquations(beam, xStart, xEnd, xRep), momentOnlyStart });
+  }
+
+  const marks = boundaries.slice(1, -1).map((x) => {
+    const causes = kinkCauses.get(x) || new Set();
+    const momentOnly = causes.has("appliedMoment") && causes.size === 1;
+    return { x, kind: "boundary", momentOnly };
+  });
+  if (udlMidX != null && !marks.some((m) => Math.abs(m.x - udlMidX) < 1e-6)) {
+    marks.push({ x: udlMidX, kind: "udl-mid" });
+  }
+
+  return { segments, marks };
+}
+
+function buildSegmentEquations(beam, xStart, xEnd, xRep) {
+  const { R_A, M_0, pointLoads, udl, appliedMoments } = beam;
+
+  // ---- Shear ----
+  const vConstTerms = [{ text: "R_A", value: R_A }];
+  pointLoads.forEach(({ x: xi, P }) => {
+    if (xi < xRep - 1e-9) vConstTerms.push({ text: `P@${fmtNum(xi)}m`, value: -P });
+  });
+  const udlWithinSegment = udl && xRep > udl.x1 - 1e-9 && xRep < udl.x2 - 1e-9;
+  const udlFullyPast = udl && xRep >= udl.x2 - 1e-9;
+  let vUdlActive = udlWithinSegment;
+  if (udlFullyPast) {
+    const total = totalDistLoad(udl);
+    if (total.force > 1e-9) vConstTerms.push({ text: `w(x)\u00B7full span`, value: -total.force, isUdl: true });
+  }
+  let vUdlCoeffs = null;
+  if (udlWithinSegment) {
+    const span = udl.x2 - udl.x1;
+    vUdlCoeffs = { w1: udl.w1, k: 0.5 * (udl.w2 - udl.w1) / span, x1: udl.x1 };
+  }
+  const vConstSum = vConstTerms.reduce((s, t) => s + t.value, 0);
+  const vUdlValueAt = (x) => {
+    if (!vUdlActive) return 0;
+    const dx = x - vUdlCoeffs.x1;
+    return -(vUdlCoeffs.w1 * dx + vUdlCoeffs.k * dx * dx);
+  };
+  const vSum = vConstSum + vUdlValueAt(xRep);
+
+  // ---- Moment: built directly in the EXTERNAL sign convention (positive
+  // M = hogging) shown everywhere else in this tool.
+  const mLinearTerms = [{ text: "R_A", coeff: -R_A, isX: true }];
+  const mConstTerms = [];
+  if (Math.abs(M_0) > 1e-9) mConstTerms.push({ text: "M_0", value: M_0 });
+  pointLoads.forEach(({ x: xi, P }) => {
+    if (xi < xRep - 1e-9) mLinearTerms.push({ text: `P@${fmtNum(xi)}m`, coeff: P, offset: xi, isX: true });
+  });
+  (appliedMoments || []).forEach(({ x: xi, M0 }) => {
+    if (xi < xRep - 1e-9) mConstTerms.push({ text: `M\u2080@${fmtNum(xi)}m`, value: -M0 });
+  });
+  const mUdlActive = udlWithinSegment;
+  const mValueAt = (x) => {
+    let v = 0;
+    mLinearTerms.forEach((t) => { v += t.coeff * (x - (t.offset || 0)); });
+    mConstTerms.forEach((t) => { v += t.value; });
+    if (udl && x > udl.x1 - 1e-9) {
+      // valid whether x sits within the UDL or has passed it entirely —
+      // partialDistLoad already clamps to the UDL's own extent internally
+      const d = partialDistLoad(udl, x);
+      if (d.force > 1e-9) v += d.force * (x - d.centroidX);
+    }
+    return v;
+  };
+  const mSum = mValueAt(xRep);
+
+  return {
+    xStart, xEnd, xRep,
+    vConstTerms, vUdlActive, vSum, vEngine: beam.shearAt(xRep),
+    mLinearTerms, mConstTerms, mUdlActive, mSum, mEngine: beam.momentAt(xRep),
+  };
+}
+
+function randomBeam(opts) {
+  opts = opts || {};
+  const loadShape = opts.loadShape || "uniform"; // uniform | tri-up | tri-down | trapezoid
+  const supportType = opts.supportType || "simple";
+  const L = 10;
+  const snap = (v, step) => Math.round(v / step) * step;
+  const udlStart = snap(1.5 + Math.random() * 2, 0.5);
+  const udlLen = snap(2 + Math.random() * 2, 0.5);
+  const x2 = Math.min(udlStart + udlLen, L - 1);
+  const wBase = snap(2 + Math.random() * 4, 1);
+  let w1, w2;
+  if (loadShape === "tri-up") { w1 = 0; w2 = wBase; }
+  else if (loadShape === "tri-down") { w1 = wBase; w2 = 0; }
+  else if (loadShape === "trapezoid") { w1 = snap(1 + Math.random() * 2, 1); w2 = w1 + snap(2 + Math.random() * 3, 1); }
+  else { w1 = wBase; w2 = wBase; } // uniform
+
+  const udl = { x1: udlStart, x2, w1, w2 };
+  const p1x = snap(0.5 + Math.random() * (udl.x1 - 1), 0.5);
+  const p2x = snap(udl.x2 + 0.5 + Math.random() * (L - udl.x2 - 1), 0.5);
+  const pointLoads = [
+    { x: Math.max(0.5, Math.min(p1x, udl.x1 - 0.5)), P: snap(10 + Math.random() * 15, 5) },
+    { x: Math.min(L - 0.5, Math.max(p2x, udl.x2 + 0.5)), P: snap(10 + Math.random() * 15, 5) },
+  ];
+
+  // Pure applied moment: roughly half of random beams get one, placed away
+  // from every other load/boundary so its jump in M(x) is unambiguous.
+  const appliedMoments = [];
+  if (Math.random() < 0.5) {
+    const breakpoints = [0, pointLoads[0].x, udl.x1, udl.x2, pointLoads[1].x, L];
+    let mx = null;
+    for (let tries = 0; tries < 25; tries++) {
+      const candidate = snap(0.5 + Math.random() * (L - 1), 0.5);
+      const minDist = Math.min(...breakpoints.map((b) => Math.abs(b - candidate)));
+      if (minDist >= 0.6) { mx = candidate; break; }
+    }
+    if (mx != null) {
+      const sign = Math.random() < 0.5 ? 1 : -1;
+      appliedMoments.push({ x: mx, M0: sign * snap(10 + Math.random() * 20, 5) });
+    }
+  }
+
+  return buildBeam({ L, pointLoads, udl, supportType, appliedMoments });
+}
+
+/* ================================================================
+   DIAGRAM SAMPLING
+================================================================ */
+function sampleDiagram(beam) {
+  const breakpoints = new Set([0, beam.L]);
+  beam.pointLoads.forEach((p) => breakpoints.add(p.x));
+  if (beam.udl) { breakpoints.add(beam.udl.x1); breakpoints.add(beam.udl.x2); }
+  if (beam.appliedMoments) beam.appliedMoments.forEach((m) => breakpoints.add(m.x));
+  const bp = [...breakpoints].sort((a, b) => a - b);
+
+  const pts = [];
+  const EPS = 1e-4;
+  for (let i = 0; i < bp.length; i++) {
+    const x = bp[i];
+    if (i > 0) pts.push({ x, V: beam.shearAt(x - EPS), M: beam.momentAt(x - EPS) });
+    if (i < bp.length - 1) {
+      const xNext = bp[i + 1];
+      const n = 14;
+      for (let k = 0; k <= n; k++) {
+        const xx = x + (xNext - x) * (k / n);
+        pts.push({ x: xx, V: beam.shearAt(xx + (k === 0 ? EPS : 0)), M: beam.momentAt(xx + (k === 0 ? EPS : 0)) });
+      }
+    } else {
+      pts.push({ x, V: beam.shearAt(x - EPS), M: beam.momentAt(x - EPS) });
+    }
+  }
+  return pts;
+}
+</script>
+<script>/* ================================================================
+   RENDERING v2
+================================================================ */
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+function text(x, y, str, cls, extra) {
+  const t = svgEl("text", Object.assign({ x, y, class: cls, "text-anchor": "middle" }, extra || {}));
+  t.textContent = str;
+  return t;
+}
+
+const MARGIN = 46;
+const BEAM_Y = 78;
+const BEAM_H = 16;         // beam thickness
+const ARROW_LEN = 26;      // FIXED cosmetic length for all load/reaction arrows
+const CHART_W = 700;
+
+function xToPx(x, L) { return MARGIN + (x / L) * (CHART_W - 2 * MARGIN); }
+
+function drawAppliedMoment(svg, cx, cy, r, isCW) {
+  // Sample points directly along the intended circle rather than using an
+  // SVG elliptical-arc command — for a given chord+radius there are two
+  // possible circle centers, and relying on flags to pick the right one is
+  // fragile (confirmed by direct testing during development).
+  const startDeg = -60, sweepDeg = 300, n = 28;
+  const toRad = (d) => (d * Math.PI) / 180;
+  let d = "";
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const deg = isCW ? startDeg + sweepDeg * t : startDeg - sweepDeg * t;
+    const x = cx + r * Math.cos(toRad(deg));
+    const y = cy + r * Math.sin(toRad(deg));
+    d += (i === 0 ? "M " : "L ") + x + " " + y + " ";
+  }
+  svg.appendChild(svgEl("path", { d, fill: "none", stroke: "#8a5c00", "stroke-width": 1.8, "marker-end": "url(#arrowAmber)" }));
+}
+
+function ensureMarkers(svg) {
+  if (svg.querySelector("defs")) return;
+  const defs = svgEl("defs", {});
+  const mk = (id, color) => {
+    const m = svgEl("marker", { id, markerWidth: 6, markerHeight: 6, refX: 2.8, refY: 3, orient: "auto" });
+    m.appendChild(svgEl("path", { d: "M0,0.6 L6,3 L0,5.4 Z", fill: color }));
+    return m;
+  };
+  const grad = svgEl("linearGradient", { id: "beamGrad", x1: "0%", y1: "0%", x2: "0%", y2: "100%" });
+  grad.appendChild(svgEl("stop", { offset: "0%", "stop-color": "#AFC3DA" }));
+  grad.appendChild(svgEl("stop", { offset: "35%", "stop-color": "#7C9BC0" }));
+  grad.appendChild(svgEl("stop", { offset: "100%", "stop-color": "#4A6688" }));
+  defs.appendChild(grad);
+  defs.appendChild(mk("arrowRed", "#E0262B"));
+  defs.appendChild(mk("arrowTeal", "#1C7293"));
+  defs.appendChild(mk("arrowMuted", "#7086a0"));
+  defs.appendChild(mk("arrowOrange", "#F0A500"));
+  defs.appendChild(mk("arrowAmber", "#8a5c00"));
+  svg.appendChild(defs);
+  return defs;
+}
+
+function drawBeamBody(svg, x0, x1) {
+  svg.appendChild(svgEl("rect", {
+    x: x0, y: BEAM_Y - BEAM_H / 2, width: x1 - x0, height: BEAM_H,
+    fill: "url(#beamGrad)", stroke: "#2E4560", "stroke-width": 1, rx: 1.5,
+  }));
+  // subtle top highlight line
+  svg.appendChild(svgEl("line", {
+    x1: x0 + 1, y1: BEAM_Y - BEAM_H / 2 + 2, x2: x1 - 1, y2: BEAM_Y - BEAM_H / 2 + 2,
+    stroke: "#E4EDF7", "stroke-width": 1, opacity: 0.7,
+  }));
+}
+
+function drawGroundHatch(svg, cx, y, width) {
+  svg.appendChild(svgEl("line", { x1: cx - width / 2, y1: y, x2: cx + width / 2, y2: y, stroke: "#5C6B80", "stroke-width": 1.5 }));
+  const n = 5;
+  for (let i = 0; i <= n; i++) {
+    const hx = cx - width / 2 + (width / n) * i;
+    svg.appendChild(svgEl("line", { x1: hx, y1: y, x2: hx - 6, y2: y + 8, stroke: "#5C6B80", "stroke-width": 1.2 }));
+  }
+}
+
+function drawPinSupport(svg, cx, topY) {
+  const h = 20, w = 22;
+  svg.appendChild(svgEl("polygon", {
+    points: `${cx},${topY} ${cx - w / 2},${topY + h} ${cx + w / 2},${topY + h}`,
+    fill: "#1C7293", stroke: "#123B4D", "stroke-width": 1,
+  }));
+  drawGroundHatch(svg, cx, topY + h, w + 14);
+}
+
+function drawRollerSupport(svg, cx, topY) {
+  const h = 16, w = 22;
+  svg.appendChild(svgEl("polygon", {
+    points: `${cx},${topY} ${cx - w / 2},${topY + h} ${cx + w / 2},${topY + h}`,
+    fill: "#1C7293", stroke: "#123B4D", "stroke-width": 1,
+  }));
+  svg.appendChild(svgEl("circle", { cx: cx - 6, cy: topY + h + 5, r: 4.5, fill: "#1C7293" }));
+  svg.appendChild(svgEl("circle", { cx: cx + 6, cy: topY + h + 5, r: 4.5, fill: "#1C7293" }));
+  drawGroundHatch(svg, cx, topY + h + 10, w + 14);
+}
+
+function drawFixedWall(svg, cx, y0, y1) {
+  svg.appendChild(svgEl("line", { x1: cx, y1: y0, x2: cx, y2: y1, stroke: "#5C6B80", "stroke-width": 3 }));
+  const n = 6;
+  for (let i = 0; i <= n; i++) {
+    const hy = y0 + ((y1 - y0) / n) * i;
+    svg.appendChild(svgEl("line", { x1: cx, y1: hy, x2: cx - 9, y2: hy + 8, stroke: "#5C6B80", "stroke-width": 1.2 }));
+  }
+}
+
+// short, FIXED-length single-headed arrow pointing up, ending at (cx, tipY)
+function upArrow(svg, cx, tipY, color, marker) {
+  svg.appendChild(svgEl("line", {
+    x1: cx, y1: tipY + ARROW_LEN, x2: cx, y2: tipY,
+    stroke: color, "stroke-width": 2.5, "marker-end": `url(#${marker})`,
+  }));
+}
+function downArrow(svg, cx, tailY, color, marker) {
+  svg.appendChild(svgEl("line", {
+    x1: cx, y1: tailY, x2: cx, y2: tailY + ARROW_LEN,
+    stroke: color, "stroke-width": 2.5, "marker-end": `url(#${marker})`,
+  }));
+}
+
+function drawDistributedLoad(svg, beam, aX, bX, topY, bottomY, drawArrows) {
+  if (drawArrows === undefined) drawArrows = true;
+  const { udl } = beam;
+  if (!udl) return null;
+  const a = Math.max(udl.x1, aX), b = Math.min(udl.x2, bX);
+  if (b <= a) return null;
+  const px1 = xToPx(a, beam.L), px2 = xToPx(b, beam.L);
+  const maxH = topY ? (bottomY - topY) : 26;
+  const wAt = (x) => udl.w1 + (udl.w2 - udl.w1) * (x - udl.x1) / (udl.x2 - udl.x1);
+  // Linear rescale of the WHOLE range (not a per-point clamp) so the small
+  // end is still clearly visible, but the profile stays a true straight
+  // line — a floor/clamp here would kink the top edge and look curved.
+  const MIN_H = 15, MAX_H_VAL = maxH;
+  const minW = Math.min(udl.w1, udl.w2), maxWval = Math.max(udl.w1, udl.w2);
+  const hAt = (x) => {
+    if (maxWval - minW < 1e-9) return MAX_H_VAL; // uniform load: constant height
+    const w = wAt(x);
+    return MIN_H + (w - minW) / (maxWval - minW) * (MAX_H_VAL - MIN_H);
+  };
+
+  const n = Math.max(3, Math.round((px2 - px1) / 20));
+  const topPts = [];
+  for (let i = 0; i <= n; i++) {
+    const x = a + (b - a) * (i / n);
+    const px = xToPx(x, beam.L);
+    const h = hAt(x);
+    topPts.push([px, bottomY - h]);
+    if (drawArrows) {
+      svg.appendChild(svgEl("line", {
+        x1: px, y1: bottomY - h, x2: px, y2: bottomY - 4,
+        stroke: "#E0262B", "stroke-width": 1.4, "marker-end": "url(#arrowRed)",
+      }));
+    }
+  }
+  let d = `M ${topPts[0][0]} ${topPts[0][1]}`;
+  topPts.slice(1).forEach(([x, y]) => (d += ` L ${x} ${y}`));
+  d += ` L ${px2} ${bottomY} L ${px1} ${bottomY} Z`;
+  const poly = svgEl("path", { d, fill: "rgba(224,38,43,0.12)", stroke: "none" });
+  svg.insertBefore(poly, svg.firstChild.nextSibling);
+  return { px1, px2, topY: bottomY - maxH };
+}
+
+/* ---------------- main beam overview diagram ---------------- */
+// Shared dimension-row drawer: a dimension line with tick marks, each
+// extended as a dashed line UP to the beam itself so it's unambiguous
+// which point on the beam each distance belongs to. `topExtent` is how
+// far up (in SVG y) the dashed extension line reaches.
+function drawDimensionRow(svg, xs, L, dimY, topExtent, lineStart, lineEnd) {
+  const a = lineStart != null ? lineStart : 0;
+  const b = lineEnd != null ? lineEnd : L;
+  svg.appendChild(svgEl("line", { x1: xToPx(a, L), y1: dimY, x2: xToPx(b, L), y2: dimY, class: "dim-line", "pointer-events": "none" }));
+  const sorted = [...new Set(xs.map((x) => +x.toFixed(2)))].sort((a, b) => a - b);
+  const placed = []; // {px, stagger}
+  sorted.forEach((x) => {
+    const px = xToPx(x, L);
+    let stagger = 0;
+    while (placed.some((p) => p.stagger === stagger && Math.abs(p.px - px) < 34)) stagger++;
+    placed.push({ px, stagger });
+    svg.appendChild(svgEl("line", { x1: px, y1: dimY - 4, x2: px, y2: dimY + 4, class: "dim-line", "pointer-events": "none" }));
+    svg.appendChild(svgEl("line", { x1: px, y1: topExtent, x2: px, y2: dimY - 4, stroke: "#B8C4D4", "stroke-width": 1, "stroke-dasharray": "3,3", "pointer-events": "none" }));
+    svg.appendChild(text(px, dimY + 16 + stagger * 16, `${x} m`, "dim-label"));
+  });
+}
+
+function renderBeamSVG(svg, beam, cutX) {
+  clear(svg);
+  ensureMarkers(svg);
+  const L = beam.L;
+  const x0 = xToPx(0, L), x1 = xToPx(L, L);
+  const support = beam.supportType;
+
+  drawBeamBody(svg, x0, x1);
+
+  // supports
+  if (support === "cantilever") {
+    drawFixedWall(svg, x0 - 3, BEAM_Y - 34, BEAM_Y + 34);
+  } else if (support === "cantilever-mirrored") {
+    drawFixedWall(svg, x1 + 3, BEAM_Y - 34, BEAM_Y + 34);
+  } else {
+    drawPinSupport(svg, x0, BEAM_Y + BEAM_H / 2);
+    drawRollerSupport(svg, x1, BEAM_Y + BEAM_H / 2);
+  }
+
+  // distributed load
+  drawDistributedLoad(svg, beam, 0, L, null, BEAM_Y - BEAM_H / 2 - 4);
+  if (beam.udl) {
+    const mid = xToPx((beam.udl.x1 + beam.udl.x2) / 2, L);
+    const topH = 26;
+    const wLabel = beam.udl.w1 === beam.udl.w2
+      ? `w = ${beam.udl.w1} kN/m`
+      : `w: ${beam.udl.w1}\u2192${beam.udl.w2} kN/m`;
+    svg.appendChild(text(mid, BEAM_Y - BEAM_H / 2 - topH - 6, wLabel, "load-label"));
+  }
+
+  // point loads (fixed-length downward arrows from above)
+  beam.pointLoads.forEach((p) => {
+    const px = xToPx(p.x, L);
+    const tailY = BEAM_Y - BEAM_H / 2 - ARROW_LEN - 4;
+    downArrow(svg, px, tailY, "#E0262B", "arrowRed");
+    svg.appendChild(text(px, tailY - 6, `${p.P} kN`, "load-label"));
+  });
+
+  // pure applied moments — drawn as a literal curved arrow showing the
+  // actual CW/CCW rotation, positioned close to the beam at the application point
+  if (beam.appliedMoments) {
+    beam.appliedMoments.forEach((m) => {
+      const px = xToPx(m.x, L);
+      const momCy = BEAM_Y; // centered on the beam's own vertical axis
+      drawAppliedMoment(svg, px, momCy, 14, m.M0 >= 0);
+      svg.appendChild(text(px + 20, momCy - 20, `M\u2080=${Math.abs(m.M0)} kN\u00B7m ${m.M0 >= 0 ? "(CW)" : "(CCW)"}`, "load-label", { fill: "#8a5c00", "text-anchor": "start" }));
+    });
+  }
+
+  // Reaction forces are deliberately NOT drawn here — this top view shows
+  // the real physical beam with its real supports; the reaction vectors
+  // (replacing the support once it's "removed") belong in the free-body
+  // diagram below, not obscuring the support graphics up here.
+
+  // section marks — numbered flags showing exactly where a "method of
+  // sections" cut matters: just before/after every load or moment, both
+  // edges of the distributed load, and one cut through its middle. Placed
+  // in the clear band between the beam and the dimension line so nothing
+  // above (load arrows) or below (dimension ticks) collides with it.
+  // Clickable: jumps the cut to a representative point just past that
+  // boundary, so students can go straight from "where do I cut?" to
+  // seeing that exact section's FBD and equation.
+  const { marks: sectionMarks, segments: markSegments } = computeSections(beam);
+  const markY = BEAM_Y + BEAM_H / 2 + 24;
+  let boundaryNum = 0;
+  sectionMarks.forEach((m) => {
+    const px = xToPx(m.x, L);
+    const isUdlMid = m.kind === "udl-mid";
+    const fillColor = isUdlMid ? "#8E5FC7" : (m.momentOnly ? "#1C7293" : "#5C6B80");
+    svg.appendChild(svgEl("line", { x1: px, y1: BEAM_Y + BEAM_H / 2 + 2, x2: px, y2: markY - 9, stroke: fillColor, "stroke-width": 1.2, "stroke-dasharray": isUdlMid ? "3,2" : "none", "pointer-events": "none" }));
+    const g = svgEl("g", { style: "cursor:pointer;" });
+    g.appendChild(svgEl("circle", { cx: px, cy: markY, r: 9, fill: fillColor }));
+    if (!isUdlMid) {
+      boundaryNum++;
+      g.appendChild(text(px, markY + 4, String(boundaryNum), "section-mark-label", { fill: "#fff" }));
+    } else {
+      g.appendChild(text(px, markY + 4, "e", "section-mark-label", { fill: "#fff", "font-style": "italic" }));
+    }
+    const targetSeg = isUdlMid ? markSegments.find((s) => m.x > s.xStart - 1e-6 && m.x < s.xEnd + 1e-6) : markSegments.find((s) => Math.abs(s.xStart - m.x) < 1e-6);
+    if (targetSeg) g.addEventListener("click", () => { exploreCutX = targetSeg.xRep; renderExplore(); });
+    svg.appendChild(g);
+  });
+
+  // dimension line — every load's exact x-position is marked, not just the
+  // beam ends, so students can read off distances themselves rather than
+  // being told them. Dashed lines run all the way up to the beam so it's
+  // clear which point each dimension corresponds to.
+  const dimY = 150;
+  const dimXs = [0, L];
+  beam.pointLoads.forEach((p) => dimXs.push(p.x));
+  if (beam.udl) { dimXs.push(beam.udl.x1, beam.udl.x2); }
+  if (beam.appliedMoments) beam.appliedMoments.forEach((m) => dimXs.push(m.x));
+  drawDimensionRow(svg, dimXs, L, dimY, BEAM_Y + BEAM_H / 2);
+
+  // draggable handle (Explore mode only — caller decides whether to attach drag)
+  if (cutX != null) {
+    const cx = xToPx(cutX, L);
+    svg.appendChild(svgEl("line", { x1: cx, y1: 12, x2: cx, y2: dimY, class: "cut-line" }));
+  }
+  return { x0, x1 };
+}
+
+/* ---------------- draggable handle (own layer) ---------------- */
+function renderHandle(svg, beam, cutX, onDrag) {
+  let handleGroup = svg.querySelector("#drag-handle");
+  const cx = xToPx(cutX, beam.L);
+  const handleY = 12;
+  if (!handleGroup) {
+    handleGroup = svgEl("g", { id: "drag-handle", style: "cursor:grab;" });
+    const stem = svgEl("line", { class: "handle-stem", x1: 0, y1: handleY, x2: 0, y2: 150, stroke: "#F0A500", "stroke-width": 2, "stroke-dasharray": "5,4" });
+    const knob = svgEl("circle", { class: "handle-knob", cx: 0, cy: handleY, r: 10, fill: "#F0A500", stroke: "#fff", "stroke-width": 2 });
+    const grip1 = svgEl("line", { x1: -3, y1: handleY - 4, x2: -3, y2: handleY + 4, stroke: "#fff", "stroke-width": 1.4 });
+    const grip2 = svgEl("line", { x1: 3, y1: handleY - 4, x2: 3, y2: handleY + 4, stroke: "#fff", "stroke-width": 1.4 });
+    handleGroup.appendChild(stem);
+    handleGroup.appendChild(knob);
+    handleGroup.appendChild(grip1);
+    handleGroup.appendChild(grip2);
+    svg.appendChild(handleGroup);
+
+    let dragging = false;
+    function svgPoint(evt) {
+      const rect = svg.getBoundingClientRect();
+      const vb = svg.viewBox.baseVal;
+      const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+      const relX = (clientX - rect.left) / rect.width;
+      return vb.x + relX * vb.width;
+    }
+    function pxToX(px) {
+      const frac = (px - MARGIN) / (CHART_W - 2 * MARGIN);
+      return Math.min(beam.L - 0.05, Math.max(0.05, frac * beam.L));
+    }
+    handleGroup.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      handleGroup.style.cursor = "grabbing";
+      e.preventDefault();
+    });
+    window.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const px = svgPoint(e);
+      onDrag(pxToX(px));
+    });
+    window.addEventListener("pointerup", () => { dragging = false; handleGroup.style.cursor = "grab"; });
+  }
+  handleGroup.querySelector(".handle-stem").setAttribute("x1", cx);
+  handleGroup.querySelector(".handle-stem").setAttribute("x2", cx);
+  handleGroup.querySelector(".handle-knob").setAttribute("cx", cx);
+  handleGroup.querySelectorAll("line").forEach((l) => {
+    if (l.classList.contains("handle-stem")) return;
+    const dx = Number(l.getAttribute("x1")) < 0 ? -3 : (Number(l.getAttribute("x1")) > 0 ? 3 : 0);
+  });
+  // reposition grips relative to new cx
+  const grips = handleGroup.querySelectorAll("line:not(.handle-stem)");
+  if (grips[0]) { grips[0].setAttribute("x1", cx - 3); grips[0].setAttribute("x2", cx - 3); }
+  if (grips[1]) { grips[1].setAttribute("x1", cx + 3); grips[1].setAttribute("x2", cx + 3); }
+}
+
+/* ---------------- FBD (left segment) with SEPARATED N/V/M ---------------- */
+function renderFBD(svg, beam, cutX) {
+  clear(svg);
+  ensureMarkers(svg);
+  const L = beam.L;
+  const x0 = xToPx(0, L), cx = xToPx(cutX, L);
+  const support = beam.supportType;
+
+  drawBeamBody(svg, x0, cx);
+  // NOTE: the physical support is deliberately NOT drawn here — the whole
+  // point of a free-body diagram is that the support has been removed and
+  // replaced by the equivalent reaction force/moment it exerted. A small
+  // tag names what stood there, so students still know why these specific
+  // reactions (force only vs. force+moment) appear.
+
+  // Distributed load, up to the cut: keep the pink background sized to
+  // exactly what's still included, but replace the individual little
+  // arrows with its EQUIVALENT CONCENTRATED FORCE(S) — decomposed into a
+  // rectangle component and a triangle component (the standard technique
+  // for a trapezoidal load), rather than one lumped resultant. A uniform
+  // or pure-triangle load naturally collapses to just one force. Each
+  // arrow stays a FIXED length and only moves horizontally as the cut
+  // sweeps through, tracking its own centroid.
+  const distLoadLabelPx = [];
+  if (beam.udl && cutX > beam.udl.x1) {
+    drawDistributedLoad(svg, beam, 0, cutX, null, BEAM_Y - BEAM_H / 2 - 4, false);
+    const comps = partialDistLoadComponents(beam.udl, cutX);
+    let lastCompPx = -Infinity;
+    comps.forEach((c) => {
+      const fx = xToPx(c.centroidX, L);
+      const stagger = (fx - lastCompPx) < 50 ? 1 : 0;
+      lastCompPx = fx;
+      const tailY = BEAM_Y - BEAM_H / 2 - ARROW_LEN - 4 - stagger * 16;
+      downArrow(svg, fx, tailY, "#E0262B", "arrowRed");
+      const lbl = c.kind === "rect" ? "F_rect" : "F_tri";
+      svg.appendChild(text(fx, tailY - 6, `${lbl} = ${c.force.toFixed(1)} kN`, "load-label"));
+      distLoadLabelPx.push(fx);
+    });
+  }
+
+  beam.pointLoads.filter((p) => p.x < cutX).forEach((p) => {
+    const px = xToPx(p.x, L);
+    const nearDistLabel = distLoadLabelPx.some((lx) => Math.abs(lx - px) < 50);
+    const tailY = BEAM_Y - BEAM_H / 2 - ARROW_LEN - 4 - (nearDistLabel ? 16 : 0);
+    downArrow(svg, px, tailY, "#E0262B", "arrowRed");
+    svg.appendChild(text(px, tailY - 6, `${p.P} kN`, "load-label"));
+  });
+
+  if (beam.appliedMoments) {
+    beam.appliedMoments.filter((m) => m.x < cutX).forEach((m) => {
+      const px = xToPx(m.x, L);
+      const momCy = BEAM_Y; // centered on the beam's own vertical axis
+      drawAppliedMoment(svg, px, momCy, 14, m.M0 >= 0);
+      svg.appendChild(text(px + 20, momCy - 20, `M\u2080=${Math.abs(m.M0)} kN\u00B7m ${m.M0 >= 0 ? "(CW)" : "(CCW)"}`, "load-label", { fill: "#8a5c00", "text-anchor": "start" }));
+    });
+  }
+
+  const tipY = BEAM_Y + BEAM_H / 2;
+  if (support === "cantilever-mirrored") {
+    // this end is genuinely free — nothing was ever here, so no reaction
+    // and no tag; the cut edge is simply the free end of the beam.
+  } else {
+    upArrow(svg, x0, tipY, "#1C7293", "arrowTeal");
+    svg.appendChild(text(x0, tipY + ARROW_LEN + 14, `${beam.R_A.toFixed(1)} kN`, "reaction-label"));
+    if (support === "cantilever") {
+      const arc = svgEl("path", {
+        d: `M ${x0 + 16} ${BEAM_Y - 30} A 14 14 0 1 1 ${x0 + 16} ${BEAM_Y - 2}`,
+        fill: "none", stroke: "#1C7293", "stroke-width": 2, "marker-end": "url(#arrowTeal)",
+      });
+      svg.appendChild(arc);
+    }
+  }
+
+  // --- N, V, M all fan out from ONE corner point (the cut face), each in
+  // its own direction so they never cross — matching the textbook FBD-corner
+  // style: N horizontal, V vertical, M a small curved arrow, thin lines,
+  // small sharp arrowheads. ---
+  const V = beam.shearAt(cutX), M = beam.momentAt(cutX);
+  const O = { x: cx, y: BEAM_Y }; // vertical CENTER of the beam's cross-section
+  const AL = 24; // small, fixed vector length for this indicator specifically
+
+  // cut face marker
+  svg.appendChild(svgEl("line", { x1: cx, y1: BEAM_Y - 26, x2: cx, y2: BEAM_Y + 26, stroke: "#F0A500", "stroke-width": 1.5, "stroke-dasharray": "4,3" }));
+
+  // N — thin horizontal vector to the right
+  svg.appendChild(svgEl("line", {
+    x1: O.x, y1: O.y, x2: O.x + AL, y2: O.y,
+    stroke: "#7086a0", "stroke-width": 1.6, "marker-end": "url(#arrowMuted)",
+  }));
+  svg.appendChild(text(O.x + AL + 6, O.y + 4, "N", "load-label", { fill: "#7086a0", "text-anchor": "start", "font-style": "italic", "font-weight": "700" }));
+
+  // V — always drawn pointing DOWNWARD, matching the standard convention
+  // (positive shear = clockwise on the segment = downward on this face).
+  // The arrow's sense never changes; only the signed number in the label
+  // tells you whether the actual force matches that reference direction.
+  const vEndY = O.y + AL;
+  svg.appendChild(svgEl("line", {
+    x1: O.x, y1: O.y, x2: O.x, y2: vEndY,
+    stroke: "#E0262B", "stroke-width": 1.6, "marker-end": "url(#arrowRed)",
+  }));
+  svg.appendChild(text(O.x + 7, vEndY + 12, "V", "load-label", { fill: "#E0262B", "text-anchor": "start", "font-style": "italic", "font-weight": "700" }));
+
+  // M — same principle: always drawn in ONE fixed reference direction
+  // (the positive/sagging sense), never flipped based on sign. Only the
+  // signed number in the label changes.
+  const mArcCx = O.x + AL + 44, mArcCy = O.y + 4, mR = 12;
+  const mTop = { x: mArcCx, y: mArcCy - mR };
+  const mBottom = { x: mArcCx, y: mArcCy + mR };
+  const sweepFlag = 0; // bulge flipped to the right side of the axis; path still bottom->top so the arrowhead/sense sits at the top
+  const arcM = svgEl("path", {
+    d: `M ${mBottom.x} ${mBottom.y} A ${mR} ${mR} 0 0 ${sweepFlag} ${mTop.x} ${mTop.y}`,
+    fill: "none", stroke: "#1C7293", "stroke-width": 1.6, "marker-end": "url(#arrowTeal)",
+  });
+  svg.appendChild(arcM);
+  svg.appendChild(text(mArcCx + mR + 8, mArcCy + 4, "M", "load-label", { fill: "#1C7293", "text-anchor": "start", "font-style": "italic", "font-weight": "700" }));
+
+  // numeric values, grouped together at the very bottom
+  svg.appendChild(text(O.x, BEAM_Y + 175, `N = 0.0 kN     V = ${fmtNum(V)} kN     M = ${fmtNum(M)} kN\u00B7m`, "load-label", { fill: "#5C6B80", "font-weight": "600", "font-size": "11px" }));
+
+  // dimensions for the FBD too — every point actually included in this
+  // segment (the cut itself, any point loads within it, the UDL boundary
+  // if partially included), same extended-dashed-line style as the beam.
+  // Placed below the reaction label/support tag so nothing collides.
+  const fbdDimY = BEAM_Y + 100;
+  const fbdDimXs = [0, cutX];
+  beam.pointLoads.filter((p) => p.x < cutX).forEach((p) => fbdDimXs.push(p.x));
+  if (beam.udl && cutX > beam.udl.x1) fbdDimXs.push(beam.udl.x1, Math.min(beam.udl.x2, cutX));
+  if (beam.appliedMoments) beam.appliedMoments.filter((m) => m.x < cutX).forEach((m) => fbdDimXs.push(m.x));
+  drawDimensionRow(svg, fbdDimXs, L, fbdDimY, BEAM_Y + BEAM_H / 2, 0, cutX);
+
+  return { V, M };
+}
+function fmtNum(n) { return (Math.abs(n) < 0.05 ? 0 : n).toFixed(1); }
+
+/* ---------------- SFD / BMD charts (unchanged logic, kept from v1) ---------------- */
+function renderChart(svg, samples, key, L, upToX, maxAbs, dotVal) {
+  clear(svg);
+  const W = 700, H = 130, PAD = 30;
+  const zeroY = H / 2;
+  const scaleY = maxAbs > 0 ? (H / 2 - 14) / maxAbs : 1;
+  const xToPxLocal = (x) => PAD + (x / L) * (W - 2 * PAD);
+  const yToPxLocal = (v) => zeroY - v * scaleY;
+
+  svg.appendChild(svgEl("line", { x1: PAD, y1: zeroY, x2: W - PAD, y2: zeroY, class: "chart-zero" }));
+
+  const visible = samples.filter((p) => p.x <= upToX + 1e-6);
+  if (visible.length > 1) {
+    let d = `M ${xToPxLocal(visible[0].x)} ${yToPxLocal(visible[0][key])}`;
+    for (let i = 1; i < visible.length; i++) d += ` L ${xToPxLocal(visible[i].x)} ${yToPxLocal(visible[i][key])}`;
+    svg.appendChild(svgEl("path", { d, class: `chart-line ${key.toLowerCase()}` }));
+    let fillD = d + ` L ${xToPxLocal(visible[visible.length - 1].x)} ${zeroY} L ${xToPxLocal(visible[0].x)} ${zeroY} Z`;
+    svg.appendChild(svgEl("path", { d: fillD, class: `chart-fill ${key.toLowerCase()}` }));
+  }
+  if (dotVal != null) {
+    svg.appendChild(svgEl("circle", { cx: xToPxLocal(upToX), cy: yToPxLocal(dotVal), r: 5, class: "chart-dot" }));
+  }
+}
+function maxAbsOf(samples, key) {
+  return Math.max(1, ...samples.map((p) => Math.abs(p[key])));
+}
+</script>
+<script>/* ================================================================
+   APP STATE
+================================================================ */
+let currentLoadShape = "uniform";
+let currentSupport = "simple";
+let beam = randomBeam({ loadShape: currentLoadShape, supportType: currentSupport });
+let samples = sampleDiagram(beam);
+let mode = "explore";
+let exploreCutX = beam.L / 2;
+
+let practiceCheckpoints = [];
+let practiceIndex = 0;
+let practiceScore = 0;
+let practiceAnswered = false;
+let revealedPractice = [];
+
+const svgBeam = document.getElementById("svg-beam");
+const svgFbd = document.getElementById("svg-fbd");
+const svgSfd = document.getElementById("svg-sfd");
+const svgBmd = document.getElementById("svg-bmd");
+const xReadout = document.getElementById("x-readout");
+
+function fmt(n) { return (Math.abs(n) < 0.05 ? 0 : n).toFixed(1); }
+
+function updateFBDValues(V, M) {
+  document.getElementById("val-N").textContent = "0.0 kN";
+  document.getElementById("val-V").textContent = fmt(V) + " kN";
+  document.getElementById("val-M").textContent = fmt(M) + " kN·m";
+}
+
+/* ---------------- Explore mode ---------------- */
+function renderExplore() {
+  const cutX = exploreCutX;
+  xReadout.textContent = `x = ${cutX.toFixed(2)} m`;
+  renderBeamSVG(svgBeam, beam, cutX);
+  renderHandle(svgBeam, beam, cutX, (newX) => {
+    exploreCutX = newX;
+    renderExplore();
+  });
+  const { V, M } = renderFBD(svgFbd, beam, cutX);
+  updateFBDValues(V, M);
+  const maxV = maxAbsOf(samples, "V"), maxM = maxAbsOf(samples, "M");
+  renderChart(svgSfd, samples, "V", beam.L, cutX, maxV, V);
+  renderChart(svgBmd, samples, "M", beam.L, cutX, maxM, M);
+  renderSectionsList(beam);
+}
+
+function fmtSigned(value, isFirst) {
+  const sign = value >= 0 ? (isFirst ? "" : "+ ") : "\u2212 ";
+  return sign + fmtNum(Math.abs(value));
+}
+
+function buildVEquationHtml(seg) {
+  const parts = seg.vConstTerms.map((t, i) => `${fmtSigned(t.value, i === 0)}`);
+  let html = parts.join(" ");
+  if (seg.vUdlActive) {
+    html += ` \u2212 <span class="section-term-label">[distributed load, resultant up to x]</span>`;
+    html += ` &nbsp;<i>(at x=${fmtNum(seg.xRep)}m: V = ${fmtNum(seg.vSum)} kN)</i>`;
+  } else {
+    html += ` = <b>${fmtNum(seg.vSum)} kN</b>`;
+  }
+  return html;
+}
+
+function buildMEquationHtml(seg) {
+  const linParts = seg.mLinearTerms.map((t, i) => {
+    const xTerm = t.offset ? `(x\u2212${fmtNum(t.offset)})` : "x";
+    return `${fmtSigned(t.coeff, i === 0)}${xTerm}`;
+  });
+  const constParts = seg.mConstTerms.map((t) => `${fmtSigned(t.value, false)}`);
+  let html = [...linParts, ...constParts].join(" ");
+  if (seg.mUdlActive) {
+    html += ` + <span class="section-term-label">[distributed load moment about x]</span>`;
+  }
+  html += ` &nbsp;<i>(at x=${fmtNum(seg.xRep)}m: M = ${fmtNum(seg.mSum)} kN\u00B7m)</i>`;
+  return html;
+}
+
+function renderSectionsList(beam) {
+  const box = document.getElementById("sections-list");
+  const { segments } = computeSections(beam);
+  box.innerHTML = segments.map((seg, i) => {
+    const isActive = exploreCutX > seg.xStart - 1e-6 && exploreCutX < seg.xEnd + 1e-6;
+    const momentNote = seg.momentOnlyStart
+      ? `<div class="section-note">This boundary is a pure applied moment \u2014 V(x) doesn't actually change here. It only matters for the moment diagram.</div>`
+      : "";
+    return `
+    <div class="section-item${isActive ? " active" : ""}" onclick="exploreCutX = ${seg.xRep}; renderExplore();">
+      <div class="section-badge">${i + 1}</div>
+      <div class="section-body">
+        <div class="section-range">${fmtNum(seg.xStart)} m &lt; x &lt; ${fmtNum(seg.xEnd)} m</div>
+        ${momentNote}
+        <div class="section-eq"><b>V(x)</b> = ${buildVEquationHtml(seg)}</div>
+        <div class="section-eq"><b>M(x)</b> = ${buildMEquationHtml(seg)}</div>
+      </div>
+    </div>
+  `;
+  }).join("");
+}
+
+/* ---------------- Practice mode ---------------- */
+function buildCheckpoints() {
+  const eps = 0.05;
+  const xs = new Set();
+  beam.pointLoads.forEach((p) => {
+    if (p.x - eps > 0) xs.add(+(p.x - eps).toFixed(2));
+    if (p.x + eps < beam.L) xs.add(+(p.x + eps).toFixed(2));
+  });
+  if (beam.udl) {
+    xs.add(+(beam.udl.x1 + eps).toFixed(2));
+    xs.add(+((beam.udl.x1 + beam.udl.x2) / 2).toFixed(2));
+    xs.add(+(beam.udl.x2 - eps).toFixed(2));
+  }
+  xs.add(+(beam.L / 2).toFixed(2));
+  return [...xs].filter((x) => x > 0 && x < beam.L).sort((a, b) => a - b);
+}
+
+function startPractice() {
+  practiceCheckpoints = buildCheckpoints();
+  practiceIndex = 0;
+  practiceScore = 0;
+  revealedPractice = [];
+  practiceAnswered = false;
+  showPracticeCheckpoint();
+}
+
+function showPracticeCheckpoint() {
+  const total = practiceCheckpoints.length;
+  document.getElementById("cp-progress").textContent = `Checkpoint ${Math.min(practiceIndex + 1, total)} of ${total}`;
+  const x = practiceCheckpoints[practiceIndex];
+  document.getElementById("cp-question").textContent = x !== undefined
+    ? `At x = ${x.toFixed(2)} m — predict the shear and moment.`
+    : "All checkpoints complete!";
+  document.getElementById("in-guess-v").value = "";
+  document.getElementById("in-guess-m").value = "";
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("btn-check").style.display = x !== undefined ? "inline-block" : "none";
+  document.getElementById("btn-next").style.display = "none";
+  document.getElementById("score").textContent = `Score: ${practiceScore} / ${revealedPractice.length}`;
+  practiceAnswered = false;
+
+  if (x !== undefined) {
+    xReadout.textContent = `x = ${x.toFixed(2)} m`;
+    renderBeamSVG(svgBeam, beam, x);
+    renderFBD(svgFbd, beam, x);
+    document.getElementById("val-N").textContent = "0.0 kN";
+    document.getElementById("val-V").textContent = "?";
+    document.getElementById("val-M").textContent = "?";
+  }
+  renderPracticeCharts();
+}
+
+function renderPracticeCharts() {
+  const maxV = maxAbsOf(samples, "V"), maxM = maxAbsOf(samples, "M");
+  const sortedRevealed = [...revealedPractice].sort((a, b) => a.x - b.x);
+  clear(svgSfd); clear(svgBmd);
+  const W = 700, H = 130, PAD = 30, zeroY = H / 2;
+  const scaleYv = maxV > 0 ? (H / 2 - 14) / maxV : 1;
+  const scaleYm = maxM > 0 ? (H / 2 - 14) / maxM : 1;
+  const xToPxLocal = (x) => PAD + (x / beam.L) * (W - 2 * PAD);
+  svgSfd.appendChild(svgEl("line", { x1: PAD, y1: zeroY, x2: W - PAD, y2: zeroY, class: "chart-zero" }));
+  svgBmd.appendChild(svgEl("line", { x1: PAD, y1: zeroY, x2: W - PAD, y2: zeroY, class: "chart-zero" }));
+  sortedRevealed.forEach((pt) => {
+    svgSfd.appendChild(svgEl("circle", { cx: xToPxLocal(pt.x), cy: zeroY - pt.V * scaleYv, r: 5, class: "chart-dot" }));
+    svgBmd.appendChild(svgEl("circle", { cx: xToPxLocal(pt.x), cy: zeroY - pt.M * scaleYm, r: 5, class: "chart-dot" }));
+  });
+}
+
+document.getElementById("btn-check").addEventListener("click", () => {
+  if (practiceAnswered) return;
+  const x = practiceCheckpoints[practiceIndex];
+  const trueV = beam.shearAt(x), trueM = beam.momentAt(x);
+  const guessV = parseFloat(document.getElementById("in-guess-v").value);
+  const guessM = parseFloat(document.getElementById("in-guess-m").value);
+  const tolV = Math.max(0.5, Math.abs(trueV) * 0.05);
+  const tolM = Math.max(0.5, Math.abs(trueM) * 0.05);
+  const okV = !isNaN(guessV) && Math.abs(guessV - trueV) <= tolV;
+  const okM = !isNaN(guessM) && Math.abs(guessM - trueM) <= tolM;
+  const correct = okV && okM;
+  if (correct) practiceScore++;
+  revealedPractice.push({ x, V: trueV, M: trueM });
+
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback " + (correct ? "correct" : "wrong");
+  fb.textContent = correct
+    ? "Correct! " + `V = ${fmt(trueV)} kN, M = ${fmt(trueM)} kN·m`
+    : `Not quite. V = ${fmt(trueV)} kN, M = ${fmt(trueM)} kN·m (your guess: V=${isNaN(guessV) ? "—" : guessV}, M=${isNaN(guessM) ? "—" : guessM})`;
+
+  document.getElementById("val-N").textContent = "0.0 kN";
+  document.getElementById("val-V").textContent = fmt(trueV) + " kN";
+  document.getElementById("val-M").textContent = fmt(trueM) + " kN·m";
+  document.getElementById("score").textContent = `Score: ${practiceScore} / ${revealedPractice.length}`;
+  document.getElementById("btn-check").style.display = "none";
+  document.getElementById("btn-next").style.display = "inline-block";
+  practiceAnswered = true;
+  renderPracticeCharts();
+});
+
+document.getElementById("btn-next").addEventListener("click", () => {
+  practiceIndex++;
+  showPracticeCheckpoint();
+});
+
+/* ---------------- Mode switching ---------------- */
+function setMode(newMode) {
+  mode = newMode;
+  document.getElementById("btn-explore").classList.toggle("active", mode === "explore");
+  document.getElementById("btn-practice").classList.toggle("active", mode === "practice");
+  document.getElementById("panel-practice-controls").style.display = mode === "practice" ? "block" : "none";
+  if (mode === "explore") renderExplore();
+  else startPractice();
+}
+document.getElementById("btn-explore").addEventListener("click", () => setMode("explore"));
+document.getElementById("btn-practice").addEventListener("click", () => setMode("practice"));
+
+document.getElementById("btn-new-beam").addEventListener("click", () => {
+  beam = randomBeam({ loadShape: currentLoadShape, supportType: currentSupport });
+  samples = sampleDiagram(beam);
+  exploreCutX = beam.L / 2;
+  if (mode === "explore") renderExplore();
+  else startPractice();
+});
+
+/* ---------------- Shape / support toggles ---------------- */
+function wireToggleGroup(containerId, dataAttr, onChange) {
+  const container = document.getElementById(containerId);
+  container.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      container.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      onChange(btn.getAttribute(dataAttr));
+    });
+  });
+}
+wireToggleGroup("toggle-shape", "data-shape", (shape) => {
+  currentLoadShape = shape;
+  beam = randomBeam({ loadShape: currentLoadShape, supportType: currentSupport });
+  samples = sampleDiagram(beam);
+  exploreCutX = beam.L / 2;
+  if (mode === "explore") renderExplore();
+  else startPractice();
+});
+wireToggleGroup("toggle-support", "data-support", (support) => {
+  currentSupport = support;
+  beam = randomBeam({ loadShape: currentLoadShape, supportType: currentSupport });
+  samples = sampleDiagram(beam);
+  exploreCutX = beam.L / 2;
+  if (mode === "explore") renderExplore();
+  else startPractice();
+});
+
+/* ---------------- init ---------------- */
+renderExplore();
+</script>
+</body>
+</html>
