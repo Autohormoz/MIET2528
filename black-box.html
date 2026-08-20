@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-31-01" />
+<meta name="page-version" content="2026-08-19-01" />
 <title>MIET2528 — The Black Box</title>
 <style>
   :root{
@@ -95,6 +95,17 @@
   .instructions-box{background:rgba(0,189,214,0.1);border:1px solid rgba(0,189,214,0.3);
     border-radius:8px;padding:12px 16px;margin-top:16px;font-size:0.88rem;color:var(--ink);}
 
+  /* --- Group data card --- */
+  .gd-detected{background:rgba(0,189,214,0.1);border:1px solid rgba(0,189,214,0.3);
+    border-radius:8px;padding:14px 16px;margin-bottom:14px;}
+  .gd-detected .gd-day{color:var(--cyan);font-weight:700;}
+  .gd-row{display:flex;justify-content:space-between;align-items:center;gap:12px;
+    border-top:1px solid rgba(255,255,255,0.08);padding:12px 0;}
+  .gd-row:first-child{border-top:none;padding-top:4px;}
+  .gd-row-day{font-weight:700;color:#fff;}
+  .gd-row-status{font-size:0.82rem;color:var(--muted);margin-top:2px;}
+  .gd-row-pending{font-size:0.82rem;color:var(--amber);}
+
   /* --- Past releases (on the light card) --- */
   .past-release-row{border-top:1px solid #EDF1F6;padding:12px 0;display:flex;
     justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;}
@@ -143,7 +154,7 @@
       </div>
       <button class="odo-type-toggle" id="odo-type-toggle">or type your group number directly</button>
       <div class="odo-type-input" id="odo-type-input">
-        <input type="number" id="odo-type-field" min="1" max="200" placeholder="1\u2013200">
+        <input type="number" id="odo-type-field" min="1" max="200" placeholder="1–200">
       </div>
     </div>
     <div class="group-confirmed" id="group-confirmed">
@@ -162,6 +173,14 @@
     <svg id="latest-chart" viewBox="0 0 700 380"></svg>
     <a class="download-link" id="latest-download" target="_blank">↓ Download the full dataset (Excel)</a>
     <div class="instructions-box" id="latest-instructions"></div>
+  </div>
+
+  <div class="card" id="group-data-card">
+    <div class="latest-badge">Group data</div>
+    <h2>Your Group's Test Data</h2>
+    <p style="margin:0 0 14px;font-size:0.9rem;color:var(--muted);">Raw data (Excel) and a graph (PDF) from your group's own test — available for around 50 of the 200 groups so far, with more added as testing continues.</p>
+    <div id="group-data-detected" style="display:none;"></div>
+    <div id="group-data-list"></div>
   </div>
 
   <div class="light-card">
@@ -366,8 +385,65 @@ function renderPastReleases() {
   `).join("");
 }
 
+/* ================================================================
+   GROUP DATA (Workshop-day based) — folders per test day, with
+   auto-detection from the student's saved My Sessions Workshop
+   selection (shared localStorage across the whole site, same-origin).
+================================================================ */
+const MS_KEY = "miet2528-my-sessions";
+// Confirmed from the live My Sessions data: WRK01/01-05 = Wed, 06-10 = Fri, 11-13 = Tue
+const WORKSHOP_DAY_MAP = {
+  "WRK01/01": "Wednesday", "WRK01/02": "Wednesday", "WRK01/03": "Wednesday",
+  "WRK01/04": "Wednesday", "WRK01/05": "Wednesday",
+  "WRK01/06": "Friday", "WRK01/07": "Friday", "WRK01/08": "Friday",
+  "WRK01/09": "Friday", "WRK01/10": "Friday",
+  "WRK01/11": "Tuesday", "WRK01/12": "Tuesday", "WRK01/13": "Tuesday",
+};
+const GROUP_DATA_FOLDERS = {
+  "Tuesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Tue%20-%202026-08-18",
+  "Wednesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Wed%20-%202626-08-19",
+  "Friday": null, // not yet available
+};
+
+function detectWorkshopDay() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(MS_KEY) || "{}");
+    if (saved.wk && WORKSHOP_DAY_MAP[saved.wk]) return WORKSHOP_DAY_MAP[saved.wk];
+  } catch (e) { /* ignore corrupt storage */ }
+  return null;
+}
+
+function renderGroupData() {
+  const detectedBox = document.getElementById("group-data-detected");
+  const listBox = document.getElementById("group-data-list");
+  const day = detectWorkshopDay();
+
+  if (day) {
+    const url = GROUP_DATA_FOLDERS[day];
+    detectedBox.style.display = "block";
+    detectedBox.className = "gd-detected";
+    detectedBox.innerHTML = url
+      ? `Based on your saved Workshop session, you tested on <span class="gd-day">${day}</span>. <a href="${url}" target="_blank">Open your group's folder \u2192</a>`
+      : `Based on your saved Workshop session, you tested on <span class="gd-day">${day}</span> \u2014 that folder isn't up yet, but should be soon. Check back, or see all days below.`;
+  } else {
+    detectedBox.style.display = "none";
+  }
+
+  listBox.innerHTML = Object.entries(GROUP_DATA_FOLDERS).map(([d, url]) => {
+    const isDetected = d === day;
+    return `<div class="gd-row">
+      <div>
+        <div class="gd-row-day">${d}${isDetected ? " (your day)" : ""}</div>
+        <div class="${url ? "gd-row-status" : "gd-row-pending"}">${url ? "Available now" : "Coming soon"}</div>
+      </div>
+      ${url ? `<a class="download-link" href="${url}" target="_blank" style="margin:0;">Open folder \u2192</a>` : ""}
+    </div>`;
+  }).join("");
+}
+
 renderLatestRelease();
 renderPastReleases();
+renderGroupData();
 </script>
 </body>
 </html>
