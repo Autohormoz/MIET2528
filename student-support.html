@@ -3,30 +3,29 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-07-31-01" />
-<title>MIET2528 — Fast Track Hub</title>
+<meta name="page-version" content="2026-08-01-01" />
+<title>MIET2528 — RMIT Peer Mentoring</title>
 <style>
   :root{
     --navy:#0A0F1E; --card:#151d33; --cyan:#00BDD6; --amber:#F0A500;
     --red:#E0262B; --teal:#1C7293; --ink:#C8D8F0; --muted:#7086a0;
-    --bg:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80; --green:#1E8E5A;
+    --bg:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--page-ink);
     font-family:Calibri,"Segoe UI",sans-serif;}
-  .wrap{max-width:820px;margin:0 auto;padding:30px 18px 60px;}
+  .wrap{max-width:760px;margin:0 auto;padding:30px 18px 60px;}
 
   .eyebrow{font-size:0.85rem;letter-spacing:0.08em;text-transform:uppercase;
     color:var(--page-muted);margin-bottom:6px;}
   h1{font-family:Georgia,"Times New Roman",serif;font-weight:normal;
-    font-size:2.1rem;color:var(--teal);margin:0 0 10px;}
+    font-size:1.9rem;color:var(--teal);margin:0 0 10px;}
   .dek{font-size:1.05rem;color:var(--page-muted);margin:0 0 24px;line-height:1.55;max-width:620px;}
-  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.25rem;color:#ffffff;margin:0 0 4px;}
-  h3{font-family:Georgia,serif;font-weight:normal;font-size:1.05rem;color:var(--page-ink);margin:0 0 4px;}
+  h2{font-family:Georgia,serif;font-weight:normal;font-size:1.2rem;color:#ffffff;margin:0 0 10px;}
 
   .card{background:var(--card);border-radius:12px;padding:22px 24px;margin-bottom:18px;
     box-shadow:0 4px 16px rgba(18,32,47,0.14);color:var(--ink);}
-  .card p{color:var(--ink);line-height:1.55;}
+  .card p{color:var(--ink);line-height:1.6;}
   .card a{color:var(--amber);font-weight:600;text-decoration:none;}
   .card a:hover{text-decoration:underline;}
   .light-card{background:#fff;border:1px solid #DCE3EC;border-radius:12px;padding:22px 24px;
@@ -35,421 +34,67 @@
   .light-card a{color:var(--teal);font-weight:600;text-decoration:none;}
   .light-card a:hover{text-decoration:underline;}
 
-  /* --- Signature timeline --- */
-  .timeline-wrap{position:relative;padding:38px 4px 30px;}
-  .timeline-track{position:relative;height:8px;border-radius:5px;background:rgba(255,255,255,0.12);}
-  .timeline-seg{position:absolute;top:0;height:8px;border-radius:5px;}
-  .timeline-seg.done{background:var(--muted);opacity:0.55;}
-  .timeline-seg.break{background:repeating-linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0.18) 4px,transparent 4px,transparent 8px);}
-  .timeline-seg.ahead{background:rgba(28,114,147,0.35);}
-  .timeline-marker{position:absolute;top:-7px;width:22px;height:22px;border-radius:50%;
-    background:var(--amber);border:3px solid var(--card);transform:translateX(-50%);
-    box-shadow:0 0 0 2px var(--amber);}
-  .timeline-marker-label{position:absolute;top:-34px;transform:translateX(-50%);
-    font-size:0.8rem;font-weight:700;color:var(--amber);white-space:nowrap;}
-  .timeline-flag{position:absolute;top:16px;transform:translateX(-50%);text-align:center;}
-  .timeline-flag .dot{width:8px;height:8px;border-radius:50%;background:var(--ink);margin:0 auto 4px;}
-  .timeline-flag .flag-label{font-size:0.68rem;color:var(--muted);white-space:nowrap;}
-  .timeline-endlabels{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:4px;}
+  .feature-row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0 4px;}
+  .feature-chip{background:rgba(0,189,214,0.12);border:1px solid rgba(0,189,214,0.3);
+    border-radius:999px;padding:6px 14px;font-size:0.85rem;color:var(--cyan);font-weight:600;}
 
-  .status-tag{display:inline-block;padding:3px 11px;border-radius:999px;font-size:0.75rem;font-weight:700;}
-  .status-tag.before-semester{background:rgba(0,189,214,0.18);color:var(--cyan);}
-  .status-tag.in-week{background:rgba(240,165,0,0.2);color:var(--amber);}
-  .status-tag.mid-sem-break{background:rgba(112,134,160,0.25);color:var(--ink);}
-  .status-tag.after-semester{background:rgba(224,38,43,0.2);color:#ff8a8a;}
+  .steps{counter-reset:step;list-style:none;margin:0;padding:0;}
+  .steps li{counter-increment:step;position:relative;padding:8px 0 8px 40px;line-height:1.5;}
+  .steps li::before{content:counter(step);position:absolute;left:0;top:8px;
+    width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;
+    font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;}
 
-  /* --- Checklist --- */
-  .checklist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;
-    border-top:1px solid rgba(255,255,255,0.08);}
-  .checklist-item:first-child{border-top:none;padding-top:2px;}
-  .cl-badge{flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;
-    align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;margin-top:1px;}
-  .cl-badge.overdue{background:rgba(224,38,43,0.12);color:var(--red);}
-  .cl-badge.due-soon{background:rgba(240,165,0,0.18);color:var(--amber);}
-  .cl-badge.upcoming{background:rgba(28,114,147,0.15);color:var(--cyan);}
-  .cl-name{font-weight:700;color:var(--ink);font-size:0.98rem;}
-  .cl-meta{font-size:0.85rem;color:var(--muted);margin-top:1px;}
-  .cl-status{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;
-    padding:3px 9px;border-radius:999px;margin-left:auto;white-space:nowrap;}
-  .cl-status.overdue{background:rgba(224,38,43,0.15);color:#ff8a8a;}
-  .cl-status.due-soon{background:rgba(240,165,0,0.2);color:var(--amber);}
-  .cl-status.upcoming{background:rgba(255,255,255,0.08);color:var(--muted);}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
+  .card a.btn, a.btn{display:inline-block;background:var(--amber);color:#12202F !important;font-weight:700;
+    padding:10px 20px;border-radius:8px;text-decoration:none;font-size:0.92rem;}
+  .card a.btn:hover, a.btn:hover{text-decoration:none;opacity:0.92;}
+  .card a.btn.secondary, a.btn.secondary{background:transparent;border:1px solid var(--teal);color:var(--teal) !important;}
 
-  /* --- Week catch-up --- */
-  .week-row{display:flex;gap:14px;padding:13px 0;border-top:1px solid rgba(255,255,255,0.08);}
-  .week-row:first-child{border-top:none;padding-top:2px;}
-  .week-num{flex-shrink:0;width:62px;font-family:Georgia,serif;font-size:0.95rem;color:var(--amber);font-weight:700;padding-top:1px;white-space:nowrap;}
-  .week-body h3{color:#ffffff;font-size:0.98rem;margin-bottom:3px;}
-  .week-body p{margin:0;font-size:0.88rem;color:var(--muted);line-height:1.5;}
-
-  /* --- Quick links --- */
-  .links-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
-  @media (max-width:560px){.links-grid{grid-template-columns:1fr;}}
-  .link-btn{display:block;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);
-    border-radius:10px;padding:14px 16px;color:var(--ink);text-decoration:none;transition:background 0.15s;}
-  .link-btn:hover{background:rgba(255,255,255,0.12);text-decoration:none;}
-  .link-btn .lb-title{font-weight:700;color:#fff;font-size:0.95rem;margin-bottom:2px;}
-  .link-btn .lb-sub{font-size:0.8rem;color:var(--muted);}
-
-  .reassure-banner{background:rgba(0,189,214,0.1);border:1px solid rgba(0,189,214,0.3);
-    border-radius:10px;padding:14px 18px;font-size:0.92rem;color:var(--page-ink);margin-bottom:18px;line-height:1.5;}
-  .reassure-banner b{color:var(--teal);}
-
-  #update-banner{display:none;position:sticky;top:0;z-index:100;
-    background:var(--amber);color:#12202F;font-weight:600;font-size:0.9rem;
-    padding:10px 16px;text-align:center;}
-  #update-banner button{margin-left:12px;background:#12202F;color:#fff;
-    border:none;border-radius:6px;padding:5px 12px;font-weight:700;cursor:pointer;}
+  footer{margin-top:36px;font-size:0.88rem;color:var(--page-muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;}
 </style>
 </head>
 <body>
-<div id="update-banner">
-  A newer version of this page is available.
-  <button id="update-refresh-btn">Refresh now</button>
-</div>
 <div class="wrap">
-  <div class="eyebrow">MIET2528 · Introduction to Mechanical Engineering</div>
-  <h1>Fast Track Hub</h1>
-  <p class="dek">Joining a bit later than everyone else, or just need to get your bearings? This page tells you exactly where the course is right now and what to do next — in order.</p>
-
-  <div class="reassure-banner" id="reassure-banner"></div>
+  <div class="eyebrow">MIET2528 · Student Support</div>
+  <h1>RMIT Peer Mentoring</h1>
+  <p class="dek">Free support from students who've done your course before — help with assignments, study tips, or just someone who gets what you're going through right now.</p>
 
   <div class="card">
-    <h2>Where the course is right now</h2>
-    <div class="timeline-wrap">
-      <div class="timeline-track" id="timeline-track"></div>
-    </div>
-    <div class="timeline-endlabels">
-      <span>Week 1 (20 Jul)</span>
-      <span>Week 16 (15 Nov)</span>
+    <h2>Chat with a peer mentor who's been in your shoes</h2>
+    <p>Need help with assignments, study tips, or just want to connect with someone who understands the course? You can now chat with a peer mentor who's already been through it. It's a great way to stay on top of things and make a new friend along the way.</p>
+    <div class="feature-row">
+      <span class="feature-chip">Free and flexible</span>
+      <span class="feature-chip">Chat online or meet in person</span>
+      <span class="feature-chip">Friendly, experienced student mentors</span>
     </div>
   </div>
 
   <div class="card">
-    <h2>Your priority checklist</h2>
-    <p style="font-size:0.85rem;color:var(--muted);margin-top:0;">Ordered by what actually needs attention first, not just by date.</p>
-    <div id="checklist"></div>
-  </div>
-
-  <div class="card">
-    <h2>What you've missed <span style="font-weight:400;font-size:0.85rem;color:var(--muted);">— the short version</span></h2>
-    <div id="week-catchup"></div>
-    <p style="margin:14px 0 0;font-size:0.88rem;color:var(--muted);border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;">You've probably missed some tutorials too — whatever's already happened is available on the <a href="https://autohormoz.github.io/MIET2528/tutorials-hub.html" target="_blank" style="color:var(--cyan);font-weight:600;">Tutorials Hub</a> (problem sheets, solutions, and videos), and the rest will be added there as the semester goes on.</p>
+    <h2>How to connect — super easy</h2>
+    <ol class="steps">
+      <li>Go to <a href="https://rmit.vygo.app/" target="_blank">rmit.vygo.app</a></li>
+      <li>Log in with your RMIT ID and password</li>
+      <li>Go to the <b>Programs</b> tab</li>
+      <li>Select the <b>Peer Mentoring Program</b> for your degree</li>
+      <li>Click <b>Join Program</b></li>
+      <li>Say hi to your matched mentor, or browse mentor profiles!</li>
+    </ol>
+    <div class="cta-row">
+      <a class="btn" href="https://rmit.vygo.app/" target="_blank">Get started at rmit.vygo.app</a>
+      <a class="btn secondary" href="https://youtu.be/VD1paNgo50Y" target="_blank">Watch the quick how-it-works video</a>
+    </div>
   </div>
 
   <div class="light-card">
-    <h2>Joining a group</h2>
-    <p>Groups are student-led — you coordinate directly with teammates, not through the lecturer, and groups form from students in your <b>own workshop timeslot</b> (groups of 5). Joining in Week 3 is completely normal and expected. The practical deadline is <b>end of Week 4</b>, since the Week 6 Progress Report needs a group in place well before then. <a href="https://rmit.instructure.com/courses/158283/groups#" target="_blank">Register your group here</a> — can't find a team? Talk to your lab assistants closer to the deadline.</p>
+    <h2>Want to know more?</h2>
+    <p>Full details are on the <a href="https://www.rmit.edu.au/students/support-services/study-support/peer-mentoring" target="_blank">Peer Mentoring webpage</a>. Having trouble? Email the team directly at <a href="mailto:peer.mentoring@rmit.edu.au">peer.mentoring@rmit.edu.au</a>, or <a href="https://www.instagram.com/rmitpeermentoring/" target="_blank">follow @rmitpeermentoring on Instagram</a> for tips from mentors and real mentoring stories.</p>
   </div>
 
-  <div class="card">
-    <h2>Jump straight to</h2>
-    <div class="links-grid" id="quick-links"></div>
-  </div>
+  <footer>
+    <span>RMIT University · School of Engineering</span>
+    <span>MIET2528 — Introduction to Mechanical Engineering</span>
+  </footer>
 </div>
-<script>/* ================================================================
-   CALENDAR LOGIC — MIET2528 Semester 2 2026, confirmed dates.
-   All dates treated as calendar days (no time-of-day ambiguity)
-   using YYYY-MM-DD strings compared directly.
-================================================================ */
-const WEEKS = [
-  { n: 1, start: '2026-07-20', end: '2026-07-26' },
-  { n: 2, start: '2026-07-27', end: '2026-08-02' },
-  { n: 3, start: '2026-08-03', end: '2026-08-09' },
-  { n: 4, start: '2026-08-10', end: '2026-08-16' },
-  { n: 5, start: '2026-08-17', end: '2026-08-23' },
-  { n: 6, start: '2026-08-24', end: '2026-08-30' },
-  { n: 7, start: '2026-09-07', end: '2026-09-13' },
-  { n: 8, start: '2026-09-14', end: '2026-09-20' },
-  { n: 9, start: '2026-09-21', end: '2026-09-27' },
-  { n: 10, start: '2026-09-28', end: '2026-10-04' },
-  { n: 11, start: '2026-10-05', end: '2026-10-11' },
-  { n: 12, start: '2026-10-12', end: '2026-10-18' },
-  { n: 13, start: '2026-10-19', end: '2026-10-25' },
-  { n: 14, start: '2026-10-26', end: '2026-11-01' },
-  { n: 15, start: '2026-11-02', end: '2026-11-08' },
-  { n: 16, start: '2026-11-09', end: '2026-11-15' },
-];
-const MID_SEM_BREAK = { start: '2026-08-31', end: '2026-09-06' };
-const SEMESTER_START = '2026-07-20';
-const SEMESTER_END = '2026-11-15';
-
-const ASSESSMENTS = [
-  { key: 'sa1', name: 'Self-Assessment 1', due: '2026-07-26', points: '2.5 pts', link: 'https://rmit.instructure.com/courses/158283/quizzes/765730' },
-  { key: 'safety', name: 'Mandatory Safety Induction', due: '2026-07-27', points: 'required for workshop access', critical: true, link: 'https://rmit.instructure.com/courses/158283/assignments/1277282?module_item_id=8708380' },
-  { key: 'group', name: 'Join a project group', due: '2026-08-16', points: 'practical deadline (Week 4)', soft: true, link: 'https://rmit.instructure.com/courses/158283/groups#' },
-  { key: 'quiz1', name: 'Quiz 1 (in-class)', due: '2026-08-13', points: '10 pts', range: 'Aug 11\u201313' },
-  { key: 'progress', name: 'Progress Report', due: '2026-08-30', points: '15 pts' },
-  { key: 'quiz2', name: 'Quiz 2 (in-class)', due: '2026-09-24', points: '10 pts', range: 'Sep 22\u201324' },
-  { key: 'finaltest', name: 'Final Test (in-class)', due: '2026-10-15', points: '35 pts', range: 'Oct 13\u201315' },
-  { key: 'finalreport', name: 'Final Report', due: '2026-10-18', points: '25 pts' },
-  { key: 'sa2', name: 'Self-Assessment 2', due: '2026-10-18', points: '2.5 pts' },
-];
-
-function dateOnly(d) {
-  // returns a YYYY-MM-DD string for a Date object, in local time
-  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function getSemesterStatus(todayStr) {
-  if (todayStr < SEMESTER_START) return { status: 'before-semester' };
-  if (todayStr > SEMESTER_END) return { status: 'after-semester' };
-  if (todayStr >= MID_SEM_BREAK.start && todayStr <= MID_SEM_BREAK.end) return { status: 'mid-sem-break' };
-  const wk = WEEKS.find((w) => todayStr >= w.start && todayStr <= w.end);
-  return wk ? { status: 'in-week', week: wk.n } : { status: 'unknown' };
-}
-
-function assessmentStatus(a, todayStr) {
-  if (todayStr > a.due) return 'overdue';
-  const daysUntil = (new Date(a.due) - new Date(todayStr)) / 86400000;
-  if (daysUntil <= 7) return 'due-soon';
-  return 'upcoming';
-}
-
-
-</script>
-<script>/* ================================================================
-   WEEK CATCH-UP CONTENT
-   Condensed from the confirmed MIET2528 weekly plan. Weeks 7-10 are
-   grouped in the source plan itself (Wing Box Construction spans that
-   range without a finer week-by-week split), so that's kept honest
-   here rather than inventing false precision.
-================================================================ */
-// Lectorial session recordings (Collaborate Ultra), added week by week as
-// they're recorded. Kept separate from WEEK_SUMMARIES so adding a new
-// week's recording is a one-line addition here, nothing else to touch.
-const LECTORIAL_RECORDINGS = {
-  1: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
-  2: "https://au-lti.bbcollab.com/recording/a638947aa1b4475a87ee7710c4a4e81c",
-  3: "https://au-lti.bbcollab.com/recording/f618cbba6b284f64b553128e58620cd8",
-};
-
-const WEEK_SUMMARIES = {
-  1: `Lectorials only this week (workshops/tutorials hadn't started). Two lecture videos to watch before your lectorial:
-    <a href="https://rmit.instructure.com/courses/158283/pages/week-1-introduction-to-course-and-force-systems?module_item_id=8428015" target="_blank">Introduction to the Course</a> and
-    <a href="https://rmit.instructure.com/courses/158283/pages/week-1-continued-force-and-moment-systems-lightboard-videos?module_item_id=8501583" target="_blank">Force and Moment Systems</a>.
-    Self-Assessment 1 and the Safety Induction were both due this week — see the checklist above if you haven't done these yet.`,
-  2: `Workshops and tutorials began. Lectorial video:
-    <a href="https://rmit.instructure.com/courses/158283/pages/week-2-force-analysis-support-reactions-lightboard?module_item_id=8677647" target="_blank">Force Analysis — Support Reactions</a>
-    (rusty on vectors? <a href="https://rmit.instructure.com/courses/158283/pages/knowledge-refresher-algebra-vectors?module_item_id=8428018" target="_blank">quick refresher here</a>).
-    Tutorial T01 started (<a href="https://rmit.instructure.com/files/55032622/download?download_frd=1&verifier=McWhI91SghSu5G3w8JDYqWBQXqRg5elJyZ7zXZ69" target="_blank">problem sheet</a>).
-    Workshop: project intro, candidate materials (aluminium/steel/polymer), tensile testing demo, then analysing those results to compare material properties (Task 2).
-    This is also when group registration opens — see below.`,
-  3: `Workshop moved to designing and bend-testing two beam cross-sections. Lectorial video:
-    <a href="https://rmit.instructure.com/courses/158283/pages/week-3-force-analysis-internal-loading-lightboard?module_item_id=8766084" target="_blank">Force Analysis — Internal Loading</a>
-    (distributed loading, then joint and section methods).
-    Tutorial T02 covered support reactions under concentrated and distributed loading — problem sheet and solutions on the
-    <a href="https://autohormoz.github.io/MIET2528/tutorials-hub.html" target="_blank">Tutorials Hub</a>.
-    Still no group? Registration opened back in Week 2 — the deadline is end of Week 4.`,
-  4: "Brainstorm wing box designs based on your beam results, score them with a selection matrix, and predict performance theoretically before building anything.",
-  5: "Build cardboard prototypes of your two shortlisted designs and iterate based on what breaks or bends unexpectedly.",
-  6: "Pull theory and prototype results together into the Progress Report — due 30 Aug.",
-  7: "Wing box construction begins: planning session — a build 'recipe' with sheet marking, drilling, and riveting order worked out before touching metal.",
-  8: "Fabrication and assembly: cutting, drilling, and riveting the aluminium wing box, then bend-testing the finished structure against your theoretical predictions.",
-  9: "Public holiday — no session this week.",
-  10: "Continued construction/testing and refinement following Week 8's build.",
-  11: "Finalising the Final Report — writing up design, construction, and testing across the whole project.",
-  12: "Wing Box Competition: weigh-in, then a bending test to failure, scored on design, weight, failure load, and deflection. Final Report due 18 Oct.",
-};
-
-const QUICK_LINKS = [
-  { title: "My Sessions", sub: "Save your timetabled lectorial/tutorial/workshop", url: "https://autohormoz.github.io/MIET2528/my-sessions.html" },
-  { title: "Course FAQ Bot", sub: "Quick answers on deadlines, staff, and logistics", url: "https://autohormoz.github.io/MIET2528/course-faq-bot.html" },
-  { title: "Tutorials Hub", sub: "Problem sheets, solutions, and videos", url: "https://autohormoz.github.io/MIET2528/tutorials-hub.html" },
-  { title: "Podcast Hub", sub: "Catch up on missed weeks, audio-style", url: "https://autohormoz.github.io/MIET2528/podcast-hub.html" },
-  { title: "Teaching Team", sub: "Who to contact, and how", url: "https://autohormoz.github.io/MIET2528/team.html" },
-  { title: "Week 1 at a Glance", sub: "The starting point everyone begins from", url: "https://autohormoz.github.io/MIET2528/week1.html" },
-];
-
-function todayDateOnly() {
-  const d = new Date();
-  return dateOnly(d);
-}
-
-function renderReassurance(semStatus) {
-  const box = document.getElementById("reassure-banner");
-  if (semStatus.status === "before-semester") {
-    box.innerHTML = "The semester hasn't started yet — you're not behind on anything. This page will make a lot more sense once Week 1 begins.";
-  } else if (semStatus.status === "in-week" && semStatus.week <= 3) {
-    box.innerHTML = `It's <b>Week ${semStatus.week}</b> — this is a completely normal time to be getting oriented. Nothing below should feel like a crisis; it's just a clear list of what to do next.`;
-  } else if (semStatus.status === "mid-sem-break") {
-    box.innerHTML = "It's the <b>mid-semester break</b> — a good moment to catch up on anything outstanding before Week 7 starts.";
-  } else if (semStatus.status === "after-semester") {
-    box.innerHTML = "The semester has finished. If you're looking at this after the fact, the checklist below is really just a record of what was due, not something to act on.";
-  } else if (semStatus.status === "in-week") {
-    box.innerHTML = `It's <b>Week ${semStatus.week}</b>. Joining partway through is completely workable — here's exactly what matters most right now.`;
-  }
-}
-
-function renderTimeline(todayStr, semStatus) {
-  const track = document.getElementById("timeline-track");
-  const startMs = new Date(SEMESTER_START).getTime();
-  const endMs = new Date(SEMESTER_END).getTime();
-  const totalMs = endMs - startMs;
-  const pct = (dStr) => Math.min(100, Math.max(0, ((new Date(dStr).getTime() - startMs) / totalMs) * 100));
-
-  // mid-sem break shaded segment
-  const breakStartPct = pct(MID_SEM_BREAK.start);
-  const breakEndPct = pct(MID_SEM_BREAK.end);
-  const breakSeg = document.createElement("div");
-  breakSeg.className = "timeline-seg break";
-  breakSeg.style.left = breakStartPct + "%";
-  breakSeg.style.width = (breakEndPct - breakStartPct) + "%";
-  track.appendChild(breakSeg);
-
-  // "done" segment up to today
-  const todayPct = pct(todayStr);
-  if (semStatus.status !== "before-semester") {
-    const doneSeg = document.createElement("div");
-    doneSeg.className = "timeline-seg done";
-    doneSeg.style.left = "0%";
-    doneSeg.style.width = Math.min(todayPct, breakStartPct) + "%";
-    track.appendChild(doneSeg);
-    if (todayPct > breakEndPct) {
-      const doneSeg2 = document.createElement("div");
-      doneSeg2.className = "timeline-seg done";
-      doneSeg2.style.left = breakEndPct + "%";
-      doneSeg2.style.width = (todayPct - breakEndPct) + "%";
-      track.appendChild(doneSeg2);
-    }
-  }
-
-  // key deadline flags
-  const flagDates = [
-    { date: "2026-08-30", label: "Progress Report" },
-    { date: "2026-10-18", label: "Final Report" },
-  ];
-  flagDates.forEach((f) => {
-    const flag = document.createElement("div");
-    flag.className = "timeline-flag";
-    flag.style.left = pct(f.date) + "%";
-    flag.innerHTML = `<div class="dot"></div><div class="flag-label">${f.label}</div>`;
-    track.appendChild(flag);
-  });
-
-  // today marker (only meaningful within the semester window)
-  if (semStatus.status !== "before-semester" && semStatus.status !== "after-semester") {
-    const marker = document.createElement("div");
-    marker.className = "timeline-marker";
-    marker.style.left = todayPct + "%";
-    track.appendChild(marker);
-    const markerLabel = document.createElement("div");
-    markerLabel.className = "timeline-marker-label";
-    markerLabel.style.left = todayPct + "%";
-    // adaptive anchoring: centering the label on the dot overflows the
-    // track near either end, so left/right-align instead when too close
-    if (todayPct < 10) markerLabel.style.transform = "translateX(0%)";
-    else if (todayPct > 90) markerLabel.style.transform = "translateX(-100%)";
-    markerLabel.textContent = semStatus.status === "mid-sem-break" ? "Today (mid-sem break)" : `Today \u2014 Week ${semStatus.week}`;
-    track.appendChild(markerLabel);
-  }
-}
-
-function renderChecklist(todayStr) {
-  const box = document.getElementById("checklist");
-  const order = { overdue: 0, "due-soon": 1, upcoming: 2 };
-  const withStatus = ASSESSMENTS.map((a) => ({ ...a, status: assessmentStatus(a, todayStr) }));
-  withStatus.sort((a, b) => order[a.status] - order[b.status] || new Date(a.due) - new Date(b.due));
-
-  // Every overdue/due-soon item stays visible (that's the urgent stuff), but
-  // only the next couple of "upcoming" ones — no need to preview the whole
-  // remaining semester here.
-  const UPCOMING_LIMIT = 2;
-  let upcomingSeen = 0;
-  const visible = withStatus.filter((a) => {
-    if (a.status !== "upcoming") return true;
-    upcomingSeen++;
-    return upcomingSeen <= UPCOMING_LIMIT;
-  });
-
-  box.innerHTML = visible.map((a) => {
-    const badgeSymbol = a.status === "overdue" ? "!" : a.status === "due-soon" ? "\u25CF" : "\u2192";
-    let statusLabel = a.status === "overdue" ? "Overdue" : a.status === "due-soon" ? "Due soon" : "Upcoming";
-    let metaText = a.range ? `In-class ${a.range}` : `Due ${formatDate(a.due)}`;
-    if (a.soft && a.status === "overdue") { statusLabel = "Past the usual window"; }
-    const linkHtml = a.link ? ` \u2014 <a href="${a.link}" target="_blank">Open on Canvas</a>` : "";
-    return `<div class="checklist-item">
-      <div class="cl-badge ${a.status}">${badgeSymbol}</div>
-      <div style="flex:1;">
-        <div class="cl-name">${a.name}</div>
-        <div class="cl-meta">${metaText} \u2014 ${a.points}${linkHtml}</div>
-      </div>
-      <div class="cl-status ${a.status}">${statusLabel}</div>
-    </div>`;
-  }).join("");
-}
-
-function formatDate(dStr) {
-  const d = new Date(dStr + "T00:00:00");
-  return d.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
-}
-
-function renderWeekCatchup(semStatus) {
-  const box = document.getElementById("week-catchup");
-  let upToWeek;
-  if (semStatus.status === "before-semester") { box.innerHTML = "<p style='color:var(--muted);margin:0;'>Nothing's happened yet — you're starting from the very beginning, same as everyone else.</p>"; return; }
-  if (semStatus.status === "after-semester") upToWeek = 12;
-  else if (semStatus.status === "mid-sem-break") upToWeek = 6;
-  else upToWeek = Math.min(semStatus.week, 12); // include the current week too — its lecture may already be recorded
-
-  if (upToWeek < 1) { box.innerHTML = "<p style='color:var(--muted);margin:0;'>You're right at the start — nothing to catch up on yet.</p>"; return; }
-
-  let rows = "";
-  for (let w = 1; w <= upToWeek; w++) {
-    const recording = LECTORIAL_RECORDINGS[w];
-    const recordingHtml = recording
-      ? `<p style="margin-top:6px;"><a href="${recording}" target="_blank" style="color:var(--cyan);font-weight:700;">\u25B6 Missed the lectorial? Watch the recording</a></p>`
-      : "";
-    rows += `<div class="week-row">
-      <div class="week-num">Week ${w}</div>
-      <div class="week-body"><p>${WEEK_SUMMARIES[w]}</p>${recordingHtml}</div>
-    </div>`;
-  }
-  box.innerHTML = rows;
-}
-
-function renderQuickLinks() {
-  const box = document.getElementById("quick-links");
-  box.innerHTML = QUICK_LINKS.map((l) => `
-    <a class="link-btn" href="${l.url}" target="_blank">
-      <div class="lb-title">${l.title}</div>
-      <div class="lb-sub">${l.sub}</div>
-    </a>`).join("");
-}
-
-/* ---------------- init ---------------- */
-const todayStr = todayDateOnly();
-const semStatus = getSemesterStatus(todayStr);
-renderReassurance(semStatus);
-renderTimeline(todayStr, semStatus);
-renderChecklist(todayStr);
-renderWeekCatchup(semStatus);
-renderQuickLinks();
-
-/* --------------------------------------------------------------------
-   FRESHNESS CHECK — same mechanism as the week pages: fetch this same
-   page fresh (bypassing cache) and compare its page-version to this
-   page's own. If they differ, show a banner with a Refresh button.
-   TO UPDATE: bump the content="..." value in the page-version meta
-   tag in <head> any time this file is meaningfully changed.
--------------------------------------------------------------------- */
-(function () {
-  const CURRENT_VERSION = document.querySelector('meta[name="page-version"]').content;
-  const bustUrl = location.pathname + (location.search ? location.search + "&" : "?") + "_cb=" + Date.now();
-  fetch(bustUrl, { cache: "no-store" })
-    .then((r) => r.text())
-    .then((html) => {
-      const match = html.match(/name="page-version"\s+content="([^"]+)"/);
-      if (match && match[1] !== CURRENT_VERSION) {
-        const banner = document.getElementById("update-banner");
-        banner.style.display = "block";
-        document.getElementById("update-refresh-btn").addEventListener("click", () => {
-          location.reload();
-        });
-      }
-    })
-    .catch(() => { /* offline or fetch blocked — fail silently, no banner */ });
-})();
-</script>
 </body>
 </html>
