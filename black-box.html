@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-08-24-01" />
+<meta name="page-version" content="2026-08-26-01" />
 <title>MIET2528 — The Black Box</title>
 <style>
   :root{
@@ -177,10 +177,14 @@
 
   <div class="card" id="group-data-card">
     <div class="latest-badge">Group data</div>
-    <h2>Your Group's Test Data</h2>
-    <p style="margin:0 0 14px;font-size:0.9rem;color:var(--muted);">Raw data (Excel) and a graph (PDF) from your group's own test — available for around 50 of the 200 groups so far, with more added as testing continues.</p>
+    <h2>Your Group's Test Data — Week 6</h2>
+    <p style="margin:0 0 14px;font-size:0.9rem;color:var(--muted);">Raw data (Excel) and a graph (PDF) from your group's own test, generated this week — more days added as testing continues.</p>
     <div id="group-data-detected" style="display:none;"></div>
     <div id="group-data-list"></div>
+    <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
+      <p style="margin:0 0 4px;font-size:0.85rem;color:var(--muted);">Looking for an earlier week's data instead?</p>
+      <div id="group-data-past"></div>
+    </div>
   </div>
 
   <div class="light-card">
@@ -399,11 +403,19 @@ const WORKSHOP_DAY_MAP = {
   "WRK01/09": "Friday", "WRK01/10": "Friday",
   "WRK01/11": "Tuesday", "WRK01/12": "Tuesday", "WRK01/13": "Tuesday",
 };
-const GROUP_DATA_FOLDERS = {
-  "Tuesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Tue%20-%202026-08-18",
-  "Wednesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Wed%20-%202626-08-19",
-  "Friday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Friday%20-%202026-08-19",
+const GROUP_DATA_BY_WEEK = {
+  6: {
+    "Tuesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%206%20-%20Workshop%20-%20Tue%20-%202026-08-25",
+    "Wednesday": null,
+    "Friday": null,
+  },
+  5: {
+    "Tuesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Tue%20-%202026-08-18",
+    "Wednesday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Wed%20-%202626-08-19",
+    "Friday": "https://rmit.instructure.com/courses/158283/files/folder/Workshops/Week%205%20-%20Workshop%20-%20Friday%20-%202026-08-19",
+  },
 };
+const CURRENT_GROUP_DATA_WEEK = 6;
 
 function detectWorkshopDay() {
   try {
@@ -416,10 +428,12 @@ function detectWorkshopDay() {
 function renderGroupData() {
   const detectedBox = document.getElementById("group-data-detected");
   const listBox = document.getElementById("group-data-list");
+  const pastBox = document.getElementById("group-data-past");
   const day = detectWorkshopDay();
+  const currentWeekFolders = GROUP_DATA_BY_WEEK[CURRENT_GROUP_DATA_WEEK];
 
   if (day) {
-    const url = GROUP_DATA_FOLDERS[day];
+    const url = currentWeekFolders[day];
     detectedBox.style.display = "block";
     detectedBox.className = "gd-detected";
     detectedBox.innerHTML = url
@@ -429,7 +443,7 @@ function renderGroupData() {
     detectedBox.style.display = "none";
   }
 
-  listBox.innerHTML = Object.entries(GROUP_DATA_FOLDERS).map(([d, url]) => {
+  listBox.innerHTML = Object.entries(currentWeekFolders).map(([d, url]) => {
     const isDetected = d === day;
     return `<div class="gd-row">
       <div>
@@ -439,6 +453,16 @@ function renderGroupData() {
       ${url ? `<a class="download-link" href="${url}" target="_blank" style="margin:0;">Open folder \u2192</a>` : ""}
     </div>`;
   }).join("");
+
+  const pastWeeks = Object.keys(GROUP_DATA_BY_WEEK).map(Number).filter((w) => w !== CURRENT_GROUP_DATA_WEEK).sort((a, b) => b - a);
+  if (pastWeeks.length && pastBox) {
+    pastBox.innerHTML = pastWeeks.map((w) => {
+      const rows = Object.entries(GROUP_DATA_BY_WEEK[w]).map(([d, url]) => {
+        return url ? `<div class="gd-row"><div class="gd-row-day">${d}</div><a class="download-link" href="${url}" target="_blank" style="margin:0;">Open folder \u2192</a></div>` : "";
+      }).join("");
+      return `<div style="margin-top:10px;"><div style="font-weight:700;color:#fff;font-size:0.9rem;margin-bottom:4px;">Week ${w}</div>${rows}</div>`;
+    }).join("");
+  }
 }
 
 renderLatestRelease();
