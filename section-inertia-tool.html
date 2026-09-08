@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Composite Section Moment of Inertia</title>
+<style>
+  :root{
+    --navy:#0A0F1E; --card:#151d33; --cyan:#00BDD6; --amber:#F0A500;
+    --red:#E0262B; --teal:#1C7293; --ink:#C8D8F0; --muted:#7086a0;
+    --bg:#F4F6FB; --page-ink:#1B2838; --page-muted:#5C6B80;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--page-ink);
+    font-family:Calibri,"Segoe UI",sans-serif;}
+  .wrap{max-width:820px;margin:0 auto;padding:22px 16px 50px;}
+  h1{font-family:Georgia,serif;font-weight:normal;font-size:1.5rem;color:var(--teal);margin:0 0 4px;}
+  .sub{color:var(--page-muted);margin:0 0 16px;font-size:0.95rem;}
+
+  .top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .new-btn{background:var(--amber);color:#12202F;border:none;font-weight:700;
+    padding:10px 20px;border-radius:999px;cursor:pointer;font-size:0.92rem;}
+
+  .banner{background:var(--card);color:var(--ink);border-radius:8px;padding:10px 14px;
+    font-size:0.82rem;line-height:1.5;margin-bottom:16px;}
+
+  .panel{background:#fff;border:1px solid #DCE3EC;border-radius:10px;padding:16px 18px;
+    margin-bottom:14px;box-shadow:0 2px 8px rgba(27,40,56,0.05);}
+  .panel h3{font-family:Georgia,serif;font-weight:normal;font-size:1.05rem;margin:0 0 10px;}
+
+  svg{width:100%;height:auto;display:block;}
+  .part-fill-0{fill:#1C7293;fill-opacity:0.55;}
+  .part-fill-1{fill:#00BDD6;fill-opacity:0.55;}
+  .part-fill-2{fill:#F0A500;fill-opacity:0.55;}
+  .part-outline{stroke:#2E4560;stroke-width:1.5;}
+  .part-label{font-size:11px;fill:var(--page-ink);font-weight:600;}
+  .own-centroid{fill:#2E4560;}
+  .composite-line{stroke:var(--red);stroke-width:1.5;stroke-dasharray:5,3;}
+  .composite-label{font-size:11px;fill:var(--red);font-weight:700;}
+  .axis-line{stroke:#B8C4D4;stroke-width:1;}
+  .dim-line{stroke:#2E4560;stroke-width:1;}
+  .dim-chip{fill:#fff;fill-opacity:0.88;stroke:#2E4560;stroke-width:0.75;}
+  .dim-text-on-chip{font-size:10px;fill:#1B2838;font-weight:700;text-anchor:middle;}
+  .ybar-dim-line{stroke:#E0262B;stroke-width:1.2;}
+  .ybar-dim-text{font-size:11px;fill:#E0262B;font-weight:700;}
+
+  .step{border-top:1px solid #EDF1F6;padding:14px 0;}
+  .step:first-child{border-top:none;padding-top:0;}
+  .step-head{display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .step-badge{width:26px;height:26px;border-radius:50%;background:#DCE3EC;color:var(--page-muted);
+    font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .step-badge.done{background:var(--teal);color:#fff;}
+  .step-title{font-weight:700;color:var(--page-ink);flex:1;}
+  .step-chevron{color:var(--muted);transition:transform 0.15s;}
+  .step-chevron.open{transform:rotate(90deg);}
+  .step-body{display:none;margin:12px 0 0 36px;font-size:0.92rem;line-height:1.7;}
+  .step-body.open{display:block;}
+  .step-body table{border-collapse:collapse;width:100%;margin:8px 0;}
+  .step-body td, .step-body th{padding:5px 8px;text-align:right;border-bottom:1px solid #EDF1F6;font-size:0.88rem;}
+  .step-body th{text-align:right;color:var(--page-muted);font-weight:600;}
+  .step-body td:first-child, .step-body th:first-child{text-align:left;}
+  .formula{font-family:"Cambria Math",Georgia,serif;background:#F4F6FB;border-radius:6px;
+    padding:8px 12px;margin:8px 0;font-size:0.92rem;}
+  .result-box{background:rgba(0,189,214,0.1);border:1px solid rgba(0,189,214,0.3);
+    border-radius:8px;padding:12px 16px;margin-top:8px;font-size:0.95rem;}
+  .result-box b{color:var(--teal);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Composite Section — Moment of Inertia</h1>
+  <p class="sub">Break the shape into simple rectangles, find the composite centroid, then apply the parallel axis theorem to each part.</p>
+
+  <div class="top-row">
+    <span style="font-weight:700;color:var(--page-ink);" id="shape-name">T-section</span>
+    <button class="new-btn" id="new-shape-btn">New random shape</button>
+  </div>
+
+  <div class="banner">
+    <b>Sign convention:</b> all heights and areas in mm and mm², measured from the bottom of the section. I is the second moment of area about the composite horizontal centroidal axis, in mm⁴.
+  </div>
+
+  <div class="panel">
+    <h3>Cross-section</h3>
+    <svg id="svg-section" viewBox="0 0 460 354"></svg>
+  </div>
+
+  <div class="panel" id="steps-panel">
+    <h3>Work through it step by step</h3>
+    <div id="steps-list"></div>
+  </div>
+</div>
+<script>/* ================================================================
+   COMPOSITE SECTION ENGINE
+   Shapes are built from simple rectangles. Every rectangle carries:
+     - b, h: its own width and height
+     - yc: the y-coordinate of ITS OWN centroid, measured from a
+       common reference axis (the bottom of the whole section)
+     - own area = b*h, own centroidal I = b*h^3/12
+   The composite centroid and total I are computed from these parts
+   using the standard weighted-centroid + parallel-axis-theorem
+   approach, not hardcoded per shape.
+================================================================ */
+
+function rectPart(label, b, h, yBottom) {
+  const area = b * h;
+  const yc = yBottom + h / 2;
+  const iOwn = (b * Math.pow(h, 3)) / 12;
+  return { label, b, h, yBottom, yc, area, iOwn };
+}
+
+function snap(n, step) { return Math.round(n / step) * step; }
+function randInt(lo, hi) { return Math.floor(lo + Math.random() * (hi - lo + 1)); }
+
+/* ---- Shape templates ---- */
+function makeTSection() {
+  const tw = randInt(10, 16);          // web thickness
+  const hw = randInt(60, 100);         // web height
+  const bf = randInt(60, 110);         // flange width
+  const tf = randInt(10, 18);          // flange thickness
+  const parts = [
+    rectPart("Web", tw, hw, 0),
+    rectPart("Flange", bf, tf, hw),
+  ];
+  return { name: "T-section", parts, totalWidth: Math.max(tw, bf), totalHeight: hw + tf };
+}
+
+function makeISection() {
+  const bf = randInt(60, 100);   // flange width (top & bottom, same)
+  const tf = randInt(8, 14);     // flange thickness
+  const tw = randInt(8, 14);     // web thickness
+  const hw = randInt(50, 90);    // web height (between flanges)
+  const parts = [
+    rectPart("Bottom flange", bf, tf, 0),
+    rectPart("Web", tw, hw, tf),
+    rectPart("Top flange", bf, tf, tf + hw),
+  ];
+  return { name: "I-section", parts, totalWidth: bf, totalHeight: tf + hw + tf };
+}
+
+function makeLSection() {
+  const tv = randInt(10, 18);    // vertical leg thickness
+  const hv = randInt(60, 100);   // vertical leg height
+  const th = randInt(10, 18);    // horizontal leg thickness
+  const wh = randInt(50, 90);    // horizontal leg width (including overlap with vertical leg)
+  const parts = [
+    rectPart("Horizontal leg", wh, th, 0),
+    rectPart("Vertical leg", tv, hv - th, th),
+  ];
+  return { name: "L-section", parts, totalWidth: Math.max(tv, wh), totalHeight: hv };
+}
+
+function makePlusSection() {
+  const tv = randInt(10, 16);    // vertical bar thickness
+  const hv = randInt(70, 110);   // vertical bar full height
+  const th = randInt(10, 16);    // horizontal bar thickness
+  const wh = randInt(70, 110);   // horizontal bar full width
+  const vertYBottom = (hv - hv) / 2; // vertical bar spans full height, starts at 0
+  const horizYBottom = (hv - th) / 2; // horizontal bar centered vertically
+  const parts = [
+    rectPart("Vertical bar", tv, hv, 0),
+    rectPart("Horizontal bar", wh, th, horizYBottom),
+  ];
+  return { name: "Cross-section", parts, totalWidth: wh, totalHeight: hv };
+}
+
+const TEMPLATES = [makeTSection, makeISection, makeLSection, makePlusSection];
+
+function randomSection() {
+  const template = TEMPLATES[randInt(0, TEMPLATES.length - 1)];
+  return template();
+}
+
+/* ---- Composite calculations ---- */
+function compositeCentroid(parts) {
+  const totalArea = parts.reduce((s, p) => s + p.area, 0);
+  const momentSum = parts.reduce((s, p) => s + p.area * p.yc, 0);
+  return { totalArea, yBar: momentSum / totalArea };
+}
+
+function compositeMomentOfInertia(parts, yBar) {
+  return parts.map((p) => {
+    const d = p.yc - yBar;
+    const iParallel = p.iOwn + p.area * d * d;
+    return { ...p, d, iParallel };
+  });
+}
+
+function solveSection(section) {
+  const { totalArea, yBar } = compositeCentroid(section.parts);
+  const withPAT = compositeMomentOfInertia(section.parts, yBar);
+  const totalI = withPAT.reduce((s, p) => s + p.iParallel, 0);
+  return { ...section, totalArea, yBar, parts: withPAT, totalI };
+}
+
+</script>
+<script>const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs) {
+  const el = document.createElementNS(NS, tag);
+  Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v));
+  return el;
+}
+function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+function text(x, y, str, cls, extra) {
+  const t = svgEl("text", Object.assign({ x, y, class: cls, "text-anchor": "middle" }, extra || {}));
+  t.textContent = str;
+  return t;
+}
+function fmt(n, dp) { return n.toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp }); }
+
+const PAD = 40;
+const LABEL_MARGIN = 100;
+const TOP_MARGIN = 34;
+const BOTTOM_EXTRA = 34;
+const LEFT_MARGIN = 70;
+const CW = 460, CH = 320 + 34;
+
+// true only if NO other part occupies the given x-range at the given y -
+// i.e. is this edge genuinely open, not touching/overlapping a neighbor
+function edgeFullyClear(parts, self, xMin, xMax, yProbe) {
+  const EPS = 1e-6;
+  return !parts.some((q) => {
+    if (q === self) return false;
+    const qxMin = q._xLocal, qxMax = q._xLocal + q.b;
+    const xOverlap = xMin < qxMax - EPS && xMax > qxMin + EPS;
+    const yInside = yProbe > q.yBottom - EPS && yProbe < q.yBottom + q.h + EPS;
+    return xOverlap && yInside;
+  });
+}
+
+function renderSection(svg, solved) {
+  clear(svg);
+  const shapeTop = TOP_MARGIN, shapeBottom = CH - PAD - BOTTOM_EXTRA;
+  const shapeLeft = LEFT_MARGIN, shapeRight = CW - PAD - LABEL_MARGIN;
+  const drawWidth = shapeRight - shapeLeft, drawHeight = shapeBottom - shapeTop;
+
+  const scale = Math.min(drawWidth / solved.totalWidth, drawHeight / solved.totalHeight);
+  const originX = shapeLeft + (drawWidth - solved.totalWidth * scale) / 2;
+  const originY = shapeBottom;
+
+  function toPx(xLocal, yLocal) { return { x: originX + xLocal * scale, y: originY - yLocal * scale }; }
+
+  svg.appendChild(svgEl("line", { x1: shapeLeft - 10, y1: originY, x2: CW - PAD + 10, y2: originY, class: "axis-line" }));
+
+  solved.parts.forEach((p) => { p._xLocal = (solved.totalWidth - p.b) / 2; });
+
+  const placedLabels = [];
+  function reserve(x, y, w, h) { placedLabels.push({ x, y, width: w, height: h }); }
+  function collidesWith(box) {
+    return placedLabels.some((p) => !(box.x + box.width < p.x || p.x + p.width < box.x || box.y + box.height < p.y || p.y + p.height < box.y));
+  }
+  function placeHorizontal(desiredY, minX, maxX) {
+    let y = desiredY;
+    const height = 14, buffer = 5;
+    for (let guard = 0; guard < 20; guard++) {
+      const box = { x: minX - buffer, y: y - height / 2 - buffer, width: (maxX - minX) + buffer * 2, height: height + buffer * 2 };
+      if (!collidesWith(box)) { reserve(minX, y - height / 2, maxX - minX, height); return y; }
+      y += height + 4;
+    }
+    reserve(minX, y - height / 2, maxX - minX, height);
+    return y;
+  }
+
+  function placeFixed(x, y, w, h) {
+    const box = { x: x - w / 2 - 3, y: y - h / 2 - 3, width: w + 6, height: h + 6 };
+    if (collidesWith(box)) return false;
+    reserve(box.x, box.y, box.width, box.height);
+    return true;
+  }
+
+  function dimLineH(x1, x2, y, valueStr, tickLen) {
+    tickLen = tickLen || 4;
+    svg.appendChild(svgEl("line", { x1, y1: y, x2, y2: y, class: "dim-line" }));
+    svg.appendChild(svgEl("line", { x1, y1: y - tickLen, x2: x1, y2: y + tickLen, class: "dim-line" }));
+    svg.appendChild(svgEl("line", { x1: x2, y1: y - tickLen, x2, y2: y + tickLen, class: "dim-line" }));
+    const cx = (x1 + x2) / 2, w = valueStr.length * 6.2 + 6;
+    if (placeFixed(cx, y - 4, w, 12)) svg.appendChild(text(cx, y - 4, valueStr, "dim-text"));
+  }
+  function dimLineV(y1, y2, x, valueStr, tickLen) {
+    tickLen = tickLen || 4;
+    svg.appendChild(svgEl("line", { x1: x, y1, x2: x, y2, class: "dim-line" }));
+    svg.appendChild(svgEl("line", { x1: x - tickLen, y1, x2: x + tickLen, y2: y1, class: "dim-line" }));
+    svg.appendChild(svgEl("line", { x1: x - tickLen, y1: y2, x2: x + tickLen, y2, class: "dim-line" }));
+    const cy = (y1 + y2) / 2, w = valueStr.length * 6.2 + 6;
+    if (placeFixed(x, cy, 12, w)) svg.appendChild(text(x, cy, valueStr, "dim-text", { "text-anchor": "middle", transform: `rotate(-90 ${x} ${cy})` }));
+  }
+  function dimChipInset(cx, cy, valueStr, vertical) {
+    const w = valueStr.length * 6.2 + 10, h = 14;
+    if (!placeFixed(cx, cy, vertical ? h : w, vertical ? w : h)) return;
+    const g = svgEl("g", vertical ? { transform: `rotate(-90 ${cx} ${cy})` } : {});
+    g.appendChild(svgEl("rect", { x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 3, class: "dim-chip" }));
+    g.appendChild(text(cx, cy + 4, valueStr, "dim-text-on-chip"));
+    svg.appendChild(g);
+  }
+
+  // reserve every centroid dot's space FIRST, before any dimension value
+  // is placed, so dimensions correctly steer clear of them
+  solved.parts.forEach((p) => {
+    const centroidPx = toPx(solved.totalWidth / 2, p.yc);
+    reserve(centroidPx.x - 6, centroidPx.y - 6, 12, 12);
+  });
+
+  // ---- WIDTH dimensions: each part checks its OWN immediate top/bottom
+  // edge (a few px outside its own boundary, not a distant shared row) -
+  // genuinely external whenever a part has real clearance, since these
+  // templates' parts mostly sit on opposite sides of one another and so
+  // don't compete for the same space. Only the rare fully-sandwiched part
+  // (blocked both above and below, e.g. an I-beam's web) falls back to an
+  // inset chip, since there is no genuinely external position for it.
+  solved.parts.forEach((p) => {
+    const xMin = p._xLocal, xMax = p._xLocal + p.b;
+    const topClear = edgeFullyClear(solved.parts, p, xMin, xMax, p.yBottom + p.h + 0.5);
+    const botClear = edgeFullyClear(solved.parts, p, xMin, xMax, p.yBottom - 0.5);
+    const leftPx = toPx(xMin, 0).x, rightPx = toPx(xMax, 0).x;
+    if (p.b * scale <= 34) return; // too narrow to show a width dimension at all
+    if (topClear) {
+      const y = toPx(0, p.yBottom + p.h).y - 12;
+      dimLineH(leftPx, rightPx, y, `${fmt(p.b, 0)}`);
+    } else if (botClear) {
+      const y = toPx(0, p.yBottom).y + 12;
+      dimLineH(leftPx, rightPx, y, `${fmt(p.b, 0)}`);
+    } else {
+      const cy = toPx(0, p.yBottom + p.h).y + 12;
+      dimChipInset((leftPx + rightPx) / 2, cy, `${fmt(p.b, 0)}`, false);
+    }
+  });
+
+  // ---- HEIGHT dimensions: same logic, sideways (left/right) instead of
+  // up/down. A part's left side is blocked only by a WIDER sibling
+  // (smaller xLocal, since every template centers parts on one axis)
+  // whose y-range overlaps this part's own y-range.
+  function leftIsClear(p) {
+    const EPS = 1e-6;
+    return !solved.parts.some((q) => {
+      if (q === p) return false;
+      const wider = q._xLocal < p._xLocal - EPS;
+      const yOverlap = q.yBottom < p.yBottom + p.h - EPS && q.yBottom + q.h > p.yBottom + EPS;
+      return wider && yOverlap;
+    });
+  }
+  solved.parts.forEach((p) => {
+    if (p.h * scale <= 30) return;
+    const topPx = toPx(0, p.yBottom + p.h), botPx = toPx(0, p.yBottom);
+    const leftEdgeX = toPx(p._xLocal, 0).x;
+    if (leftIsClear(p)) {
+      dimLineV(topPx.y + 6, botPx.y - 6, leftEdgeX - 12, `${fmt(p.h, 0)}`);
+    } else {
+      dimChipInset(leftEdgeX + 14, (topPx.y + botPx.y) / 2, `${fmt(p.h, 0)}`, true);
+    }
+  });
+
+  // the shapes themselves, plus centroid dots and part-name labels
+  solved.parts.forEach((p, i) => {
+    const topLeft = toPx(p._xLocal, p.yBottom + p.h);
+    const w = p.b * scale, h = p.h * scale;
+    svg.appendChild(svgEl("rect", { x: topLeft.x, y: topLeft.y, width: w, height: h, class: `part-fill-${i % 3} part-outline` }));
+
+    const centroidPx = toPx(solved.totalWidth / 2, p.yc);
+    svg.appendChild(svgEl("circle", { cx: centroidPx.x, cy: centroidPx.y, r: 3.5, class: "own-centroid" }));
+
+    const labelX = toPx(p._xLocal + p.b, p.yc).x + 8;
+    const estWidth = p.label.length * 6.5 + 10;
+    const placedY = placeHorizontal(centroidPx.y + 4, labelX, labelX + estWidth);
+    svg.appendChild(text(labelX, placedY, p.label, "part-label", { "text-anchor": "start" }));
+  });
+
+  const lineY = toPx(0, solved.yBar).y;
+  svg.appendChild(svgEl("line", { x1: shapeLeft - 10, y1: lineY, x2: CW - PAD + 20, y2: lineY, class: "composite-line" }));
+  svg.appendChild(text(CW - PAD + 20, lineY - 6, "\u0233", "composite-label", { "text-anchor": "end", "font-size": "13px" }));
+
+  const dimX = 20;
+  svg.appendChild(svgEl("line", { x1: dimX, y1: originY, x2: dimX, y2: lineY, class: "ybar-dim-line" }));
+  svg.appendChild(svgEl("line", { x1: dimX - 5, y1: originY, x2: dimX + 5, y2: originY, class: "ybar-dim-line" }));
+  svg.appendChild(svgEl("line", { x1: dimX - 5, y1: lineY, x2: dimX + 5, y2: lineY, class: "ybar-dim-line" }));
+  svg.appendChild(text(dimX, (originY + lineY) / 2, `\u0233=${fmt(solved.yBar, 1)}`, "ybar-dim-text", { "text-anchor": "middle", transform: `rotate(-90 ${dimX} ${(originY + lineY) / 2})` }));
+
+  svg.appendChild(text(shapeLeft - 10, originY + 14, "y=0", "part-label", { "text-anchor": "end", "font-size": "10px", fill: "#7086a0" }));
+}
+</script>
+<script>let currentSection = null;
+let currentSolved = null;
+const openSteps = new Set();
+
+function newShape() {
+  currentSection = randomSection();
+  currentSolved = solveSection(currentSection);
+  openSteps.clear();
+  openSteps.add(0);
+  document.getElementById("shape-name").textContent = currentSection.name;
+  render();
+}
+
+function render() {
+  renderSection(document.getElementById("svg-section"), currentSolved);
+  renderSteps();
+}
+
+function toggleStep(i) {
+  if (openSteps.has(i)) openSteps.delete(i);
+  else openSteps.add(i);
+  renderSteps();
+}
+
+function renderSteps() {
+  const box = document.getElementById("steps-list");
+  const s = currentSolved;
+
+  const step0Rows = s.parts.map((p) =>
+    `<tr><td>${p.label}</td><td>${fmt(p.b, 0)} \u00D7 ${fmt(p.h, 0)}</td><td>${fmt(p.area, 0)}</td><td>${fmt(p.yc, 1)}</td><td>${fmt(p.iOwn, 0)}</td></tr>`
+  ).join("");
+
+  const step1Rows = s.parts.map((p) => `<tr><td>${p.label}</td><td>${fmt(p.area, 0)}</td><td>${fmt(p.yc, 1)}</td><td>${fmt(p.area * p.yc, 0)}</td></tr>`).join("");
+  const sumAy = s.parts.reduce((acc, p) => acc + p.area * p.yc, 0);
+
+  const step2Rows = s.parts.map((p) =>
+    `<tr><td>${p.label}</td><td>${fmt(p.d, 1)}</td><td>${fmt(p.area, 0)}</td><td>${fmt(p.iOwn, 0)}</td><td>${fmt(p.area * p.d * p.d, 0)}</td><td>${fmt(p.iParallel, 0)}</td></tr>`
+  ).join("");
+
+  const steps = [
+    {
+      title: "Break the shape into simple rectangles",
+      body: `
+        <p>Each part's own area and its own centroid (measured from the bottom of the whole section), plus its own moment of inertia about its <b>own</b> centroidal axis (I = bh\u00B3/12):</p>
+        <table><tr><th>Part</th><th>b \u00D7 h (mm)</th><th>Area (mm\u00B2)</th><th>y\u1D04 (mm)</th><th>I (own axis, mm\u2074)</th></tr>${step0Rows}</table>
+      `,
+    },
+    {
+      title: "Find the composite centroid",
+      body: `
+        <p>Weight each part's centroid by its area, then divide by the total area:</p>
+        <table><tr><th>Part</th><th>Area (mm\u00B2)</th><th>y\u1D04 (mm)</th><th>Area \u00D7 y\u1D04</th></tr>${step1Rows}
+          <tr style="font-weight:700;"><td>Total</td><td>${fmt(s.totalArea, 0)}</td><td></td><td>${fmt(sumAy, 0)}</td></tr></table>
+        <div class="formula">\u0233 = \u03A3(A\u1D62 y\u1D04\u1D62) / \u03A3A\u1D62 = ${fmt(sumAy, 0)} / ${fmt(s.totalArea, 0)} = <b>${fmt(s.yBar, 2)} mm</b></div>
+      `,
+    },
+    {
+      title: "Apply the parallel axis theorem to each part",
+      body: `
+        <p>For each part, find the distance d from its own centroid to the composite centroid \u0233, then add A\u00B7d\u00B2 to its own I:</p>
+        <div class="formula">I<sub>part about \u0233</sub> = I<sub>own</sub> + A\u00B7d\u00B2</div>
+        <table><tr><th>Part</th><th>d = |y\u1D04\u2212\u0233| (mm)</th><th>Area</th><th>I own</th><th>A\u00B7d\u00B2</th><th>I about \u0233</th></tr>${step2Rows}</table>
+      `,
+    },
+    {
+      title: "Total moment of inertia",
+      body: `
+        <p>Sum every part's contribution about the composite centroidal axis:</p>
+        <div class="result-box">I<sub>total</sub> = ${s.parts.map((p) => fmt(p.iParallel, 0)).join(" + ")} = <b>${fmt(s.totalI, 0)} mm\u2074</b></div>
+      `,
+    },
+  ];
+
+  box.innerHTML = steps.map((st, i) => `
+    <div class="step">
+      <div class="step-head" onclick="toggleStep(${i})">
+        <div class="step-badge${openSteps.has(i) ? " done" : ""}">${i + 1}</div>
+        <div class="step-title">${st.title}</div>
+        <div class="step-chevron${openSteps.has(i) ? " open" : ""}">\u25B6</div>
+      </div>
+      <div class="step-body${openSteps.has(i) ? " open" : ""}">${st.body}</div>
+    </div>
+  `).join("");
+}
+
+document.getElementById("new-shape-btn").addEventListener("click", newShape);
+newShape();
+</script>
+</body>
+</html>
