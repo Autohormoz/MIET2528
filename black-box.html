@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-08-26-02" />
+<meta name="page-version" content="2026-09-14-03" />
 <title>MIET2528 — The Black Box</title>
 <style>
   :root{
@@ -187,6 +187,12 @@
     </div>
   </div>
 
+  <div class="card" id="cardboard-data-card">
+    <h2>Your Group's Cardboard Prototype Test Data</h2>
+    <p style="margin:0 0 14px;font-size:0.9rem;color:var(--muted);">Some groups have already tested their cardboard prototype on the Instron machine — if your group has too, your raw data is here.</p>
+    <div id="cardboard-data-body"></div>
+  </div>
+
   <div class="light-card">
     <h2>Past Releases</h2>
     <div id="past-releases-list"></div>
@@ -233,14 +239,74 @@ typeFieldEl.addEventListener("input", () => {
   if (v >= GROUP_MIN && v <= GROUP_MAX) setGroup(v);
 });
 
+/* ================================================================
+   CARDBOARD PROTOTYPE TEST DATA — keyed by exact group number.
+   Add an entry here as each group's Excel file(s) come in. A group
+   with only one run just omits run2. Groups test in different weeks,
+   so every entry carries its own "week" \u2014 don't assume they'll all
+   match the week this card is being edited in.
+   Example: 47: { week: 8, run1: "https://rmit.instructure.com/files/.../download?..." },
+================================================================ */
+const CARDBOARD_DATA = {
+  1: { week: 7, run1: "https://rmit.instructure.com/files/56170463/download?download_frd=1&verifier=fab8f3bc-886e-4357-8181-73eae0802194" },
+  4: { week: 7, run1: "https://rmit.instructure.com/files/56170470/download?download_frd=1&verifier=b6298c19-e77c-4909-98d7-4661c37bab4c" },
+  9: { week: 7, run1: "https://rmit.instructure.com/files/56170477/download?download_frd=1&verifier=78f3707c-3c66-4d55-9c48-eb8992dfc965" },
+  13: { week: 7, run1: "https://rmit.instructure.com/files/56170456/download?download_frd=1&verifier=a12cb572-6320-4265-9210-d4e060a8e8fc", run2: "https://rmit.instructure.com/files/56170455/download?download_frd=1&verifier=e44b7f0b-b7a1-4ef8-afa7-7d5ddc0281b3" },
+  14: { week: 7, run1: "https://rmit.instructure.com/files/56170459/download?download_frd=1&verifier=eb04a8f8-e237-4275-ba2c-7b81e2b3bdb2" },
+  29: { week: 7, run1: "https://rmit.instructure.com/files/56170464/download?download_frd=1&verifier=219b08ea-f772-48e1-8b46-d2544f014efe" },
+  38: { week: 7, run1: "https://rmit.instructure.com/files/56170465/download?download_frd=1&verifier=ac1812b2-c86b-4994-bcb1-df1cb8b36277" },
+  41: { week: 7, run1: "https://rmit.instructure.com/files/56170466/download?download_frd=1&verifier=293d6f91-0582-49e2-a866-326d1028bf71" },
+  46: { week: 7, run1: "https://rmit.instructure.com/files/56170467/download?download_frd=1&verifier=27424449-7879-445e-bfed-0f09f25724b5" },
+  48: { week: 7, run1: "https://rmit.instructure.com/files/56170468/download?download_frd=1&verifier=4f851df0-71b1-494a-a67e-27d1323ebb99" },
+  49: { week: 7, run1: "https://rmit.instructure.com/files/56170469/download?download_frd=1&verifier=a874d14d-9c3c-4862-81ab-6674310d70b1" },
+  50: { week: 7, run1: "https://rmit.instructure.com/files/56170471/download?download_frd=1&verifier=139f331b-4fec-4da2-8dac-543117ea676f" },
+  66: { week: 7, run1: "https://rmit.instructure.com/files/56170472/download?download_frd=1&verifier=9acc795b-b6ea-4b20-8e8f-6bb9d06c6af4" },
+  68: { week: 7, run1: "https://rmit.instructure.com/files/56170473/download?download_frd=1&verifier=c0726251-7d40-4d7a-9d31-5288a7954f41" },
+  75: { week: 7, run1: "https://rmit.instructure.com/files/56170474/download?download_frd=1&verifier=528d6987-281f-4489-bfb5-26e13cdc400d" },
+  84: { week: 7, run1: "https://rmit.instructure.com/files/56170475/download?download_frd=1&verifier=8cdc384e-fefd-42b6-bf97-e61b8fb016eb" },
+  98: { week: 7, run1: "https://rmit.instructure.com/files/56170476/download?download_frd=1&verifier=f2075506-8580-4a97-8b60-a904daae38f0" },
+  100: { week: 7, run1: "https://rmit.instructure.com/files/56170447/download?download_frd=1&verifier=713c945e-3042-49b4-9d66-d2ee5a49f769" },
+  101: { week: 7, run1: "https://rmit.instructure.com/files/56170448/download?download_frd=1&verifier=3b32831a-4220-44b1-91b9-31bf47747d16" },
+  104: { week: 7, run1: "https://rmit.instructure.com/files/56170450/download?download_frd=1&verifier=320c517d-220f-462d-bd27-289b9d13c374", run2: "https://rmit.instructure.com/files/56170451/download?download_frd=1&verifier=facc3b9c-f88e-4788-a640-1ec7fc4534ed" },
+  120: { week: 7, run1: "https://rmit.instructure.com/files/56170452/download?download_frd=1&verifier=d88adf60-b2ff-4c67-ae38-452ea113de1d" },
+  122: { week: 7, run1: "https://rmit.instructure.com/files/56170453/download?download_frd=1&verifier=319729cb-03e8-4ddc-922d-9a45ac59ecdf" },
+  125: { week: 7, run1: "https://rmit.instructure.com/files/56170446/download?download_frd=1&verifier=a73d883d-95c5-4001-94bb-563979f32b44" },
+  129: { week: 7, run1: "https://rmit.instructure.com/files/56170454/download?download_frd=1&verifier=5319d49d-bbbf-4aba-bd26-f60bb3e3f5e3" },
+  145: { week: 7, run1: "https://rmit.instructure.com/files/56170457/download?download_frd=1&verifier=03a7d727-c21b-4dfb-b377-ffae2f8d4e60" },
+  149: { week: 7, run1: "https://rmit.instructure.com/files/56170458/download?download_frd=1&verifier=15d90111-807a-4739-ad8b-ba3230a8fdee" },
+  153: { week: 7, run1: "https://rmit.instructure.com/files/56170460/download?download_frd=1&verifier=137d5ccc-4371-44c0-9108-42aa4d6f93dd" },
+  164: { week: 7, run1: "https://rmit.instructure.com/files/56170461/download?download_frd=1&verifier=123576f0-8664-48e4-b81d-b399aae90b7c" },
+  190: { week: 7, run1: "https://rmit.instructure.com/files/56170462/download?download_frd=1&verifier=6522f92b-9d46-477b-bc92-683d90c365e1" },
+};
+
+function renderCardboardData(n) {
+  const body = document.getElementById("cardboard-data-body");
+  if (!body) return;
+  if (n == null) {
+    body.innerHTML = `<p style="margin:0;color:var(--muted);font-size:0.95rem;">Confirm your group above to see whether your cardboard prototype test data is available.</p>`;
+    return;
+  }
+  const data = CARDBOARD_DATA[n];
+  if (!data) {
+    body.innerHTML = `<p style="margin:0;color:var(--muted);font-size:0.95rem;">No data available yet for Group ${n} \u2014 your group hasn't submitted cardboard prototype test data yet.</p>`;
+    return;
+  }
+  const links = [];
+  if (data.run1) links.push(`<a href="${data.run1}" target="_blank">Download Run 1 (Excel)</a>`);
+  if (data.run2) links.push(`<a href="${data.run2}" target="_blank">Download Run 2 (Excel)</a>`);
+  body.innerHTML = `<p style="margin:0 0 8px;color:#fff;">Data available for Group ${n} (tested in Week ${data.week}):</p><p style="margin:0;">${links.join(" &nbsp;\u00B7&nbsp; ")}</p>`;
+}
+
 function showConfirmedState(n) {
   document.getElementById("group-picker").style.display = "none";
   document.getElementById("group-confirmed").style.display = "block";
   document.getElementById("confirmed-num").textContent = "Group " + n;
+  renderCardboardData(n);
 }
 function showPickerState() {
   document.getElementById("group-picker").style.display = "block";
   document.getElementById("group-confirmed").style.display = "none";
+  renderCardboardData(null);
 }
 
 document.getElementById("odo-confirm").addEventListener("click", () => {
