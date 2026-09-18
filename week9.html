@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-09-21-01" />
-<title>MIET2528 — Week 9 at a Glance</title>
+<meta name="page-version" content="2026-09-21-02" />
+<title>MIET2528 — Week 8 at a Glance</title>
 <style>
   :root{
     --navy:#F4F6FB;
@@ -36,11 +36,6 @@
     border-radius:10px;padding:16px 22px;margin-bottom:28px;
     display:flex;align-items:center;gap:12px;}
   .notice b{color:var(--red);}
-  .notice-hawthorn{background:linear-gradient(135deg, #4D2C11 0%, #6B3E1A 100%);
-    border:1px solid #FBB917;border-radius:10px;padding:16px 22px;
-    display:flex;align-items:center;gap:12px;}
-  .notice-hawthorn b{color:#FBB917;}
-  .notice-hawthorn p{color:#F4E6D0;}
   .notice a{color:inherit;font-weight:700;text-decoration:underline;}
   .notice p{margin:0;font-size:1.05rem;line-height:1.55;color:var(--page-ink);}
 
@@ -221,9 +216,9 @@
 </div>
 <div class="wrap">
 
-  <div class="eyebrow">MIET2528 · Week 9</div>
-  <h1>Quiz 2 Week</h1>
-  <p class="dek">Your timetabled lectorial session is Quiz 2 itself. In the workshop, cardboard prototype results are starting to come in on the Black Box.</p>
+  <div class="eyebrow">MIET2528 · Week 8</div>
+  <h1>Torsion &amp; Building Your Wing Box</h1>
+  <p class="dek">This week's lectorial covers torsion — another loading condition beyond bending. In the workshop, you'll move into actually fabricating your wing box in aluminium and testing the finished result. Quiz 2 is coming up in Week 9 — see the card below for everything you need.</p>
 
   <div style="background:#FFF6D9;border:1px solid #F0D877;border-radius:8px;padding:12px 16px;margin:0 0 22px;">
     <p style="font-size:0.88rem;color:#5C4A00;margin:0;">Joining late or need to catch up? The <a href="https://rmit.instructure.com/courses/158283/pages/fast-track-hub" target="_blank" style="color:#8a5c00;font-weight:700;">Fast Track Hub</a> tells you exactly where things stand and what to do next.</p>
@@ -245,19 +240,23 @@
   </div>
 
 
-  <div class="card" style="border:2px solid var(--red);">
-    <h2 style="color:var(--red);">Quiz 2 is this week</h2>
-    <p style="margin:0 0 14px;font-size:1.05rem;font-weight:700;color:#fff;">10%, 60 minutes, held in-class at your own timetabled lectorial session.</p>
+  <div class="card" style="border:2px solid var(--amber);">
+    <div class="card-toggle" onclick="toggleCard('quiz2')">
+      <h2 style="color:var(--amber);margin:0;">Quiz 2 — Coming Up in Week 9</h2>
+      <span class="chevron collapsed" id="chev-quiz2">▾</span>
+    </div>
+    <div class="card-body collapsed" id="body-quiz2">
+    <p style="margin:14px 0 14px;font-size:1.05rem;font-weight:700;color:#fff;">During Week 9 (21–27 September) — 10%, 60 minutes, held in-class at your own timetabled lectorial session.</p>
 
     <div class="notice" style="margin-bottom:16px;">
-      <p style="margin:0;"><b>Moving between timeslots is not possible, for any reason — every session is full.</b> You must sit the quiz at the timetabled lectorial session you're enrolled in. If you genuinely cannot attend for any reason, you must apply for <a href="https://www.rmit.edu.au/students/my-course/assessment-results/special-consideration-extensions/special-consideration" target="_blank">Special Consideration</a> — this is the only path around a missed quiz. Please understand that emails asking to move to a different session won't be able to receive a reply — with every session full, there's simply no room to move into, so Special Consideration is genuinely the only option here.</p>
+      <p style="margin:0;"><b>Moving between timeslots is not possible, for any reason — every session is full.</b> You must sit the quiz at the timetabled lectorial session you're enrolled in. If you genuinely cannot attend for any reason, you must apply for <a href="https://www.rmit.edu.au/students/my-course/assessment-results/special-consideration-extensions/special-consideration" target="_blank">Special Consideration</a> — this is the only path around a missed quiz.</p>
     </div>
 
     <p style="margin:0 0 6px;font-weight:700;color:#fff;">Format</p>
     <ul>
       <li>10% of your final grade, 60 minutes</li>
       <li>No online submission — you'll get a hard copy to write your answers on at your timetabled session. Bring a pen or pencil and a calculator.</li>
-      <li>Open book — hard copy notes only, no digital tools. Check the <a href="https://rmit.instructure.com/courses/158283/pages/what-you-need-to-know?module_item_id=8836716" target="_blank">calculator policy</a> to know exactly what's permitted.</li>
+      <li>Open book — hard copy notes only, no digital tools. Any calculator is fine (see the <a href="https://rmit.instructure.com/courses/158283/pages/what-you-need-to-know?module_item_id=8836716" target="_blank">calculator policy</a> for details).</li>
     </ul>
 
     <p style="margin:14px 0 6px;font-weight:700;color:#fff;">How your answers are marked</p>
@@ -267,13 +266,14 @@
     </ul>
 
     <p style="margin:14px 0 6px;font-weight:700;color:#fff;">What to study</p>
-    <p style="margin:0 0 10px;font-size:0.9rem;color:var(--muted);">Straight from the quiz's own description: Stress &amp; Strain, internal loading, and shear force &amp; bending moment diagrams.</p>
+    <p style="margin:0 0 10px;font-size:0.9rem;color:var(--muted);">Covers Weeks 5–8: Stress &amp; Strain, shear force &amp; bending moment diagrams, bending stress, and torsion.</p>
     <ul>
-      <li><a href="https://rmit.instructure.com/courses/158283/pages/week-3-force-analysis-internal-loading-lightboard?module_item_id=8766084" target="_blank">Week 3 — Force Analysis: Internal Loading</a></li>
       <li><a href="https://rmit.instructure.com/courses/158283/pages/week-5-mechanical-properties-stress-and-strain-lightboard?module_item_id=8827461" target="_blank">Week 5 — Mechanical Properties: Stress and Strain</a></li>
       <li><a href="https://rmit.instructure.com/courses/158283/pages/week-6-graphical-methods-for-force-analysis-shear-force-and-bending-moment-diagrams" target="_blank">Week 6 — Graphical Methods for Force Analysis: SFD and BMD</a></li>
-      <li><a href="https://rmit.instructure.com/courses/158283/pages/tutorials-hub?module_item_id=8751143" target="_blank">Tutorials Hub</a> — T02 through T05 practice problems and worked solutions</li>
-      <li><a href="https://autohormoz.github.io/MIET2528/shear-bending-diagram.html" target="_blank">Shear Force and Bending Moment Diagram tool</a> and <a href="https://autohormoz.github.io/MIET2528/section-inertia-tool.html" target="_blank">Composite Section tool</a> — for extra randomised practice</li>
+      <li><a href="https://rmit.instructure.com/courses/158283/pages/week-7-mechanical-properties-continued-bending-stress-lightboard?module_item_id=8858417" target="_blank">Week 7 — Mechanical Properties Continued: Bending Stress</a></li>
+      <li><a href="https://rmit.instructure.com/courses/158283/pages/week-8-other-loading-conditions-analysing-torsion-lightboard?module_item_id=8875132" target="_blank">Week 8 — Other Loading Conditions: Analysing Torsion</a></li>
+      <li><a href="https://rmit.instructure.com/courses/158283/pages/tutorials-hub?module_item_id=8751143" target="_blank">Tutorials Hub</a> — T05 through T08 practice problems and worked solutions</li>
+      <li><a href="https://autohormoz.github.io/MIET2528/shear-bending-diagram.html" target="_blank">Shear Force and Bending Moment Diagram tool</a>, <a href="https://autohormoz.github.io/MIET2528/section-inertia-tool.html" target="_blank">Composite Section tool</a>, and <a href="https://autohormoz.github.io/MIET2528/Torsion.html" target="_blank">Torsion tool</a> — for extra randomised practice</li>
     </ul>
     <p style="margin:0 0 16px;"><a href="https://rmit.instructure.com/courses/158283/assignments/1241546" target="_blank">Full quiz details on Canvas</a></p>
 
@@ -281,6 +281,34 @@
       <p style="margin:0 0 10px;font-weight:700;color:#fff;">Find your Quiz 2 room</p>
       <p id="quiz2-nudge" style="margin:0;color:var(--muted);font-size:0.95rem;">Save your lectorial session in My Sessions (below) to see your exact Quiz 2 date, time, and room here.</p>
       <div id="quiz2-row" style="display:none;"></div>
+    </div>
+    </div>
+  </div>
+
+  <div class="card" style="border:2px solid var(--teal);">
+    <div class="card-toggle" onclick="toggleCard('feedback1')">
+      <h2 style="color:var(--teal);margin:0;">Feedback for Quiz 1</h2>
+      <span class="chevron collapsed" id="chev-feedback1">▾</span>
+    </div>
+    <div class="card-body collapsed" id="body-feedback1">
+    <p style="margin:14px 0 14px;">Recorded feedback for each question is now available — watch these as a review of your own work, not just a run-through of the solutions. Each video also shows exactly how marks were allocated, so you'll see precisely where marks were gained or lost.</p>
+    <div class="notice" style="margin-bottom:16px;">
+      <p style="margin:0;">You have <b>one week</b> to request a mark review after watching — submissions close <b>Sunday 20 September, 23:59</b>. Requests after this can't be accepted, since marking has to be finalised.</p>
+    </div>
+
+    <p style="margin:0 0 8px;font-weight:700;color:#fff;">Feedback videos</p>
+    <ul>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/bf6cb221-9cc1-4a16-b171-4a7bb98599a5" target="_blank">Question 1</a></li>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/1f2bb236-1b43-4e3f-95cd-81c2db3a6e0f" target="_blank">Question 2</a></li>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/8dabeb0a-fe4b-4424-b4d2-fd781b123439" target="_blank">Question 3</a></li>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/3351e953-0eec-4d71-8812-e090326543e5" target="_blank">Question 4</a></li>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/6d7dc3ae-136c-46b2-8415-6ca08e3d3f3c" target="_blank">Question 5</a></li>
+      <li><a href="https://rmit-arc.instructuremedia.com/embed/95233a7e-68f2-49bd-b948-2a3d8caf26ea" target="_blank">Question 6</a></li>
+    </ul>
+
+    <p style="margin:14px 0 8px;font-weight:700;color:#fff;">Still believe a specific answer deserves more marks?</p>
+    <p style="margin:0 0 14px;">After watching the relevant video, if you believe a specific part of your answer meets the marking criteria shown but wasn't credited, you can request a review. Point to exactly what you wrote and explain why — general requests without a specific question and reason can't be reviewed.</p>
+    <p style="margin:0;"><a href="https://forms.cloud.microsoft/r/06KEPwCDhJ" target="_blank">Quiz 1 — Mark Review Request form</a> — your name and email are recorded automatically when you submit.</p>
     </div>
   </div>
 
@@ -300,17 +328,19 @@
     <ul id="lectorial-list">
       <li><b>Tuesdays</b> — 4:30–6:30pm, Room 080.02.007</li>
       <li><b>Thursdays</b> — 12:30–2:30pm, Room 080.07.001</li>
-      <li><b>Wednesdays</b> — 5:30–7:30pm, <a href="https://www.google.com/maps/search/?api=1&query=RMIT%20University%20Building%2080%20Melbourne" target="_blank">📍 In person this week: Building 80, room 080.02.007</a> — quizzes aren't held online</li>
+      <li><b>Wednesdays</b> — 5:30–7:30pm, Online (<a href="https://rmit.instructure.com/courses/158283/external_tools/546" target="_blank">Collaborate Ultra</a>)</li>
     </ul>
-    <div class="notice" style="margin:10px 0 16px;">
-      <p style="margin:0;">Your timetabled lectorial session <b>is Quiz 2</b> — see the Quiz 2 card for everything you need.</p>
-    </div>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Before you attend</p>
+    <ul>
+      <li>Watch before attending: <a href="https://rmit.instructure.com/courses/158283/pages/week-8-other-loading-conditions-analysing-torsion-lightboard?module_item_id=8875132" target="_blank">Other Loading Conditions — Analysing Torsion</a></li>
+      <li>Week 8 podcast episode on the <a href="https://rmit.instructure.com/courses/158283/pages/introduction-to-mechanical-engineering-the-podcast?module_item_id=8428014" target="_blank">Podcast Hub</a></li>
+    </ul>
     </div>
   </div>
 
   <div class="card">
     <div class="card-toggle" onclick="toggleCard('tutorial')">
-      <h2>Tutorial — T08 this week</h2>
+      <h2>Tutorial — T07 this week</h2>
       <span class="chevron" id="chev-tutorial">▾</span>
     </div>
     <div class="card-body" id="body-tutorial">
@@ -318,9 +348,8 @@
       <li>Check My Sessions (below) for your timetabled tutorial</li>
     </ul>
     <ul>
-      <li><b>T08 — Geometrical Properties</b> — centroids, the parallel axis theorem, and moment of inertia for composite cross-sections</li>
+      <li><b>T07 — Internal Loading, Beams</b> — further practice applying internal loading techniques to beam problems</li>
       <li>Problem sheet and solutions on the <a href="https://rmit.instructure.com/courses/158283/pages/tutorials-hub?module_item_id=8751143" target="_blank">Tutorials Hub</a></li>
-      <li>The <a href="https://autohormoz.github.io/MIET2528/section-inertia-tool.html" target="_blank">Composite Section tool</a> generates a new random cross-section each time, for extra practice</li>
       <li>Bring your questions for your tutor</li>
     </ul>
     </div>
@@ -328,16 +357,25 @@
 
   <div class="card">
     <div class="card-toggle" onclick="toggleCard('workshop')">
-      <h2>Workshop — No Sessions This Week</h2>
+      <h2>Workshop — Building &amp; Testing Your Wing Box</h2>
       <span class="chevron" id="chev-workshop">▾</span>
     </div>
     <div class="card-body" id="body-workshop">
-    <div class="notice-hawthorn" style="margin:0 0 16px;">
-      <p style="margin:0;"><b>There are no workshops running this week</b>, due to the public holiday on Friday for the AFL Grand Final. Workshops resume as normal from next week.</p>
-    </div>
+    <p style="margin:0 0 14px;font-size:0.95rem;color:var(--muted);">Room 056.02.030 (Building 56, Level 2) — Wednesday or Friday per your timetabled session.</p>
+    <ul id="workshop-list">
+      <li>Check My Sessions (below) for your timetabled workshop</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Task 6-2 — Fabrication &amp; Assembly, Part 2: Build</p>
     <ul>
-      <li>For groups who have tested their cardboard prototypes, results are available any time on <a href="https://autohormoz.github.io/MIET2528/black-box.html" target="_blank">The Black Box</a></li>
-      <li>Haven't tested yours yet? There'll still be a chance to do so once workshops resume</li>
+      <li>Fabrication of your wing box: scratching lines on the aluminium sheets</li>
+      <li>Fabricating, drilling, and riveting</li>
+    </ul>
+    <p style="margin:14px 0 8px;font-weight:600;color:#ffffff;font-size:0.95rem;">Task 6-2 — Testing and Performance Analysis</p>
+    <ul>
+      <li>Conducting bending testing on the final wing box</li>
+      <li>Evaluating the structural performance, load-bearing capacity, and deflection characteristics</li>
+      <li>Analysing test results to validate your design choices and identify areas for improvement</li>
+      <li>Comparing the performance of your final wing box prototype with theoretical predictions</li>
     </ul>
     <p style="margin:14px 0 8px;font-weight:600;color:var(--muted);font-size:0.95rem;">Still don't have a group?</p>
     <ul>
@@ -398,23 +436,26 @@
 
   <div class="card">
     <div class="checklist-head card-toggle" onclick="toggleCard('checklist')">
-      <h2 style="margin:0;">Your Week 9 prep</h2>
+      <h2 style="margin:0;">Your Week 8 prep</h2>
       <div style="display:flex;align-items:center;gap:10px;">
-        <span class="progress-label" id="progress-label">0 / 3 done</span>
+        <span class="progress-label" id="progress-label">0 / 4 done</span>
         <span class="chevron" id="chev-checklist">▾</span>
       </div>
     </div>
     <div class="card-body" id="body-checklist">
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
 
-    <div class="item mandatory">
-      <input type="checkbox" id="c0"><label for="c0">Sat Quiz 2 at my timetabled lectorial session<span class="tag">This week</span></label>
+    <div class="item">
+      <input type="checkbox" id="c0"><label for="c0">Attended my timetabled lectorial session</label>
     </div>
     <div class="item">
-      <input type="checkbox" id="c1"><label for="c1">Attended my timetabled tutorial (T08)</label>
+      <input type="checkbox" id="c1"><label for="c1">Attended my timetabled tutorial (T07)</label>
     </div>
     <div class="item">
-      <input type="checkbox" id="c2"><label for="c2">Checked my group's cardboard prototype status on The Black Box</label>
+      <input type="checkbox" id="c2"><label for="c2">Attended my timetabled workshop — built and tested my wing box</label>
+    </div>
+    <div class="item">
+      <input type="checkbox" id="c3"><label for="c3">Checked my Quiz 2 room for Week 9</label>
     </div>
     <button class="reset" id="reset-btn">Reset checklist</button>
     </div>
@@ -660,7 +701,7 @@ const CF_SEGMENTS = CF_WEEKS.map(w => {
    week via localStorage so returning students keep their preference.
    TO REUSE FOR ANOTHER WEEK: change CARD_STORAGE_PREFIX below.
 ------------------------------------------------------------------- */
-const CARD_STORAGE_PREFIX = "miet2528-week9-card-";
+const CARD_STORAGE_PREFIX = "miet2528-week8-card-";
 function toggleCard(id) {
   const body = document.getElementById("body-" + id);
   const chev = document.getElementById("chev-" + id);
@@ -668,7 +709,7 @@ function toggleCard(id) {
   chev.classList.toggle("collapsed", collapsed);
   try { localStorage.setItem(CARD_STORAGE_PREFIX + id, collapsed ? "1" : "0"); } catch (e) {}
 }
-["quizdates", "lectorial", "tutorial", "workshop", "checklist"].forEach((id) => {
+["quizdates", "lectorial", "tutorial", "workshop", "checklist", "quiz2", "feedback1"].forEach((id) => {
   let saved = null;
   try { saved = localStorage.getItem(CARD_STORAGE_PREFIX + id); } catch (e) {}
   if (saved === "1") {
@@ -682,7 +723,7 @@ function toggleCard(id) {
 
 /* See the OFFICIAL TEMPLATE guide at the top of <body> for what to
    change per week. STORAGE_KEY below just needs "week2" → "weekN". */
-const STORAGE_KEY = "miet2528-week9-checklist";
+const STORAGE_KEY = "miet2528-week8-checklist";
 const boxes = [...document.querySelectorAll(".item input")];
 const fill = document.getElementById("progress-fill");
 const label = document.getElementById("progress-label");
@@ -728,7 +769,7 @@ updateProgress();
 const MS_LECTORIALS = [
   ["LTL01/03", "Tuesday, 4:30pm\u20136:30pm, room 080.02.007"],
   ["LTL01/01", "Thursday, 12:30pm\u20132:30pm, room 080.07.001"],
-  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, In person this week: room 080.02.007"],
+  ["LTL01/02", "Wednesday, 5:30pm\u20137:30pm, Online (Collaborate Ultra)"],
 ];
 
 // Confirmed schedule: quizzes/exam run face-to-face, in the student's own
@@ -867,6 +908,9 @@ msPopulate(msWkEl, MS_WORKSHOPS);
 ------------------------------------------------------------------- */
 const COLLAB_URL = "https://rmit.instructure.com/courses/158283/external_tools/546";
 function linkForVenue(text) {
+  if (text.includes("Collaborate Ultra")) {
+    return ' \u00B7 <a href="' + COLLAB_URL + '" target="_blank">\uD83D\uDCBB Join on Collaborate Ultra</a>';
+  }
   const buildingMatch = text.match(/room (\d+)\./);
   if (buildingMatch) {
     const building = parseInt(buildingMatch[1], 10);
