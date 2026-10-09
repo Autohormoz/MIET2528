@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="page-version" content="2026-09-21-01" />
+<meta name="page-version" content="2026-10-09-01" />
 <title>MIET2528 — Tutorials</title>
 <style>
   :root{
@@ -95,6 +95,8 @@
    - videos: array of {label, url} — most tutorials have one video
      covering both questions; T01 has Question 1 split into two parts.
      Swap "#" placeholders for real links as they come in; leave the
+     array empty ([]) and set noVideo: true if no video will be made
+     (T10, T11 — shows "No video for this tutorial"). Otherwise leave the
      array empty ([]) if nothing is ready yet even after the unlock
      date passes (shows "not yet available" instead of a dead link).
 ------------------------------------------------------------------- */
@@ -151,20 +153,26 @@ const TUTORIALS = [
     solutionRelease: "2026-09-18", videoRelease: "2026-09-18" },
   { n: 8, title: "Geometrical Properties", color: "08A6C2",
     problem: "https://rmit.instructure.com/files/55032618/download?download_frd=1&verifier=JkMGahulyPFYwkLXhgafmDcdDvq0facAUsXgIEwQ", solution: "https://rmit.instructure.com/files/55032695/download?download_frd=1&verifier=MbTsPwVLXcUFkfDjy42mkNcRyHsrazoQttapzVzX",
-    videos: [],
+    videos: [
+      { label: "Question 1", url: "https://rmit-arc.instructuremedia.com/embed/68b25639-32b4-42c6-86ea-60300269fbd4" },
+      { label: "Question 2", url: "https://rmit-arc.instructuremedia.com/embed/7a428def-e3aa-4488-9c4d-a1222a292df8" },
+    ],
     solutionRelease: "2026-09-25", videoRelease: "2026-10-02" },
   { n: 9, title: "Bending Stress", color: "06AEC9",
     problem: "https://rmit.instructure.com/files/55032619/download?download_frd=1&verifier=xFKPzqw86fSetrZKQ3rT31uDAZoBcwEk5gPREiD2", solution: "https://rmit.instructure.com/files/55032696/download?download_frd=1&verifier=9qCfThVe8B7PLHlr8WRBCMraIX2xqx7J7luoBiz4",
-    videos: [],
+    videos: [
+      { label: "Question 1", url: "https://rmit-arc.instructuremedia.com/embed/deaf84c6-fc0b-41a5-a5d5-2e3fc3a23eb4" },
+      { label: "Question 2", url: "https://rmit-arc.instructuremedia.com/embed/bfb3718a-2d51-4cc7-a505-f12602345357" },
+    ],
     solutionRelease: "2026-10-02", videoRelease: "2026-10-09" },
   { n: 10, title: "Torsion", color: "03B6CF",
     problem: "https://rmit.instructure.com/files/55032620/download?download_frd=1&verifier=X0R8SPq0LIHz1fs8fwnhnVGJSzXTq70TnLNspPBh", solution: "https://rmit.instructure.com/files/55032697/download?download_frd=1&verifier=2YyINu7CneDx7zDPC5NYtHy1aMzMoZFjsuWANN0s",
-    videos: [],
+    videos: [], noVideo: true,
     solutionRelease: "2026-10-09", videoRelease: "2026-10-09" },
   { n: 11, title: "Axial Loading", color: "00BDD6",
     problem: "https://rmit.instructure.com/files/55032621/download?download_frd=1&verifier=D71xl9zJGhBUWab9z7iv9YRPX66Xi9DJtAr3m9IH", solution: "https://rmit.instructure.com/files/55032699/download?download_frd=1&verifier=SgHfCijGteDMfnlZJthRAH5VxtsPkpd1BpXqVh16",
-    videos: [],
-    solutionRelease: "2026-10-16", videoRelease: "2026-10-16" }
+    videos: [], noVideo: true,
+    solutionRelease: "2026-10-09", videoRelease: "2026-10-09" }
 ];
 
 function fmtDate(iso) {
@@ -195,7 +203,9 @@ TUTORIALS.forEach((t) => {
     html += '<span class="res-btn locked"><span class="icon">\uD83D\uDD12</span> Solution \u2014 ' + fmtDate(t.solutionRelease) + '</span>';
   }
 
-  if (videoOpen) {
+  if (t.noVideo) {
+    html += '<span class="res-btn locked"><span class="icon">\uD83C\uDFAC</span> No video for this tutorial</span>';
+  } else if (videoOpen) {
     if (t.videos && t.videos.length) {
       t.videos.forEach((v) => {
         html += '<a class="res-btn open" href="' + v.url + '" target="_blank"><span class="icon">\u25B6</span> ' + v.label + '</a>';
